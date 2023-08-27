@@ -93,20 +93,30 @@ int read_pgm(char *file, void *image, uint32_t x, uint32_t y)
 
 int main(int argc, char *argv[])
 {
+  if(argc != 2) {
+    return -1;
+  }
   int8_t image[1024][1024];
   int8_t out[1024][1024];
   
   /* Example usage of PGM functions */
   /* This assumes that motorcycle.pgm is a pgm image of size 1024x1024 */
-  read_pgm("motorcycle.pgm", image, 1024, 1024);
-  for(int x = 0; x < sizeof(image); x++) {
-    for(int y = 0; y < sizeof(image[x]); y++) {
-      int accumulator = 0;
-      for(int i = 0; i < sizeof(out); i++) {
-        for(int j = 0; j < sizeof(out[i]); j++) {
-          
+  read_pgm(argv[1], image, 1024, 1024);
+  int x, y;
+  int8_t matrix[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  for(x = 0; x < sizeof(image); x++) {
+    for(y = 0; y < sizeof(image[x]); y++) {
+      int i, j;
+      unsigned accumulator = 0;
+      for(i = 0; i < sizeof(matrix); i++) {
+        for(j = 0; j < sizeof(matrix[x]); j++) {
+          accumulator = accumulator + (matrix[i][j] * image[i + ((int) (i - ceil(sizeof(matrix) / 2)))][y + ((int) (j - ceil(sizeof(matrix) / 2)))]);
         }
       }
+      if(accumulator > 255) {
+        accumulator = 255;
+      }
+      out[x][y] = accumulator;
     }
   }
   /* After processing the image and storing your output in "out", write *
