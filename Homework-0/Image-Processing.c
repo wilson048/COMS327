@@ -96,20 +96,21 @@ int main(int argc, char *argv[])
   if(argc != 2) {
     return -1;
   }
-  int8_t image[1024][1024];
-  int8_t out[1024][1024];
+  uint8_t image[1024][1024];
+  uint8_t out[1024][1024];
   
   /* Example usage of PGM functions */
   /* This assumes that motorcycle.pgm is a pgm image of size 1024x1024 */
   read_pgm(argv[1], image, 1024, 1024);
   int x, y;
   int8_t matrix[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-  for(x = 0; x < sizeof(image); x++) {
-    for(y = 0; y < sizeof(image[x]); y++) {
+  for(x = 0; x < 1024; x++) {
+    printf("%d\n", x);
+    for(y = 0; y < 1024; y++) {
       int i, j;
       unsigned accumulator = 0;
-      for(i = 0; i < sizeof(matrix); i++) {
-        for(j = 0; j < sizeof(matrix[x]); j++) {
+      for(i = 0; i < 3; i++) {
+        for(j = 0; j < 3; j++) {
           accumulator = accumulator + (matrix[i][j] * image[i + ((int) (i - ceil(sizeof(matrix) / 2)))][y + ((int) (j - ceil(sizeof(matrix) / 2)))]);
         }
       }
@@ -121,7 +122,7 @@ int main(int argc, char *argv[])
   }
   /* After processing the image and storing your output in "out", write *
    * to motorcycle.edge.pgm.                                            */
-  write_pgm("motorcycle.edge.pgm", out, 1024, 1024);
+  printf("%d", write_pgm("motorcycle.edge.pgm", out, 1024, 1024));
   
   return 0;
 }
