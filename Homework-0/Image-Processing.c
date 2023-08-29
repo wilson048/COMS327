@@ -103,26 +103,29 @@ int main(int argc, char *argv[])
   /* This assumes that motorcycle.pgm is a pgm image of size 1024x1024 */
   read_pgm(argv[1], image, 1024, 1024);
   int x, y;
-  int8_t matrix[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  int8_t matrixX[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  int8_t matrixY[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
   for(x = 0; x < 1024; x++) {
-    printf("%d\n", x);
     for(y = 0; y < 1024; y++) {
       int i, j;
       unsigned accumulator = 0;
+      unsigned accumulatorX = 0;
+      unsigned accumulatorY = 0;
       for(i = 0; i < 3; i++) {
         for(j = 0; j < 3; j++) {
-          accumulator = accumulator + (matrix[i][j] * image[i + ((int) (i - ceil(sizeof(matrix) / 2)))][y + ((int) (j - ceil(sizeof(matrix) / 2)))]);
+          accumulatorX = accumulatorX + (matrixX[i][j] * image[x + ((int) (i - ceil(3 / 2)))][y + ((int) (j - ceil(3 / 2)))]);
+          accumulatorY = accumulatorY + (matrixY[i][j] * image[x + ((int) (i - ceil(3 / 2)))][y + ((int) (j - ceil(3 / 2)))]);
         }
       }
-      if(accumulator > 255) {
-        accumulator = 255;
-      }
+      accumulator = (int) sqrt((accumulatorX * accumulatorX) + (accumulatorY * accumulatorY));
+    
+      accumulator = (accumulator > 255 ? 255 : accumulator);
       out[x][y] = accumulator;
     }
   }
   /* After processing the image and storing your output in "out", write *
    * to motorcycle.edge.pgm.                                            */
-  printf("%d", write_pgm("motorcycle.edge.pgm", out, 1024, 1024));
+  printf("%d", write_pgm("bigger_digger.edge.pgm", out, 1024, 1024));
   
   return 0;
 }
