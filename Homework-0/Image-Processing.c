@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
   }
   /* After processing the image and storing your output in "out", write *
    * to motorcycle.edge.pgm.                                            */
-  printf("%d", write_pgm("bigger_digger.edge.pgm", out, 1024, 1024));
+  printf("%d", write_pgm("motorcycle.edge.pgm", out, 1024, 1024));
   
   return 0;
 }
