@@ -14,6 +14,12 @@ void swap(int *a, int *b) {
     *a = *b; // It gives the user the value stored at an address (i.e. behind a pointer)
     *b = tmp;
 }
+void swap_pointers(int **a, int **b) {
+    int *tmp;
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
 // Records in C are called structs. 
 struct foo {
     int i;
@@ -74,5 +80,13 @@ int main(int argc, char *argv[]) {
     printf("Printing f: i = %d, f = %f, s = %s\n", f.i, f.f, f.s);
     init_foo(&f, 1, 1.68, "Goodbye.c");
     printf("Printing f: i = %d, f = %f, s = %s\n", f.i, f.f, f.s);
+    p = &a[0];
+    q = &a[1];
+
+    printf("p - %p, q = %p\n", p, q);
+
+    swap_pointers(&p, &q);
+
+    printf("p - %p, q = %p\n", p, q);
     return 0;
 }
