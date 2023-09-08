@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <stdbool.h>
+
 void initalize_grid(char *terrain[21][80]) {
     int x, y;
     // Generate top-bottom border
@@ -21,7 +23,7 @@ void initalize_grid(char *terrain[21][80]) {
         }
     }
 }
-void generate_grass(char *terrain[21][80]) {
+void generate_terrain(char *terrain[21][80], char *tile, bool gen_twice) {
     int x, y;
     // Randomly Generate tall grass;
     int random_start_x = (rand()) % (70 - 1 + 1) + 1;
@@ -41,19 +43,25 @@ void generate_grass(char *terrain[21][80]) {
             if(x == 79) {
                 break;
             }
-            terrain[y][x] = ":";
+            terrain[y][x] = tile;
         }
     }
-    // Reroll lstart X
-    if(random_start_x > 35) {
-        random_start_x = (rand()) % (34 - 1 + 1) + 1;
+    if(!gen_twice) {
+        return;
     }
+    // Get random X ends
+    int rand_x_end = random_start_x + random_length_x;
+    // Reroll start X
+    if(random_start_x > 35) {
+        random_start_x = (rand()) % (23 - 1 + 1) + 1;
+    }
+    
     else {
-        random_start_x = (rand()) % (70 - 35 + 1) + 35;
+        random_start_x = (rand()) % (70 -(rand_x_end + 1) + 1) + (rand_x_end + 1);
     }
 
-    // Range of 5-40
-    random_length_x = (rand()) % (40 - 5 + 1) + 5;
+    // Range of 5-11
+    random_length_x = (rand()) % (11 - 5 + 1) + 5;
     
     random_start_y = (rand()) % (15 - 3 + 1) + 1;
     // Range of 5-15
@@ -68,7 +76,7 @@ void generate_grass(char *terrain[21][80]) {
             if(x == 79) {
                 break;
             }
-            terrain[y][x] = ":";
+            terrain[y][x] = tile;
         }
     }
 }
@@ -79,7 +87,14 @@ int main(int argc, char *argv[]) {
     // Generate board
     char *terrain[21][80];
     initalize_grid(terrain);
-    generate_grass(terrain);
+    // Generate Grass
+    generate_terrain(terrain, *&":", true);
+    // Generate Water
+    generate_terrain(terrain, *&"~", false);
+    // Generate Rocks
+    generate_terrain(terrain, *&"\%", false);
+    // Generate Trees
+    generate_terrain(terrain, *&"\"", false);
     int x, y;
     // Print Grid
     for(x = 0; x < 21; x++) {
