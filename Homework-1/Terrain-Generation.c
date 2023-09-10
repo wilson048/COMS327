@@ -32,14 +32,14 @@ void initalize_grid(char *terrain[21][80]) {
 void generate_path_and_shops(char *terrain[21][80]) {
     int start_index, end_index, shift_index;
     // Generate West-East path
-    start_index = (rand()) % (19 - 1 + 1) + 1;
-    end_index = (rand()) % (19 - 1 + 1) + 1;
+    start_index = (rand()) % (18 - 2 + 1) + 2;
+    end_index = (rand()) % (18 - 2 + 1) + 2;
     // Prevent straight paths
     while(start_index == end_index) {
-        start_index = (rand()) % (19 - 1 + 1) + 1;
-        end_index = (rand()) % (19 - 1 + 1) + 1;
+        start_index = (rand()) % (18 - 2 + 1) + 2;
+        end_index = (rand()) % (18 - 2 + 1) + 2;
     }
-    shift_index = end_index = (rand()) % (60 - 30 + 1) + 30;
+    shift_index = (rand()) % (60 - 30 + 1) + 30;
     int x, y;
     // Generate start of path
     for(x = 0; x < shift_index; x++) {
@@ -62,27 +62,27 @@ void generate_path_and_shops(char *terrain[21][80]) {
         terrain[end_index][x] = "#";
     }
     // Generate North-South path
-    start_index = (rand()) % (79 - 1 + 1) + 1;
-    end_index = (rand()) % (79 - 1 + 1) + 1;
+    start_index = (rand()) % (78 - 2 + 1) + 2;
+    end_index = (rand()) % (78 - 2 + 1) + 2;
     // Prevent straight paths
     while(start_index == end_index) {
-        start_index = (rand()) % (19 - 1 + 1) + 1;
-        end_index = (rand()) % (19 - 1 + 1) + 1;
+        start_index = (rand()) % (78 - 1 + 1) + 1;
+        end_index = (rand()) % (78 - 1 + 1) + 1;
     }
-    shift_index = end_index = (rand()) % (60 - 30 + 1) + 30;
+    shift_index = end_index = (rand()) % (15 - 5 + 1) + 5;
     // Generate start of path
     for(y = 0; y < shift_index; y++) {
         terrain[y][start_index] = "#";
     }
     // Generate North-South offset right
     if(start_index > end_index) {
-        for(x = start_index; x < end_index; x++) {
+        for(x = start_index; x > end_index; x--) {
             terrain[shift_index][x] = "#";
         }
     }
     // Generate North-South offset left
     else {
-        for(x = start_index; x > end_index; x--) {
+        for(x = start_index; x < end_index; x++) {
             terrain[shift_index][x] = "#";
         }
     }
