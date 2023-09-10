@@ -140,7 +140,7 @@ void generate_path_and_shops(char *terrain[21][80]) {
         }
         else {
             // Generate PokeCenter at start index side, south of the horizontal path
-            if(m_location > h_shift_index)  {
+            if(pkm_location > h_shift_index)  {
                 terrain[h_end_index + 1][pkm_location] = "P";
             }
             // Generate PokeCenter at end index side, south of the horizontal path
