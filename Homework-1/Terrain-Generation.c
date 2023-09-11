@@ -100,7 +100,7 @@ void generate_path_and_shops(char *terrain[21][80]) {
     // Generate on Horizontal path
     if(path_orientation == 1) {
         m_location = (rand()) % (78 - 2 + 1) + 2;
-        while(m_location == h_shift_index) {
+        while(m_location == h_shift_index || m_location == v_start_index || m_location == v_end_index) {
             m_location = (rand()) % (78 - 2 + 1) + 2;
         }
         if(mart_orientation == 1) {
@@ -125,7 +125,7 @@ void generate_path_and_shops(char *terrain[21][80]) {
         }
         // Set pokemon center location
         pkm_location = (rand()) % (78 - 2 + 1) + 2;
-        while(pkm_location == h_shift_index || pkm_location == m_location) {
+        while(pkm_location == h_shift_index || pkm_location == m_location || pkm_location == v_start_index || pkm_location == v_end_index) {
             pkm_location = (rand()) % (78 - 2 + 1) + 2;
         }
         if(pkm_orientation == 1) {
@@ -151,7 +151,7 @@ void generate_path_and_shops(char *terrain[21][80]) {
     }
     else {
         m_location = (rand()) % (18 - 2 + 1) + 2;
-        while(m_location == v_shift_index) {
+        while(m_location == v_shift_index || m_location == h_start_index || m_location == h_end_index) {
             m_location = (rand()) % (18 - 2 + 1) + 2;
         }
         if(mart_orientation == 1) {
@@ -176,7 +176,7 @@ void generate_path_and_shops(char *terrain[21][80]) {
         }
         // Set pokemon center location
         pkm_location = (rand()) % (18 - 2 + 1) + 2;
-        while(pkm_location == v_shift_index || pkm_location == m_location) {
+        while(pkm_location == v_shift_index || pkm_location == m_location || pkm_location == h_start_index || pkm_location == h_end_index) {
             pkm_location = (rand()) % (18 - 2 + 1) + 2;
         }
         if(pkm_orientation == 1) {
@@ -191,7 +191,7 @@ void generate_path_and_shops(char *terrain[21][80]) {
         }
         else {
             // Generate PokeCenter at start index side, right of the vertical path
-            if(m_location > h_shift_index)  {
+            if(pkm_location > h_shift_index)  {
                 terrain[pkm_location][v_start_index + 1] = "P";
             }
             // Generate PokeCenter at end index side, south of the vertical path
