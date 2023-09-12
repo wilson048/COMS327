@@ -1,15 +1,17 @@
+#include <stdlib.h>
 #include "queue.h"
 
 int queue_init(struct queue *q) {
     q->front = NULL;
     q->back = NULL;
     q->size = 0;
+    return 0;
 }
 
 int queue_destroy(struct queue *q) {
     struct queue_node *n;
     // Free all memory of the queue
-    for(n = q->front; n; n = q->front;) {
+    for(n = q->front; n; n = q->front) {
         q->front = n->next;
         free(n);
     }
@@ -20,7 +22,7 @@ int queue_destroy(struct queue *q) {
 }
 
 int queue_insert(struct queue *q, int i) {
-    queue_node *n;
+    struct queue_node *n;
     // Java
     // n = new queue_node(parameters)
 
@@ -60,16 +62,17 @@ int queue_front(struct queue *q, int *i) {
 int queue_remove(struct queue *q, int *i) {
     struct queue_node *n;
 
-    if (!queue->head) {
+    if (!q->front) {
         return -1;
     }
     // Remove the node
     n = q->front;
     *i = n->data;
-    if(!(queue->front = n->next;)) {
+    if(!(q->front = n->next)) {
         q->back = NULL;
     }
     q->size--;
+    q->front = n->next;
     // Free memory from the removed node
     free(n);
     return 0;

@@ -12,13 +12,13 @@ struct queue {
     int size;
 };
 // Constructor like function
-int queue_init(queue *q);
-int queue_destroy(queue *q);
-int queue_insert(queue *q, int i);
-int queue_front(queue *q, int *i);
-int queue_remove(queue *q, int *i);
-int queue_size(queue *q);
-int is_empty(queue *q);
+int queue_init(struct queue *q);
+int queue_destroy(struct queue *q);
+int queue_insert(struct queue *q, int i);
+int queue_front(struct queue *q, int *i);
+int queue_remove(struct queue *q, int *i);
+int queue_size(struct queue *q);
+int is_empty(struct queue *q);
 
 #endif
 
