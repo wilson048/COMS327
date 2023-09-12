@@ -1,4 +1,6 @@
-96abb30 (HEAD -> main, origin/main, origin/HEAD) Fixed PokeCenter Generation Bug
+513f383 (HEAD -> main, origin/main, origin/HEAD) Fix Bug where Mart spawns on path
+5ef0a28 Added Changelog
+96abb30 Fixed PokeCenter Generation Bug
 0741648 Made mart generation
 cc69099 Created Working Path Generation
 238c198 Added Voronoi Alogorithm to Generation
@@ -8,3 +10,4 @@ cc69099 Created Working Path Generation
 bfe00a8 Made Initial Grid
 dd94c41 Update HW1 README
 0e95449 Init Homework 1
+
