@@ -1,0 +1,21 @@
+char *argv[] - Typically means "string"
+In C, strings are null terminated character arrays
+
+char *s = "Foo" - Both Strings
+char t[] = "Bar" - not a string literal. String is copied when variables lifetime begins
+Where is the null terminator? The compiler automaticaly adds 
+null byte when a string is staticall initalized
+char u[4];
+u[0] = 'b'
+u[1] = 'a'
+u[2] = 'z'
+u[3] = '\0' - The null byte must be used to terminate a string
+
+S[0] = 'B' - Try to change Foo to Boo, Instant crash; *Foo is immutable
+t[0] = 'C' - Change Bar to Car; successful
+s = t - s now points to t - okay
+s[0] = 'F' - change Car to Far - okay
+s = malloc(9);
+strcpy(S, "COM S 327");
+S[6] = '2'
+printf("%s", S); - Prints COM S 227
