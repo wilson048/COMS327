@@ -195,6 +195,12 @@ typedef struct {
 
 void generate_voronoi_terrain(Local_Map *map) {
     int x, y, z;
+    if(!(map == malloc(sizeof(map)))) {
+        return;
+    }
+    if(!(map->terrain == malloc(sizeof(map->terrain)))) {
+        return;
+    }
     // Terrain types defined by numbers
     int terrain_types[12] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
     // Points are in the form [x, y, terrain_type]
@@ -210,8 +216,8 @@ void generate_voronoi_terrain(Local_Map *map) {
     }
 
     // 1 = short grass (.), 2 = tall grass (:), 3 = water (~), 4 = mountains (%), 5 = trees (^)
-    for(y = 1; y < 21; y++) {
-        for(x = 1; x < 80; x++) {
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
             int point_index = 0;
             double closest_distance = sqrt((double) ((points[0].x - x) * (points[0].x - x)) + ((points[0].y - y) * (points[0].y - y)));
             for(z = 1; z < 12; z++) {
@@ -245,6 +251,7 @@ void generate_voronoi_terrain(Local_Map *map) {
 int main(int argc, char *argv[]) {
     // The world map
     Local_Map *world_map[401][401];
+    
     // Set seed
     srand(time(0));
     // Generate board
@@ -252,10 +259,8 @@ int main(int argc, char *argv[]) {
     int current_y = 200;
     int x, y;
     // Print Grid
-    
     generate_voronoi_terrain(world_map[current_y][current_x]);
-    char input;
-    scanf("%c", &input);
+    char input = ' ';
     while(input != 'q') {
         for(x = 0; x < 21; x++) {
             for(y = 0; y < 80; y++) {
@@ -265,5 +270,7 @@ int main(int argc, char *argv[]) {
         }
         scanf("%c", &input);
     }
+    free(world_map[200][200]->terrain);
+    free(world_map[200][200]);
     return 0;
 }
