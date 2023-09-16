@@ -3,20 +3,21 @@
 #include <math.h>
 #include <time.h>
 #include <stdbool.h>
+#include "Local_Map.h"
 
-typedef struct {
-    int x;
-    int y;
-    int tileType;
-} Voroni_Point;
+// typedef struct {
+//     int x;
+//     int y;
+//     int tileType;
+// } Voroni_Point;
 
-typedef struct {
-    char (*terrain)[80];
-    int h_start_index;
-    int h_end_index;
-    int v_start_index;
-    int v_end_index;
-} Local_Map;
+// typedef struct {
+//     char (*terrain)[80];
+//     int h_start_index;
+//     int h_end_index;
+//     int v_start_index;
+//     int v_end_index;
+// } Local_Map;
 
 // void generate_path_and_shops(char *terrain[21][80]) {
 //     int h_start_index, h_end_index, h_shift_index;
@@ -192,82 +193,83 @@ typedef struct {
 
 // }
 
-void generate_voronoi_terrain(Local_Map *map) {
-    int x, y, z;
-    if(!(map == malloc(sizeof(map)))) {
-        return;
-    }
-    map->terrain = malloc(21 * sizeof(map->terrain));
-    // Terrain types defined by numbers
-    int terrain_types[12] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
-    // Points are in the form [x, y, terrain_type]
-    Voroni_Point points[12];
-    // Generate voronoi seed points
-    for(x = 0; x < 12; x ++) {
-        // Set voronoi x to 1-79
-        points[x].x = (rand()) % (81);
-        // Set voronoi y to 1-19
-        points[x].y = (rand()) % (21);
-        // Set voronoi terrain to a predetermined int
-        points[x].tileType = terrain_types[x];
-    }
+// void generate_voronoi_terrain(Local_Map *map) {
+//     int x, y, z;
+//     if(!(map == malloc(sizeof(map)))) {
+//         return;
+//     }
+//     map->terrain = malloc(21 * sizeof(map->terrain));
+//     // Terrain types defined by numbers
+//     int terrain_types[12] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
+//     // Points are in the form [x, y, terrain_type]
+//     Voroni_Point points[12];
+//     // Generate voronoi seed points
+//     for(x = 0; x < 12; x ++) {
+//         // Set voronoi x to 1-79
+//         points[x].x = (rand()) % (81);
+//         // Set voronoi y to 1-19
+//         points[x].y = (rand()) % (21);
+//         // Set voronoi terrain to a predetermined int
+//         points[x].tileType = terrain_types[x];
+//     }
 
-    // 1 = short grass (.), 2 = tall grass (:), 3 = water (~), 4 = mountains (%), 5 = trees (^)
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            int point_index = 0;
-            double closest_distance = sqrt((double) ((points[0].x - x) * (points[0].x - x)) + ((points[0].y - y) * (points[0].y - y)));
-            for(z = 1; z < 12; z++) {
-                double distance = sqrt((double) ((points[z].x - x) * (points[z].x - x)) + ((points[z].y - y) * (points[z].y - y)));;
-                if(distance < closest_distance) {
-                    closest_distance = distance;
-                    point_index = z;
-                }
-            }
-            switch (points[point_index].tileType) {
-                case 1:
-                    map->terrain[y][x] = '.';
-                    break;
-                case 2:
-                    map->terrain[y][x] = ':';
-                    break;
-                case 3:
-                    map->terrain[y][x] = '~';
-                    break;
-                case 4:
-                    map->terrain[y][x] = '\%';
-                    break;
-                case 5:
-                    map->terrain[y][x] = '^';
-                    break;    
-            }
-        }
-    }
-}
+//     // 1 = short grass (.), 2 = tall grass (:), 3 = water (~), 4 = mountains (%), 5 = trees (^)
+//     for(y = 0; y < 21; y++) {
+//         for(x = 0; x < 80; x++) {
+//             int point_index = 0;
+//             double closest_distance = sqrt((double) ((points[0].x - x) * (points[0].x - x)) + ((points[0].y - y) * (points[0].y - y)));
+//             for(z = 1; z < 12; z++) {
+//                 double distance = sqrt((double) ((points[z].x - x) * (points[z].x - x)) + ((points[z].y - y) * (points[z].y - y)));;
+//                 if(distance < closest_distance) {
+//                     closest_distance = distance;
+//                     point_index = z;
+//                 }
+//             }
+//             switch (points[point_index].tileType) {
+//                 case 1:
+//                     map->terrain[y][x] = '.';
+//                     break;
+//                 case 2:
+//                     map->terrain[y][x] = ':';
+//                     break;
+//                 case 3:
+//                     map->terrain[y][x] = '~';
+//                     break;
+//                 case 4:
+//                     map->terrain[y][x] = '\%';
+//                     break;
+//                 case 5:
+//                     map->terrain[y][x] = '^';
+//                     break;    
+//             }
+//         }
+//     }
+// }
 
 int main(int argc, char *argv[]) {
     // The world map
-    Local_Map *world_map[401][401];
+    struct Local_Map *world_map[401][401];
     
     // Set seed
     srand(time(0));
     // Generate board
+
     int current_x = 200;
     int current_y = 200;
     int x, y;
     // Print Grid
+    local_map_init(world_map[current_y][current_x]);
     generate_voronoi_terrain(world_map[current_y][current_x]);
     char input = ' ';
     while(input != 'q') {
         for(x = 0; x < 21; x++) {
             for(y = 0; y < 80; y++) {
-                printf("%s", world_map[current_y][current_x]->terrain[x][y]);
+                printf("%d", world_map[current_y][current_x]->terrain[x][y]);
             }
         printf("\n");
         }
         scanf("%c", &input);
     }
-    free(world_map[200][200]->terrain);
-    free(world_map[200][200]);
+    local_map_destroy(world_map[current_y][current_x]);
     return 0;
 }
