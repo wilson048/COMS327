@@ -11,12 +11,11 @@ typedef struct {
 } Voroni_Point;
 
 typedef struct {
-    char *terrain[21][80];
+    char (*terrain)[80];
     int h_start_index;
     int h_end_index;
     int v_start_index;
     int v_end_index;
-    int **m;
 } Local_Map;
 
 // void generate_path_and_shops(char *terrain[21][80]) {
@@ -198,9 +197,7 @@ void generate_voronoi_terrain(Local_Map *map) {
     if(!(map == malloc(sizeof(map)))) {
         return;
     }
-    if(!(map->terrain == malloc(sizeof(map->terrain)))) {
-        return;
-    }
+    map->terrain = malloc(21 * sizeof(map->terrain));
     // Terrain types defined by numbers
     int terrain_types[12] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
     // Points are in the form [x, y, terrain_type]
@@ -229,19 +226,19 @@ void generate_voronoi_terrain(Local_Map *map) {
             }
             switch (points[point_index].tileType) {
                 case 1:
-                    map->terrain[y][x] = ".";
+                    map->terrain[y][x] = '.';
                     break;
                 case 2:
-                    map->terrain[y][x] = ":";
+                    map->terrain[y][x] = ':';
                     break;
                 case 3:
-                    map->terrain[y][x] = "~";
+                    map->terrain[y][x] = '~';
                     break;
                 case 4:
-                    map->terrain[y][x] = "\%";
+                    map->terrain[y][x] = '\%';
                     break;
                 case 5:
-                    map->terrain[y][x] = "^";
+                    map->terrain[y][x] = '^';
                     break;    
             }
         }
