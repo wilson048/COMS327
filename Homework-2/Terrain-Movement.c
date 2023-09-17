@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "Local_Map.h"
 
+
+
 // typedef struct {
 //     int x;
 //     int y;
@@ -245,13 +247,12 @@
 //         }
 //     }
 // }
+// The world map
+struct Local_Map *world_map[401][401];
 
 int main(int argc, char *argv[]) {
     int x, y;
-    // The world map
-    struct Local_Map *world_map[401][401];
     printf("Size: %ld\n", sizeof(world_map));
-    int **m = malloc(401 * sizeof(world_map));
     
     // Set seed
     srand(time(0));
@@ -271,8 +272,20 @@ int main(int argc, char *argv[]) {
         printf("\n");
         }
         scanf("%c", &input);
+        // switch (input) {
+        //     case 'n':
+        //         break;
+        //     case 's':
+        //         break;
+        //     case 'e':
+        //         break;
+        //     case 'w':
+        //         break;
+        //     default: 
+        //         break;
+        // }
     }
     local_map_destroy(world_map[current_y][current_x]);
-    free(m);
+
     return 0;
 }

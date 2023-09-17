@@ -4,11 +4,13 @@
 #include "Local_Map.h"
 
 void local_map_init(struct Local_Map *map) {
-    if(!(map == malloc(sizeof(map)))) {
-        printf("Map Fail\nSize:%ld\n", sizeof(map));
+    map = malloc(sizeof(*map));
+    if(map == NULL) {
+        printf("Map Fail\nSize:%ld\n", sizeof(*map));
         return;
     }
-    if(!(map->terrain == malloc(21 * sizeof(char *)))) {
+    map->terrain = malloc(21 * sizeof(char *));
+    if(map->terrain == NULL) {
         printf("Terrain Fail\nSize:%ld\n", 21 * sizeof(char *));
         return;
     }
