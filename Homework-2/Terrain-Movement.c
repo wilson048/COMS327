@@ -12,6 +12,7 @@ typedef struct {
     int tileType;
 } Voroni_Point;
 
+// The local map struct
 typedef struct {
     char *terrain[21][80];
     int west_index;
@@ -319,6 +320,7 @@ int main(int argc, char *argv[]) {
     generate_path_and_shops(current_y, current_x);
     char input = ' ';
     int inputX, inputY;
+    // Exit loop if input is q
     while(input != 'q') {
         for(x = 0; x < 21; x++) {
             for(y = 0; y < 80; y++) {
@@ -329,26 +331,31 @@ int main(int argc, char *argv[]) {
         printf("Current Location: (%d, %d)\n", current_x - 200, current_y - 200);
         scanf("%c %d %d", &input, &inputX, &inputY);
         switch (input) {
+            // Move up 1
             case 'n':
                 if(current_y > 0) {
                     current_y--;
                 }
                 break;
+            // Move down one    
             case 's':
                 if(current_y < 400) {
                     current_y++;
                 }
                 break;
+            // Move right one    
             case 'e':
                 if(current_x < 400) {
                     current_x++;
                 }
                 break;
+            // Move left one    
             case 'w':
                 if(current_x > 0) {
                     current_x--;
                 }
                 break;
+            // Teleport to location (if in bounds)
             case 'f':
                 if(((inputX >= -200) && (inputX <= 200)) && ((inputY >= -200) && (inputY <= 200))) {
                     current_x = inputX + 200;
@@ -357,6 +364,7 @@ int main(int argc, char *argv[]) {
             default: 
                 break;
         }
+        // Generate and allocate new map if going to NULL location
         if(world_map[current_y][current_x] == NULL) {
             Local_Map* newMap = (Local_Map*) malloc(sizeof(Local_Map));
             world_map[current_y][current_x] = newMap;
