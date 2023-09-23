@@ -4,8 +4,8 @@
 #include <time.h>
 #include <stdbool.h>
 #include <string.h>
+#include "heap.h"
 
-#define INT_MAX 2000000
 typedef struct {
     int x;
     int y;
@@ -21,11 +21,20 @@ typedef struct {
     int south_index;
 } Local_Map;
 
+typedef struct npc_heap {
+  heap_node_t *hn;
+  uint8_t pos[2];
+  uint8_t from[2];
+  int32_t cost;
+} path_t;
+
 // The world map
 Local_Map *world_map[401][401];
 // Player Coordinates
 int playerX = 0;
 int playerY = 0;
+// Integer Maximum
+int32_t INT_MAX = 2000000;
 
 void generate_path_and_shops(int mapX, int mapY) {
     // Check for surrounding maps. If no map exists, set a new random start index
@@ -316,32 +325,85 @@ void placePlayer(Local_Map *map) {
     map->terrain[playerY][playerX] = "@";
 }
 
-void dijkstras_generation(Local_Map *map, int *npc_map[21][80]) {
+void dijkstras_generation(Local_Map *map) {
     int x, y;
-    // heap_t h;
-    // heap_init(&h, NULL, NULL);
+    heap_t h;
+    path_t* npc_heap[21][80], *p;
+    // uint32_t current_cost = 10;
+    
+    // heap_delete(&h);
+    // 0 = y, 1 = x
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            if(!(strcmp(map->terrain[playerY][playerX], "@"))) {
-                npc_map[y][x] = 0;
+            p = (path_t*) malloc(sizeof(npc_heap[y][x]));
+            npc_heap[y][x] = p;
+            npc_heap[y][x]->pos[0] = y;
+            npc_heap[y][x]->pos[1] = x;
+        }
+    }
+    // // Fill nodes with max cost
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            if(!(strcmp(map->terrain[y][x], "@"))) {
+                npc_heap[y][x]->cost = 0;
             }
             else {
-                npc_map[y][x] = &INT_MAX;
+                npc_heap[y][x]->cost = INT_MAX;
             }
         }
     }
+    heap_init(&h, NULL, NULL);
+    // Add nodes to heap, Source of memory leak
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            npc_heap[y][x]->hn = heap_insert(&h, &npc_heap[y][x]);
+        }
+    }
+
+    // while((p = heap_remove_min(&h))) {
+    //     p->hn = NULL;
+    //     // Path and short grass cost
+    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "->"))) ||
+    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "#")))) {
+    //         current_cost = 10;
+    //     }   
+    //     // Pokemart and Pokemon Center costs
+    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "P"))) ||
+    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "M")))) {
+    //         current_cost = 50;
+    //     }
+    //     // Water, Boulders, and Tree costs
+    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "\%"))) ||
+    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "^"))) || 
+    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "~")))) {
+    //         current_cost = INT_MAX;
+    //     }
+    //     // Tall grass cost
+    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], ":")))) {
+    //         current_cost = 15;
+    //     }
+    //     // Bottom Node
+    //     if(npc_heap[p->pos[0] + 1][p->pos[1]]->hn && 
+    //     npc_heap[p->pos[0] + 1][p->pos[1]]->cost > npc_heap[p->pos[0]][p->pos[1]]->cost) {
+    //         // Set position of previous node here
+    //         npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[0] = p->pos[0];
+    //         npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[1] = p->pos[1];
+    //         npc_heap[p->pos[0] + 1][p->pos[1]]->cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]]->cost + current_cost;
+    //         // Remove node from heap
+    //         heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]    ]->hn);
+    //     }
+    // }
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            free(npc_heap[y][x]);
+        }
+    }
+
 }
 
 int main(int argc, char *argv[]) {
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
-    int *hiker_map[21][80];
-    int *rival_map[21][80];
-    // Hiker and Rival Map memory allocations
-    int **rival_m; 
-    rival_m = malloc(sizeof(hiker_map));
-    int **hiker_m; 
-    hiker_m = malloc(sizeof(rival_map));
     // Set seed
     srand(time(0));
     // Generate board
@@ -352,6 +414,7 @@ int main(int argc, char *argv[]) {
     generate_voronoi_terrain(world_map[current_y][current_x]);
     generate_path_and_shops(current_y, current_x);
     placePlayer(world_map[current_y][current_x]);
+    dijkstras_generation(world_map[current_y][current_x]);
     char input = ' ';
     int inputX, inputY;
     // Cardinal Directions
@@ -365,12 +428,13 @@ int main(int argc, char *argv[]) {
             }
         printf("\n");
         }
-        printf("Current Location: %s%s (%d, %d)\nEnter Command:    ", 
+        printf("Current Location: %s%s (%d, %d)\nEnter Command: ", 
         verticalCard,
         horizontalCard,
         current_x - 200, 
         current_y - 200);
         scanf("%c", &input);
+        printf("\n");
         switch (input) {
             // Move up 1
             case 'n':
@@ -425,7 +489,5 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    free(hiker_m);
-    free(rival_m);
     return 0;
 }
