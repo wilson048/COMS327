@@ -328,37 +328,36 @@ void placePlayer(Local_Map *map) {
 void dijkstras_generation(Local_Map *map) {
     int x, y;
     heap_t h;
-    path_t* npc_heap[21][80], *p;
+    path_t npc_heap[21][80];//, *p;
     // uint32_t current_cost = 10;
     
     // heap_delete(&h);
     // 0 = y, 1 = x
+    printf("Assigning points\n");
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            p = (path_t*) malloc(sizeof(npc_heap[y][x]));
-            npc_heap[y][x] = p;
-            npc_heap[y][x]->pos[0] = y;
-            npc_heap[y][x]->pos[1] = x;
+            npc_heap[y][x].pos[0] = y;
+            npc_heap[y][x].pos[1] = x;
         }
     }
-    // // Fill nodes with max cost
+    printf("Assigning costs\n");
+    // Fill nodes with max cost unless node is the player character
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            if(!(strcmp(map->terrain[y][x], "@"))) {
-                npc_heap[y][x]->cost = 0;
-            }
-            else {
-                npc_heap[y][x]->cost = INT_MAX;
-            }
+            npc_heap[y][x].cost = INT_MAX;
         }
     }
+    npc_heap[playerY][playerX].cost = 0;
+    printf("Filling heap\n");
     heap_init(&h, NULL, NULL);
+    npc_heap[playerY][playerX].hn = heap_insert(&h, &npc_heap[playerY][playerX]);
+    npc_heap[playerY - 1][playerX].hn = heap_insert(&h, &npc_heap[playerY - 1][playerX]);
     // Add nodes to heap, Source of memory leak
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            npc_heap[y][x]->hn = heap_insert(&h, &npc_heap[y][x]);
-        }
-    }
+    // for(y = 0; y < 21; y++) {
+    //     for(x = 0; x < 80; x++) {
+    //         npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
+    //     }
+    // }
 
     // while((p = heap_remove_min(&h))) {
     //     p->hn = NULL;
@@ -393,12 +392,7 @@ void dijkstras_generation(Local_Map *map) {
     //         heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]    ]->hn);
     //     }
     // }
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            free(npc_heap[y][x]);
-        }
-    }
-
+    heap_delete(&h);
 }
 
 int main(int argc, char *argv[]) {

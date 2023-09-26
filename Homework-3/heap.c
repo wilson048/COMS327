@@ -29,7 +29,7 @@ struct heap_node {
     (n2)->prev = (n1);                    \
   }                                       \
 })
-
+// New point of memory leak
 #define insert_heap_node_in_list(n, l) ({ \
   (n)->next = (l);                        \
   (n)->prev = (l)->prev;                  \
@@ -133,13 +133,16 @@ void heap_delete(heap_t *h)
 heap_node_t *heap_insert(heap_t *h, void *v)
 {
   heap_node_t *n;
-
+  printf("Mallocing Heap Node\n");
   assert((n = calloc(1, sizeof (*n))));
+  printf("Sucuessful\n");
   n->datum = v;
 
   if (h->min) {
+    printf("Moving node into list\n");
     insert_heap_node_in_list(n, h->min);
   } else {
+    printf("First node\n");
     n->next = n->prev = n;
   }
   if (!h->min || (h->compare(v, h->min->datum) < 0)) {
