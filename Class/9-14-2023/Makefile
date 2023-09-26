@@ -1,4 +1,4 @@
-9-14: 9-14.c
-	gcc -ggdb -Wall -Werror 9-14.c -o 9-14
+value-manipulation: value-manipulation.c
+	gcc -ggdb -Wall -Werror value-manipulation.c -o value-manipulation
 clean:
-	rm -f 9-14 9-14.o
+	rm -f value-manipulation value-manipulation.o

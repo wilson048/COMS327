@@ -1,14 +1,14 @@
-9-7: 9-7.o queue.o
-	gcc 9-7.o queue.o -o 9-7
+queue-test: queue-test.o queue.o
+	gcc queue-test.o queue.o -o queue-test
 
-9-7.o: 9-7.c queue.h
-	gcc -Wall -Werror -ggdb 9-7.c -c
+queue-test.o: queue-test.c queue.h
+	gcc -Wall -Werror -ggdb queue-test.c -c
 
 queue.o: queue.c queue.h
 	gcc -Wall -Werror -ggdb queue.c -c
 
 clean:
-	rm -f *.o 9-7
+	rm -f *.o queue-test
 
 #This would work, but it's not the "right" way
 #queue: 9-7.c queue.c queue.h 

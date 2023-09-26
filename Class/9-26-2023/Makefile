@@ -1,11 +1,11 @@
-9-7: 9-7.o queue.o
-	gcc 9-7.o queue.o -o 9-7
+9-7: 9-7.o stack.o
+	gcc 9-7.o stack.o -o 9-7
 
-9-7.o: 9-7.c queue.h
+9-7.o: 9-7.c stack.h
 	gcc -Wall -Werror -ggdb 9-7.c -c
 
-queue.o: queue.c queue.h
-	gcc -Wall -Werror -ggdb queue.c -c
+stack.o: stack.c stack.h
+	gcc -Wall -Werror -ggdb stack.c -c
 
 clean:
 	rm -f *.o 9-7

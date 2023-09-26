@@ -1,9 +1,9 @@
-all: Day-3 Day-3.class
+all: random-ints HelloWorld.class
 
-Day-3: Day-3.c
-	gcc -Wall -Werror Day-3.c -o Day-3
-Day-3.class: Day-3.java
-	javac Day-3.java
+random-ints: random-ints.c
+	gcc -Wall -Werror random-ints.c -o random-ints
+HelloWorld.class: HelloWorld.java
+	javac HelloWorld.java
 
 clean:
-	rm -f Day-3 Day-3. *~ * .o
+	rm -f random-ints HelloWorld.class *.o

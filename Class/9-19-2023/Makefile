@@ -1,5 +1,5 @@
-9-19: 9-19.c
-	gcc -ggdb -Wall -Werror 9-19.c -o 9-19
+file-writer: file-writer.c
+	gcc -ggdb -Wall -Werror file-writer.c -o file-writer
 
 clean:
-	rm -f 9-19 9-19.o
+	rm -f file-writer file-writer.o

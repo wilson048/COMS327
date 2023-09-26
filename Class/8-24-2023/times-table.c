@@ -12,6 +12,16 @@ void populate_times_table(int table[MAX_VAL][MAX_VAL]) {
     }
 }
 
+/*
+    Recursion
+*/
+unsigned int fib(unsigned n) {
+    if(n <= 1) {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+}
+
 int main(int argc, char *argv[]) {
     int a[MAX_VAL][MAX_VAL];
 
@@ -32,13 +42,4 @@ int main(int argc, char *argv[]) {
     }
     printf("%u\n", fib(atoi(argv[1])));
     return 0;
-}
-/*
-    Recursion
-*/
-unsigned int fib(unsigned n) {
-    if(n <= 1) {
-        return n;
-    }
-    return fib(n - 1) + fib(n - 2);
 }

@@ -1,4 +1,4 @@
-9-12: 9-12.c
-	gcc -ggdb -Wall -Werror 9-12.c -o 9-12
+arg-input: arg-input.c
+	gcc -ggdb -Wall -Werror arg-input.c -o arg-input
 clean:
-	rm -f 9-12 9-12.o
+	rm -f arg-input arg-input.o

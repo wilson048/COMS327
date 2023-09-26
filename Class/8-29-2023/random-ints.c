@@ -12,6 +12,6 @@ int main(int argc, char *argv[]) {
     printf("%d\n", rand());
     printf("%d\n", RAND_MAX);
     printf("%d\n", rand() % 11); // 0-10
-    printf("%d\n", rand() % 10 + 1) // 1-10
+    printf("%d\n", rand() % 10 + 1); // 1-10
     return 0;
 }
