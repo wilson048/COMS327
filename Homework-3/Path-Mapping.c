@@ -325,6 +325,7 @@ void placePlayer(Local_Map *map) {
     map->terrain[playerY][playerX] = "@";
 }
 
+
 void dijkstras_generation(Local_Map *map) {
     int x, y;
     heap_t h;
@@ -348,16 +349,16 @@ void dijkstras_generation(Local_Map *map) {
         }
     }
     npc_heap[playerY][playerX].cost = 0;
-    printf("Filling heap\n");
+    printf("Init heap\n");
     heap_init(&h, NULL, NULL);
-    npc_heap[playerY][playerX].hn = heap_insert(&h, &npc_heap[playerY][playerX]);
-    npc_heap[playerY - 1][playerX].hn = heap_insert(&h, &npc_heap[playerY - 1][playerX]);
+    // npc_heap[playerY][playerX].hn = heap_insert(&h, &npc_heap[playerY][playerX]);
+    // npc_heap[playerY - 1][playerX].hn = heap_insert(&h, &npc_heap[playerY - 1][playerX]);
     // Add nodes to heap, Source of memory leak
-    // for(y = 0; y < 21; y++) {
-    //     for(x = 0; x < 80; x++) {
-    //         npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
-    //     }
-    // }
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
+        }
+    }
 
     // while((p = heap_remove_min(&h))) {
     //     p->hn = NULL;
