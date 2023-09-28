@@ -1,11 +1,11 @@
-9-7: 9-7.o stack.o
-	gcc 9-7.o stack.o -o 9-7
+stack-test: stack-test.o stack.o
+	gcc stack-test.o stack.o -o stack-test
 
-9-7.o: 9-7.c stack.h
-	gcc -Wall -Werror -ggdb 9-7.c -c
+stack-test.o: stack-test.c stack.h
+	gcc -Wall -Werror -ggdb stack-test.c -c
 
 stack.o: stack.c stack.h
 	gcc -Wall -Werror -ggdb stack.c -c
 
 clean:
-	rm -f *.o 9-7
+	rm -f *.o stack-test
