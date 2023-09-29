@@ -324,7 +324,16 @@ void placePlayer(Local_Map *map) {
     }
     map->terrain[playerY][playerX] = "@";
 }
-
+// Terrain comparator for NPCs
+static int32_t npc_cmp(const void *tile1, const void *tile2) {
+    if(((path_t*) tile1)->cost < ((path_t*) tile2)->cost) {
+        return -1;
+    }
+    else if(((path_t*) tile1)->cost > ((path_t*) tile2)->cost) {
+        return 1;
+    }
+    return 0;
+}
 
 void dijkstras_generation(Local_Map *map) {
     int x, y;
@@ -350,7 +359,7 @@ void dijkstras_generation(Local_Map *map) {
     }
     npc_heap[playerY][playerX].cost = 0;
     printf("Init heap\n");
-    heap_init(&h, NULL, NULL);
+    heap_init(&h, npc_cmp, NULL);
     // npc_heap[playerY][playerX].hn = heap_insert(&h, &npc_heap[playerY][playerX]);
     // npc_heap[playerY - 1][playerX].hn = heap_insert(&h, &npc_heap[playerY - 1][playerX]);
     // Add nodes to heap, Source of memory leak
@@ -360,39 +369,39 @@ void dijkstras_generation(Local_Map *map) {
         }
     }
 
-    // while((p = heap_remove_min(&h))) {
-    //     p->hn = NULL;
-    //     // Path and short grass cost
-    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "->"))) ||
-    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "#")))) {
-    //         current_cost = 10;
-    //     }   
-    //     // Pokemart and Pokemon Center costs
-    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "P"))) ||
-    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "M")))) {
-    //         current_cost = 50;
-    //     }
-    //     // Water, Boulders, and Tree costs
-    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "\%"))) ||
-    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "^"))) || 
-    //     (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "~")))) {
-    //         current_cost = INT_MAX;
-    //     }
-    //     // Tall grass cost
-    //     if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], ":")))) {
-    //         current_cost = 15;
-    //     }
-    //     // Bottom Node
-    //     if(npc_heap[p->pos[0] + 1][p->pos[1]]->hn && 
-    //     npc_heap[p->pos[0] + 1][p->pos[1]]->cost > npc_heap[p->pos[0]][p->pos[1]]->cost) {
-    //         // Set position of previous node here
-    //         npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[0] = p->pos[0];
-    //         npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[1] = p->pos[1];
-    //         npc_heap[p->pos[0] + 1][p->pos[1]]->cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]]->cost + current_cost;
-    //         // Remove node from heap
-    //         heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]    ]->hn);
-    //     }
-    // }
+    while((p = heap_remove_min(&h))) {
+        p->hn = NULL;
+        // Path and short grass cost
+        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "->"))) ||
+        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "#")))) {
+            current_cost = 10;
+        }   
+        // Pokemart and Pokemon Center costs
+        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "P"))) ||
+        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "M")))) {
+            current_cost = 50;
+        }
+        // Water, Boulders, and Tree costs
+        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "\%"))) ||
+        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "^"))) || 
+        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "~")))) {
+            current_cost = INT_MAX;
+        }
+        // Tall grass cost
+        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], ":")))) {
+            current_cost = 15;
+        }
+        // Bottom Node
+        if(npc_heap[p->pos[0] + 1][p->pos[1]]->hn && 
+        npc_heap[p->pos[0] + 1][p->pos[1]]->cost > npc_heap[p->pos[0]][p->pos[1]]->cost) {
+            // Set position of previous node here
+            npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[0] = p->pos[0];
+            npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[1] = p->pos[1];
+            npc_heap[p->pos[0] + 1][p->pos[1]]->cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]]->cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]]->hn);
+        }
+    }
     heap_delete(&h);
 }
 
