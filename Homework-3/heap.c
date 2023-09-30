@@ -139,7 +139,6 @@ heap_node_t *heap_insert(heap_t *h, void *v)
     // Source of memory leak, fixed as heap needed comparator
     insert_heap_node_in_list(n, h->min);
   } else {
-    printf("First node");
     n->next = n->prev = n;
   }
   if (!h->min || (h->compare(v, h->min->datum) < 0)) {

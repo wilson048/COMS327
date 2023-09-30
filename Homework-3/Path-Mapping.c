@@ -326,20 +326,15 @@ void placePlayer(Local_Map *map) {
 }
 // Terrain comparator for NPCs
 static int32_t npc_cmp(const void *tile1, const void *tile2) {
-    if(((path_t*) tile1)->cost < ((path_t*) tile2)->cost) {
-        return -1;
-    }
-    else if(((path_t*) tile1)->cost > ((path_t*) tile2)->cost) {
-        return 1;
-    }
-    return 0;
+    return ((path_t*) tile1)->cost - ((path_t*) tile2)->cost;
 }
 
+// Bounds checker 
 void dijkstras_generation(Local_Map *map) {
     int x, y;
     heap_t h;
-    path_t npc_heap[21][80];//, *p;
-    // uint32_t current_cost = 10;
+    path_t npc_heap[21][80], *p;
+    uint32_t current_cost = 10;
     
     // heap_delete(&h);
     // 0 = y, 1 = x
@@ -360,19 +355,17 @@ void dijkstras_generation(Local_Map *map) {
     npc_heap[playerY][playerX].cost = 0;
     printf("Init heap\n");
     heap_init(&h, npc_cmp, NULL);
-    // npc_heap[playerY][playerX].hn = heap_insert(&h, &npc_heap[playerY][playerX]);
-    // npc_heap[playerY - 1][playerX].hn = heap_insert(&h, &npc_heap[playerY - 1][playerX]);
-    // Add nodes to heap, Source of memory leak
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
+    // Fill Heap
+    for(y = 1; y < 20; y++) {
+        for(x = 1; x < 79; x++) {
             npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
         }
     }
-
+    // Dijkstra's Algorithm
     while((p = heap_remove_min(&h))) {
         p->hn = NULL;
         // Path and short grass cost
-        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "->"))) ||
+        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], ""))) ||
         (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "#")))) {
             current_cost = 10;
         }   
@@ -392,24 +385,113 @@ void dijkstras_generation(Local_Map *map) {
             current_cost = 15;
         }
         // Bottom Node
-        if(npc_heap[p->pos[0] + 1][p->pos[1]]->hn && 
-        npc_heap[p->pos[0] + 1][p->pos[1]]->cost > npc_heap[p->pos[0]][p->pos[1]]->cost) {
+        if((npc_heap[p->pos[0] + 1][p->pos[1]].hn) && 
+        (npc_heap[p->pos[0] + 1][p->pos[1]].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
             // Set position of previous node here
-            npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[0] = p->pos[0];
-            npc_heap[p->pos[0] - 1][p->pos[1]    ]->from[1] = p->pos[1];
-            npc_heap[p->pos[0] + 1][p->pos[1]]->cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]]->cost + current_cost;
+            npc_heap[p->pos[0] + 1][p->pos[1]].from[0] = p->pos[0];
+            npc_heap[p->pos[0] + 1][p->pos[1]].from[1] = p->pos[1];
+            npc_heap[p->pos[0] + 1][p->pos[1]].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
-            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]]->hn);
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]].hn);
+        }
+        // Top Node
+        if((npc_heap[p->pos[0] - 1][p->pos[1]].hn) && 
+        (npc_heap[p->pos[0] - 1][p->pos[1]].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0] - 1][p->pos[1]].from[0] = p->pos[0];
+            npc_heap[p->pos[0] - 1][p->pos[1]].from[1] = p->pos[1];
+            npc_heap[p->pos[0] - 1][p->pos[1]].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] - 1][p->pos[1]].hn);
+        }
+        // Right node
+        if((npc_heap[p->pos[0]][p->pos[1] + 1].hn) && 
+        (npc_heap[p->pos[0]][p->pos[1] + 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0]][p->pos[1] + 1].from[0] = p->pos[0];
+            npc_heap[p->pos[0]][p->pos[1] + 1].from[1] = p->pos[1];
+            npc_heap[p->pos[0]][p->pos[1] + 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0]][p->pos[1] + 1].hn);
+        }
+
+        // Left node
+        if((npc_heap[p->pos[0]][p->pos[1] - 1].hn) && 
+        (npc_heap[p->pos[0]][p->pos[1] - 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0]][p->pos[1] - 1].from[0] = p->pos[0];
+            npc_heap[p->pos[0]][p->pos[1] - 1].from[1] = p->pos[1];
+            npc_heap[p->pos[0]][p->pos[1] - 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0]][p->pos[1] - 1].hn);
+        }
+
+        // Top-Left Node
+        if((npc_heap[p->pos[0] - 1][p->pos[1] - 1].hn) && 
+        (npc_heap[p->pos[0] - 1][p->pos[1] - 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0] - 1][p->pos[1] - 1].from[0] = p->pos[0];
+            npc_heap[p->pos[0] - 1][p->pos[1] - 1].from[1] = p->pos[1];
+            npc_heap[p->pos[0] - 1][p->pos[1] - 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] - 1][p->pos[1] - 1].hn);
+        }
+        // Top-Right Node
+        if((npc_heap[p->pos[0] - 1][p->pos[1] + 1].hn) && 
+        (npc_heap[p->pos[0] - 1][p->pos[1] + 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0] - 1][p->pos[1] + 1].from[0] = p->pos[0];
+            npc_heap[p->pos[0] - 1][p->pos[1] + 1].from[1] = p->pos[1];
+            npc_heap[p->pos[0] - 1][p->pos[1] + 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] - 1][p->pos[1] + 1].hn);
+        }
+        // Bottom-Left Node
+        if((npc_heap[p->pos[0] + 1][p->pos[1] - 1].hn) && 
+        (npc_heap[p->pos[0] + 1][p->pos[1] - 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0] + 1][p->pos[1] - 1].from[0] = p->pos[0];
+            npc_heap[p->pos[0] + 1][p->pos[1] - 1].from[1] = p->pos[1];
+            npc_heap[p->pos[0] + 1][p->pos[1] - 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1] - 1].hn);
+        }
+        // Bottom-Right Node
+        if((npc_heap[p->pos[0] + 1][p->pos[1] + 1].hn) && 
+        (npc_heap[p->pos[0] + 1][p->pos[1] + 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+            // Set position of previous node here
+            npc_heap[p->pos[0] + 1][p->pos[1] + 1].from[0] = p->pos[0];
+            npc_heap[p->pos[0] + 1][p->pos[1] + 1].from[1] = p->pos[1];
+            npc_heap[p->pos[0] + 1][p->pos[1] + 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            // Remove node from heap
+            heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1] + 1].hn);
         }
     }
     heap_delete(&h);
+    int max_tiles = 0;
+    printf("Dijkstra's complete\n");
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            if(npc_heap[y][x].cost != INT_MAX) {
+                printf("%02d ", npc_heap[y][x].cost % 100);
+            }
+            else {
+                printf("   ");
+                max_tiles++;
+            }
+        }
+        printf("\n");
+    }
+    printf("Max Tiles %d\n", max_tiles);
 }
 
 int main(int argc, char *argv[]) {
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
     // Set seed
-    srand(time(0));
+    // srand(time(0));
+    srand(200);
+    printf("Using seed: 200");
     // Generate board
     int current_x = 200;
     int current_y = 200;
