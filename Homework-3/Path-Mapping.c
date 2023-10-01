@@ -372,8 +372,8 @@ void dijkstras_generation(Local_Map *map) {
     printf("Init heap\n");
     heap_init(&h, npc_cmp, NULL);
     // Fill Heap
-    for(y = 1; y < 20; y++) {
-        for(x = 1; x < 79; x++) {
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
             npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
         }
     }
@@ -384,11 +384,14 @@ void dijkstras_generation(Local_Map *map) {
         p->hn = NULL;
         // Path and short grass cost
         current_cost = tile_weight(map->terrain[p->pos[0]][p->pos[1]]);
-        printf("%d Y, %d X\n", p->pos[0], p->pos[1]);
+        // printf("%d Y, %d X\n", p->pos[0], p->pos[1]);
         // Loop through all surrounding nodes
         for(y = p->pos[0] - 1; y <= p->pos[0] + 1; y++) {
             for(x = p->pos[1] - 1; x <= p->pos[1] + 1; x++) {
                 if((y == p->pos[0]) && (x == p->pos[1])) {
+                    continue;
+                }
+                if((y < 0) || (x < 0) || (y > 20) || (x > 79)) {
                     continue;
                 }
                 if((npc_heap[y][x].hn) && 
@@ -399,7 +402,7 @@ void dijkstras_generation(Local_Map *map) {
                     tile_checker = tile_weight(map->terrain[y][x]);
                     npc_heap[y][x].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
                     // Remove node from heap
-                    printf("Reassigning node cost at (%d, %d) with cost = %d tile_checker = %d previous cost = %d and tile node = %s\n", y, x, npc_heap[y][x].cost, tile_checker, npc_heap[p->pos[0]][p->pos[1]].cost, map->terrain[y][x]);
+                    // printf("Reassigning node cost at (%d, %d) with cost = %d tile_checker = %d previous cost = %d and tile node = %s\n", y, x, npc_heap[y][x].cost, tile_checker, npc_heap[p->pos[0]][p->pos[1]].cost, map->terrain[y][x]);
                     heap_decrease_key_no_replace(&h, npc_heap[y][x].hn);
                 }
             }
@@ -410,12 +413,20 @@ void dijkstras_generation(Local_Map *map) {
     printf("Dijkstra's complete\n");
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
+            // if(npc_heap[y][x].cost != INT_MAX) {
+            //     if(tile_weight(map->terrain[y][x]))
+            //     printf("%d", );
+            //     // printf("1", npc_heap[y][x].cost % 100);
+            // }
+            // else {
+            //     printf("0 ");
+            //     max_tiles++;
+            // }
             if(npc_heap[y][x].cost != INT_MAX) {
                 printf("%02d ", npc_heap[y][x].cost % 100);
             }
             else {
                 printf("   ");
-                max_tiles++;
             }
         }
         printf("\n");
@@ -427,8 +438,8 @@ int main(int argc, char *argv[]) {
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
     // Set seed
-    // srand(time(0));
-    srand(200);
+    srand(time(0));
+    // srand(200);
     printf("Using seed: 200\n");
     // Generate board
     int current_x = 200;
