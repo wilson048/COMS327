@@ -322,14 +322,29 @@ void placePlayer(Local_Map *map) {
         playerX = (rand()) % (78 - 2 + 1) + 2;
         playerY = (rand()) % (18 - 2 + 1) + 2;
     }
-    map->terrain[playerY][playerX] = "@";
 }
 // Terrain comparator for NPCs
 static int32_t npc_cmp(const void *tile1, const void *tile2) {
     return ((path_t*) tile1)->cost - ((path_t*) tile2)->cost;
 }
+uint32_t tile_weight(char *tile) {
+    if((!(strcmp(tile, "."))) ||
+    (!(strcmp(tile, "#")))) {
+        return 10;
+    }   
+     // Pokemart and Pokemon Center costs
+    if((!(strcmp(tile, "P"))) ||
+    (!(strcmp(tile, "M")))) {
+        return 50;
+    }
+    // Tall grass cost
+    if((!(strcmp(tile, ":")))) {
+        return 15;
+    }
+    // Water, Boulders, and Tree costs
+    return INT_MAX;
+}
 
-// Bounds checker 
 void dijkstras_generation(Local_Map *map) {
     int x, y;
     heap_t h;
@@ -361,36 +376,22 @@ void dijkstras_generation(Local_Map *map) {
             npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
         }
     }
+    // Temporary int checking variable
+    uint32_t tile_checker;
     // Dijkstra's Algorithm
     while((p = heap_remove_min(&h))) {
         p->hn = NULL;
         // Path and short grass cost
-        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], ""))) ||
-        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "#")))) {
-            current_cost = 10;
-        }   
-        // Pokemart and Pokemon Center costs
-        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "P"))) ||
-        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "M")))) {
-            current_cost = 50;
-        }
-        // Water, Boulders, and Tree costs
-        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "\%"))) ||
-        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "^"))) || 
-        (!(strcmp(map->terrain[p->pos[0]][p->pos[1]], "~")))) {
-            current_cost = INT_MAX;
-        }
-        // Tall grass cost
-        if((!(strcmp(map->terrain[p->pos[0]][p->pos[1]], ":")))) {
-            current_cost = 15;
-        }
+        current_cost = tile_weight(map->terrain[p->pos[0]][p->pos[1]]);
+        printf("%d Y, %d X\n", p->pos[0], p->pos[1]);
         // Bottom Node
         if((npc_heap[p->pos[0] + 1][p->pos[1]].hn) && 
         (npc_heap[p->pos[0] + 1][p->pos[1]].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
             // Set position of previous node here
             npc_heap[p->pos[0] + 1][p->pos[1]].from[0] = p->pos[0];
             npc_heap[p->pos[0] + 1][p->pos[1]].from[1] = p->pos[1];
-            npc_heap[p->pos[0] + 1][p->pos[1]].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0] + 1][p->pos[1]]);
+            npc_heap[p->pos[0] + 1][p->pos[1]].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1]].hn);
         }
@@ -400,7 +401,8 @@ void dijkstras_generation(Local_Map *map) {
             // Set position of previous node here
             npc_heap[p->pos[0] - 1][p->pos[1]].from[0] = p->pos[0];
             npc_heap[p->pos[0] - 1][p->pos[1]].from[1] = p->pos[1];
-            npc_heap[p->pos[0] - 1][p->pos[1]].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0] - 1][p->pos[1]]);
+            npc_heap[p->pos[0] - 1][p->pos[1]].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] - 1][p->pos[1]].hn);
         }
@@ -410,18 +412,19 @@ void dijkstras_generation(Local_Map *map) {
             // Set position of previous node here
             npc_heap[p->pos[0]][p->pos[1] + 1].from[0] = p->pos[0];
             npc_heap[p->pos[0]][p->pos[1] + 1].from[1] = p->pos[1];
-            npc_heap[p->pos[0]][p->pos[1] + 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0]][p->pos[1] + 1]);
+            npc_heap[p->pos[0]][p->pos[1] + 1].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0]][p->pos[1] + 1].hn);
         }
-
         // Left node
         if((npc_heap[p->pos[0]][p->pos[1] - 1].hn) && 
         (npc_heap[p->pos[0]][p->pos[1] - 1].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
             // Set position of previous node here
             npc_heap[p->pos[0]][p->pos[1] - 1].from[0] = p->pos[0];
             npc_heap[p->pos[0]][p->pos[1] - 1].from[1] = p->pos[1];
-            npc_heap[p->pos[0]][p->pos[1] - 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0]][p->pos[1] - 1]);
+            npc_heap[p->pos[0]][p->pos[1] - 1].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0]][p->pos[1] - 1].hn);
         }
@@ -432,7 +435,8 @@ void dijkstras_generation(Local_Map *map) {
             // Set position of previous node here
             npc_heap[p->pos[0] - 1][p->pos[1] - 1].from[0] = p->pos[0];
             npc_heap[p->pos[0] - 1][p->pos[1] - 1].from[1] = p->pos[1];
-            npc_heap[p->pos[0] - 1][p->pos[1] - 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0] - 1][p->pos[1] - 1]);
+            npc_heap[p->pos[0] - 1][p->pos[1] - 1].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] - 1][p->pos[1] - 1].hn);
         }
@@ -442,7 +446,8 @@ void dijkstras_generation(Local_Map *map) {
             // Set position of previous node here
             npc_heap[p->pos[0] - 1][p->pos[1] + 1].from[0] = p->pos[0];
             npc_heap[p->pos[0] - 1][p->pos[1] + 1].from[1] = p->pos[1];
-            npc_heap[p->pos[0] - 1][p->pos[1] + 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0] - 1][p->pos[1] + 1]);
+            npc_heap[p->pos[0] - 1][p->pos[1] + 1].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] - 1][p->pos[1] + 1].hn);
         }
@@ -452,7 +457,8 @@ void dijkstras_generation(Local_Map *map) {
             // Set position of previous node here
             npc_heap[p->pos[0] + 1][p->pos[1] - 1].from[0] = p->pos[0];
             npc_heap[p->pos[0] + 1][p->pos[1] - 1].from[1] = p->pos[1];
-            npc_heap[p->pos[0] + 1][p->pos[1] - 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0] + 1][p->pos[1] - 1]);
+            npc_heap[p->pos[0] + 1][p->pos[1] - 1].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1] - 1].hn);
         }
@@ -462,7 +468,8 @@ void dijkstras_generation(Local_Map *map) {
             // Set position of previous node here
             npc_heap[p->pos[0] + 1][p->pos[1] + 1].from[0] = p->pos[0];
             npc_heap[p->pos[0] + 1][p->pos[1] + 1].from[1] = p->pos[1];
-            npc_heap[p->pos[0] + 1][p->pos[1] + 1].cost = current_cost == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+            tile_checker = tile_weight(map->terrain[p->pos[0] + 1][p->pos[1] + 1]);
+            npc_heap[p->pos[0] + 1][p->pos[1] + 1].cost = tile_checker  == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
             // Remove node from heap
             heap_decrease_key_no_replace(&h, npc_heap[p->pos[0] + 1][p->pos[1] + 1].hn);
         }
@@ -491,7 +498,7 @@ int main(int argc, char *argv[]) {
     // Set seed
     // srand(time(0));
     srand(200);
-    printf("Using seed: 200");
+    printf("Using seed: 200\n");
     // Generate board
     int current_x = 200;
     int current_y = 200;
@@ -507,10 +514,16 @@ int main(int argc, char *argv[]) {
     char *verticalCard = current_y - 200 <= 0 ? "North" : "South";
     char *horizontalCard = current_y - 200 <= 0 ? "west" : "east";
     // Exit loop if input is q
+    printf("%d %d\n", playerX, playerY);
     while(input != 'q') {
-        for(x = 0; x < 21; x++) {
-            for(y = 0; y < 80; y++) {
-                printf("%s", world_map[current_y][current_x]->terrain[x][y]);
+        for(y = 0; y < 21; y++) {
+            for(x = 0; x < 80; x++) {
+                if((y == playerY) && (x == playerX)) {
+                    printf("@");
+                }
+                else {
+                    printf("%s", world_map[current_y][current_x]->terrain[y][x]);
+                }
             }
         printf("\n");
         }
@@ -557,7 +570,7 @@ int main(int argc, char *argv[]) {
                 break;
         }
         verticalCard = current_y - 200 <= 0 ? "North" : "South";
-        horizontalCard = current_y - 200 <= 0 ? "west" : "east";
+        horizontalCard = current_x - 200 <= 0 ? "west" : "east";
         // Generate and allocate new map if going to NULL location
         if(world_map[current_y][current_x] == NULL) {
             Local_Map* newMap = (Local_Map*) malloc(sizeof(Local_Map));
