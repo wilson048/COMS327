@@ -45,6 +45,26 @@ int playerY = 0;
 // Integer Maximum
 int32_t INT_MAX = 2000000;
 
+void initalize_grid(Local_Map *map) {
+    int x, y;
+    // Generate top-bottom border
+    for(x = 0; x < 80; x++) {
+        map->terrain[0][x] = "\%";
+        map->terrain[20][x] = "\%";
+    }
+    // Generate Side borders and central parts
+    for(x = 1; x < 20; x++) {
+        for(y = 0; y < 80; y++) {
+            if(y == 0 || y == 79) {
+                map->terrain[x][y] = "\%";
+            }
+            else {
+                map->terrain[x][y] = ".";
+            }
+        }
+    }
+}
+
 void generate_path_and_shops(int mapX, int mapY) {
     // Check for surrounding maps. If no map exists, set a new random start index
     // Northern map
@@ -281,31 +301,33 @@ void generate_path_and_shops(int mapX, int mapY) {
 void generate_voronoi_terrain(Local_Map *map) {
     int x, y, z;
     // Terrain types defined by numbers
-    int terrain_types[12] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
+    int terrain_types[20] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
     // Points are in the form [x, y, terrain_type]
-    Voroni_Point points[12];
+    Voroni_Point points[20];
     // Generate voronoi seed points
-    for(x = 0; x < 12; x ++) {
+    for(x = 0; x < 20; x ++) {
         // Set voronoi x to 1-79
-        points[x].x = (rand()) % (81);
+        points[x].x = (rand()) % (80 - 1 + 1) + 1;
         // Set voronoi y to 1-19
-        points[x].y = (rand()) % (21);
+        points[x].y = (rand()) % (20 - 1 + 1) + 1;
         // Set voronoi terrain to a predetermined int
         points[x].tileType = terrain_types[x];
     }
 
     // 1 = short grass (.), 2 = tall grass (:), 3 = water (~), 4 = mountains (%), 5 = trees (^)
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
+    for(y = 1; y < 20; y++) {
+        for(x = 1; x < 79; x++) {
             int point_index = 0;
+            // Find closet point
             double closest_distance = sqrt((double) ((points[0].x - x) * (points[0].x - x)) + ((points[0].y - y) * (points[0].y - y)));
-            for(z = 1; z < 12; z++) {
+            for(z = 1; z < 20; z++) {
                 double distance = sqrt((double) ((points[z].x - x) * (points[z].x - x)) + ((points[z].y - y) * (points[z].y - y)));;
                 if(distance < closest_distance) {
                     closest_distance = distance;
                     point_index = z;
                 }
             }
+            // Set tile
             switch (points[point_index].tileType) {
                 case 1:
                     map->terrain[y][x] = ".";
@@ -326,7 +348,9 @@ void generate_voronoi_terrain(Local_Map *map) {
         }
     }
 }
+// Place player randomly on path
 void placePlayer(Local_Map *map) {
+    // Generate random numbers until the player ends up on a path
     while(strcmp(map->terrain[playerY][playerX], "#")) {
         playerX = (rand()) % (78 - 2 + 1) + 2;
         playerY = (rand()) % (18 - 2 + 1) + 2;
@@ -336,7 +360,7 @@ void placePlayer(Local_Map *map) {
 static int32_t npc_cmp(const void *tile1, const void *tile2) {
     return ((path_t*) tile1)->cost - ((path_t*) tile2)->cost;
 }
-
+// Calculate tile weights for numerous NPCs
 uint32_t tile_weight(char *tile, npc_type n_type) {
     if((!(strcmp(tile, "."))) ||
     (!(strcmp(tile, "#")))) {
@@ -397,6 +421,7 @@ void dijkstras_generation(Local_Map *map, npc_type n_type) {
             npc_heap[y][x].cost = INT_MAX;
         }
     }
+    // Set player node to 0
     npc_heap[playerY][playerX].cost = 0;
     heap_init(&h, npc_cmp, NULL);
     // Fill Heap
@@ -416,6 +441,7 @@ void dijkstras_generation(Local_Map *map, npc_type n_type) {
         // Loop through all surrounding nodes
         for(y = p->pos[0] - 1; y <= p->pos[0] + 1; y++) {
             for(x = p->pos[1] - 1; x <= p->pos[1] + 1; x++) {
+                // Bounds checking
                 if((y == p->pos[0]) && (x == p->pos[1])) {
                     continue;
                 }
@@ -430,7 +456,6 @@ void dijkstras_generation(Local_Map *map, npc_type n_type) {
                     tile_checker = tile_weight(map->terrain[y][x], n_type);
                     npc_heap[y][x].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
                     // Remove node from heap
-                    // printf("Reassigning node cost at (%d, %d) with cost = %d tile_checker = %d previous cost = %d and tile node = %s\n", y, x, npc_heap[y][x].cost, tile_checker, npc_heap[p->pos[0]][p->pos[1]].cost, map->terrain[y][x]);
                     heap_decrease_key_no_replace(&h, npc_heap[y][x].hn);
                 }
             }
@@ -456,18 +481,20 @@ int main(int argc, char *argv[]) {
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
     // Set seed
     srand(time(0));
-    // srand(200);
-    printf("Using seed: 200\n");
     // Generate board
     int current_x = 200;
     int current_y = 200;
-    // Print Grid
     world_map[current_y][current_x] = startMap;
+    // Initalize Grid
+    initalize_grid(world_map[current_y][current_x]);
+    // Generate Terrain
     generate_voronoi_terrain(world_map[current_y][current_x]);
     generate_path_and_shops(current_y, current_x);
     placePlayer(world_map[current_y][current_x]);
     // Print Dijkstra's for hikers and rivals
+    printf("Hiker Map\n");
     dijkstras_generation(world_map[current_y][current_x], hiker);
+    printf("\n\n\nRival Map\n");
     dijkstras_generation(world_map[current_y][current_x], rival);
     char input = ' ';
     int inputX, inputY;
@@ -535,6 +562,7 @@ int main(int argc, char *argv[]) {
         if(world_map[current_y][current_x] == NULL) {
             Local_Map* newMap = (Local_Map*) malloc(sizeof(Local_Map));
             world_map[current_y][current_x] = newMap;
+            initalize_grid(world_map[current_y][current_x]);
             generate_voronoi_terrain(world_map[current_y][current_x]);
             generate_path_and_shops(current_x, current_y);
             placePlayer(world_map[current_y][current_x]);
