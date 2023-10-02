@@ -6,6 +6,15 @@
 #include <string.h>
 #include "heap.h"
 
+
+// Enum for representing npc types
+typedef enum {
+    hiker,
+    rival,
+    swimmer,
+    other
+} npc_type;
+// Voronoi points for generating terrain
 typedef struct {
     int x;
     int y;
@@ -20,7 +29,7 @@ typedef struct {
     int north_index;
     int south_index;
 } Local_Map;
-
+// Heap nodes that keep track of cost and previous nodes
 typedef struct npc_heap {
   heap_node_t *hn;
   uint8_t pos[2];
@@ -328,40 +337,60 @@ static int32_t npc_cmp(const void *tile1, const void *tile2) {
     return ((path_t*) tile1)->cost - ((path_t*) tile2)->cost;
 }
 
-uint32_t tile_weight(char *tile) {
+uint32_t tile_weight(char *tile, npc_type n_type) {
     if((!(strcmp(tile, "."))) ||
     (!(strcmp(tile, "#")))) {
-        return 10;
+        switch (n_type) {
+            case swimmer:
+                return INT_MAX;
+                break;
+            default:
+                return 10;
+                break;
+        }
     }   
      // Pokemart and Pokemon Center costs
     if((!(strcmp(tile, "P"))) ||
     (!(strcmp(tile, "M")))) {
-        return 50;
+        switch (n_type) {
+            case swimmer:
+                return INT_MAX;
+                break;
+            default:
+                return 50;
+                break;
+        }
     }
     // Tall grass cost
     if((!(strcmp(tile, ":")))) {
-        return 15;
+        switch (n_type) {
+            case swimmer:
+                return INT_MAX;
+                break;
+            case hiker:
+                return 15;
+                break;
+            default:
+                return 20;
+                break;
+        }
     }
     // Water, Boulders, and Tree costs
     return INT_MAX;
 }
 
-void dijkstras_generation(Local_Map *map) {
+void dijkstras_generation(Local_Map *map, npc_type n_type) {
     int x, y;
     heap_t h;
     path_t npc_heap[21][80], *p;
     uint32_t current_cost = 10;
-    
-    // heap_delete(&h);
-    // 0 = y, 1 = x
-    printf("Assigning points\n");
+    // Set positions of heap nodes
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             npc_heap[y][x].pos[0] = y;
             npc_heap[y][x].pos[1] = x;
         }
     }
-    printf("Assigning costs\n");
     // Fill nodes with max cost unless node is the player character
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
@@ -369,7 +398,6 @@ void dijkstras_generation(Local_Map *map) {
         }
     }
     npc_heap[playerY][playerX].cost = 0;
-    printf("Init heap\n");
     heap_init(&h, npc_cmp, NULL);
     // Fill Heap
     for(y = 0; y < 21; y++) {
@@ -383,7 +411,7 @@ void dijkstras_generation(Local_Map *map) {
     while((p = heap_remove_min(&h))) {
         p->hn = NULL;
         // Path and short grass cost
-        current_cost = tile_weight(map->terrain[p->pos[0]][p->pos[1]]);
+        current_cost = tile_weight(map->terrain[p->pos[0]][p->pos[1]], n_type);
         // printf("%d Y, %d X\n", p->pos[0], p->pos[1]);
         // Loop through all surrounding nodes
         for(y = p->pos[0] - 1; y <= p->pos[0] + 1; y++) {
@@ -399,7 +427,7 @@ void dijkstras_generation(Local_Map *map) {
                     // Set position of previous node here
                     npc_heap[y][x].from[0] = p->pos[0];
                     npc_heap[y][x].from[1] = p->pos[1];
-                    tile_checker = tile_weight(map->terrain[y][x]);
+                    tile_checker = tile_weight(map->terrain[y][x], n_type);
                     npc_heap[y][x].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
                     // Remove node from heap
                     // printf("Reassigning node cost at (%d, %d) with cost = %d tile_checker = %d previous cost = %d and tile node = %s\n", y, x, npc_heap[y][x].cost, tile_checker, npc_heap[p->pos[0]][p->pos[1]].cost, map->terrain[y][x]);
@@ -409,19 +437,9 @@ void dijkstras_generation(Local_Map *map) {
         }
     }
     
-    int max_tiles = 0;
-    printf("Dijkstra's complete\n");
+    // Print the path map
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            // if(npc_heap[y][x].cost != INT_MAX) {
-            //     if(tile_weight(map->terrain[y][x]))
-            //     printf("%d", );
-            //     // printf("1", npc_heap[y][x].cost % 100);
-            // }
-            // else {
-            //     printf("0 ");
-            //     max_tiles++;
-            // }
             if(npc_heap[y][x].cost != INT_MAX) {
                 printf("%02d ", npc_heap[y][x].cost % 100);
             }
@@ -431,7 +449,6 @@ void dijkstras_generation(Local_Map *map) {
         }
         printf("\n");
     }
-    printf("Max Tiles %d\n", max_tiles);
 }
 
 int main(int argc, char *argv[]) {
@@ -449,14 +466,15 @@ int main(int argc, char *argv[]) {
     generate_voronoi_terrain(world_map[current_y][current_x]);
     generate_path_and_shops(current_y, current_x);
     placePlayer(world_map[current_y][current_x]);
-    dijkstras_generation(world_map[current_y][current_x]);
+    // Print Dijkstra's for hikers and rivals
+    dijkstras_generation(world_map[current_y][current_x], hiker);
+    dijkstras_generation(world_map[current_y][current_x], rival);
     char input = ' ';
     int inputX, inputY;
     // Cardinal Directions
     char *verticalCard = current_y - 200 <= 0 ? "North" : "South";
     char *horizontalCard = current_y - 200 <= 0 ? "west" : "east";
     // Exit loop if input is q
-    printf("%d %d\n", playerX, playerY);
     while(input != 'q') {
         for(y = 0; y < 21; y++) {
             for(x = 0; x < 80; x++) {
