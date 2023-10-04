@@ -1,0 +1,3 @@
+This homework required by the class COM S 327 is a program that places NPCs on map and makes them move accordingly from movement cost.
+The movement for each turn will be gauged by a priority queue for all NPCs located on the grid. 
+Different NPCs will move in different ways.
