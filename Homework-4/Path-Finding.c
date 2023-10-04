@@ -9,8 +9,13 @@
 
 // Enum for representing npc types
 typedef enum {
+    player,
     hiker,
     rival,
+    wanderer,
+    sentry,
+    explorer,
+    pacer,
     swimmer,
     other
 } npc_type;
@@ -20,6 +25,14 @@ typedef struct {
     int y;
     int tileType;
 } Voroni_Point;
+
+typedef struct characters{
+    npc_type type;
+    int pos_x;
+    int pos_y;
+    int cost;
+    int sequence_num;
+} Character;
 
 // The local map struct
 typedef struct {
@@ -476,6 +489,23 @@ void dijkstras_generation(Local_Map *map, npc_type n_type) {
     }
 }
 
+void generate_npcs() {
+
+}
+
+static int32_t character_cmp(const void *c_one, const void *c_two) {
+    if(((Character*)c_one)->cost < ((Character*)c_two)->cost) {
+        return -1;
+    }
+    if(((Character*)c_one)->cost > ((Character*)c_two)->cost) {
+        return 1;
+    }
+    if(((Character*)c_one)->sequence_num > ((Character*)c_two)->sequence_num) {
+        return -1;
+    }
+    return 1;
+}
+
 int main(int argc, char *argv[]) {
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
@@ -496,77 +526,82 @@ int main(int argc, char *argv[]) {
     dijkstras_generation(world_map[current_y][current_x], hiker);
     printf("\n\n\nRival Map\n");
     dijkstras_generation(world_map[current_y][current_x], rival);
-    char input = ' ';
-    int inputX, inputY;
+    // char input = ' ';
+    // int inputX, inputY;
     // Cardinal Directions
-    char *verticalCard = current_y - 200 <= 0 ? "North" : "South";
-    char *horizontalCard = current_y - 200 <= 0 ? "west" : "east";
-    // Exit loop if input is q
-    while(input != 'q') {
-        for(y = 0; y < 21; y++) {
-            for(x = 0; x < 80; x++) {
-                if((y == playerY) && (x == playerX)) {
-                    printf("@");
-                }
-                else {
-                    printf("%s", world_map[current_y][current_x]->terrain[y][x]);
-                }
+    // char *verticalCard = current_y - 200 <= 0 ? "North" : "South";
+    // char *horizontalCard = current_y - 200 <= 0 ? "west" : "east";
+    // Path finidng heap and map
+    heap_t character_heap;
+    heap_init(&character_heap, character_cmp, NULL);
+
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            if((y == playerY) && (x == playerX)) {
+                printf("@");                
             }
+            else {
+                printf("%s", world_map[current_y][current_x]->terrain[y][x]);
+            }
+        }
         printf("\n");
-        }
-        printf("Current Location: %s%s (%d, %d)\nEnter Command: ", 
-        verticalCard,
-        horizontalCard,
-        current_x - 200, 
-        current_y - 200);
-        scanf("%c", &input);
-        printf("\n");
-        switch (input) {
-            // Move up 1
-            case 'n':
-                if(current_y > 0) {
-                    current_y--;
-                }
-                break;
-            // Move down one    
-            case 's':
-                if(current_y < 400) {
-                    current_y++;
-                }
-                break;
-            // Move right one    
-            case 'e':
-                if(current_x < 400) {
-                    current_x++;
-                }
-                break;
-            // Move left one    
-            case 'w':
-                if(current_x > 0) {
-                    current_x--;
-                }
-                break;
-            // Teleport to location (if in bounds)
-            case 'f':
-                scanf(" %d %d", &inputX, &inputY);
-                if(((inputX >= -200) && (inputX <= 200)) && ((inputY >= -200) && (inputY <= 200))) {
-                    current_x = inputX + 200;
-                    current_y = inputY + 200;
-                }
-            default: 
-                break;
-        }
-        verticalCard = current_y - 200 <= 0 ? "North" : "South";
-        horizontalCard = current_x - 200 <= 0 ? "west" : "east";
-        // Generate and allocate new map if going to NULL location
-        if(world_map[current_y][current_x] == NULL) {
-            Local_Map* newMap = (Local_Map*) malloc(sizeof(Local_Map));
-            world_map[current_y][current_x] = newMap;
-            initalize_grid(world_map[current_y][current_x]);
-            generate_voronoi_terrain(world_map[current_y][current_x]);
-            generate_path_and_shops(current_x, current_y);
-            placePlayer(world_map[current_y][current_x]);
-        }
+    }
+    // Exit loop if input is q
+    while(1) {
+        
+        // printf("Current Location: %s%s (%d, %d)\nEnter Command: ", 
+        // verticalCard,
+        // horizontalCard,
+        // current_x - 200, 
+        // current_y - 200);
+        // scanf("%c", &input);
+        // printf("\n");
+        // switch (input) {
+        //     // Move up 1
+        //     case 'n':
+        //         if(current_y > 0) {
+        //             current_y--;
+        //         }
+        //         break;
+        //     // Move down one    
+        //     case 's':
+        //         if(current_y < 400) {
+        //             current_y++;
+        //         }
+        //         break;
+        //     // Move right one    
+        //     case 'e':
+        //         if(current_x < 400) {
+        //             current_x++;
+        //         }
+        //         break;
+        //     // Move left one    
+        //     case 'w':
+        //         if(current_x > 0) {
+        //             current_x--;
+        //         }
+        //         break;
+        //     // Teleport to location (if in bounds)
+        //     case 'f':
+        //         scanf(" %d %d", &inputX, &inputY);
+        //         if(((inputX >= -200) && (inputX <= 200)) && ((inputY >= -200) && (inputY <= 200))) {
+        //             current_x = inputX + 200;
+        //             current_y = inputY + 200;
+        //         }
+        //     default: 
+        //         break;
+        // }
+        // verticalCard = current_y - 200 <= 0 ? "North" : "South";
+        // horizontalCard = current_x - 200 <= 0 ? "west" : "east";
+        // // Generate and allocate new map if going to NULL location
+        // if(world_map[current_y][current_x] == NULL) {
+        //     Local_Map* newMap = (Local_Map*) malloc(sizeof(Local_Map));
+        //     world_map[current_y][current_x] = newMap;
+        //     initalize_grid(world_map[current_y][current_x]);
+        //     generate_voronoi_terrain(world_map[current_y][current_x]);
+        //     generate_path_and_shops(current_x, current_y);
+        //     placePlayer(world_map[current_y][current_x]);
+        // }
     }
     // Free all memory
     for(y = 0; y < 401; y++) {
@@ -576,5 +611,6 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+    heap_delete(&character_heap);
     return 0;
 }
