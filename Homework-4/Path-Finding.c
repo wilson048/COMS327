@@ -27,12 +27,21 @@ typedef struct {
 } Voroni_Point;
 
 typedef struct characters{
+    heap_node_t *hn;
     npc_type type;
     int pos_x;
     int pos_y;
     int cost;
     int sequence_num;
 } Character;
+
+// Heap nodes that keep track of cost and previous nodes
+typedef struct npc_heap {
+  heap_node_t *hn;
+  uint8_t pos[2];
+  uint8_t from[2];
+  int32_t cost;
+} npc_node_t;
 
 // The local map struct
 typedef struct {
@@ -41,14 +50,10 @@ typedef struct {
     int east_index;
     int north_index;
     int south_index;
+    npc_node_t *hiker_paths[21][80];
+    npc_node_t *rival_paths[21][80];
 } Local_Map;
-// Heap nodes that keep track of cost and previous nodes
-typedef struct npc_heap {
-  heap_node_t *hn;
-  uint8_t pos[2];
-  uint8_t from[2];
-  int32_t cost;
-} path_t;
+
 
 // The world map
 Local_Map *world_map[401][401];
@@ -57,6 +62,8 @@ int playerX = 0;
 int playerY = 0;
 // Integer Maximum
 int32_t INT_MAX = 2000000;
+// NPCs to place on the map
+npc_type NPCs[10] = {hiker, hiker, rival, rival, pacer, pacer, explorer, sentry, wanderer, explorer};
 
 void initalize_grid(Local_Map *map) {
     int x, y;
@@ -124,7 +131,13 @@ void generate_path_and_shops(int mapX, int mapY) {
     }
     // Generate start of path
     for(x = start_number; x < h_shift_index; x++) {
-        world_map[mapY][mapX]->terrain[world_map[mapY][mapX]->west_index][x] = "#";
+        // Mark edge paths with "-" to represent gates
+        if(x == 0) {
+            world_map[mapY][mapX]->terrain[world_map[mapY][mapX]->west_index][x] = "-";
+        }
+        else {
+            world_map[mapY][mapX]->terrain[world_map[mapY][mapX]->west_index][x] = "#";
+        }
     }
     // Generate North-South offset upward
     if(world_map[mapY][mapX]->west_index > world_map[mapY][mapX]->east_index) {
@@ -145,7 +158,13 @@ void generate_path_and_shops(int mapX, int mapY) {
     }
     // Generate end of path
     for(x = h_shift_index; x < stop_number; x++) {
-        world_map[mapY][mapX]->terrain[world_map[mapY][mapX]->east_index][x] = "#";
+        // Mark edge paths with "-" to represent gates
+        if(x == 79) {
+            world_map[mapY][mapX]->terrain[world_map[mapY][mapX]->east_index][x] = "-";
+        }
+        else {
+            world_map[mapY][mapX]->terrain[world_map[mapY][mapX]->east_index][x] = "#";
+        }
     }
 
 
@@ -160,7 +179,13 @@ void generate_path_and_shops(int mapX, int mapY) {
     }
     // Generate start of path
     for(y = start_number; y < v_shift_index; y++) {
-        world_map[mapY][mapX]->terrain[y][world_map[mapY][mapX]->north_index] = "#";
+        if(y == 0) {
+            // Mark edge paths with "-" to represent gates
+            world_map[mapY][mapX]->terrain[y][world_map[mapY][mapX]->north_index] = "-";
+        }
+        else {
+            world_map[mapY][mapX]->terrain[y][world_map[mapY][mapX]->north_index] = "#";
+        }
     }
     // Generate North-South offset right
     if(world_map[mapY][mapX]->north_index > world_map[mapY][mapX]->south_index) {
@@ -181,7 +206,13 @@ void generate_path_and_shops(int mapX, int mapY) {
     }
     // Generate end of path
     for(y = v_shift_index; y < stop_number; y++) {
-        world_map[mapY][mapX]->terrain[y][world_map[mapY][mapX]->south_index] = "#";
+        // Mark edge paths with "-" to represent gates
+        if(y == 20) {
+            world_map[mapY][mapX]->terrain[y][world_map[mapY][mapX]->south_index] = "-";
+        } 
+        else {
+            world_map[mapY][mapX]->terrain[y][world_map[mapY][mapX]->south_index] = "#";
+        }
     }
     // Get distance from spawn
     int distance_from_spawn = (int) sqrt((double) ((mapX - 200) * (mapX - 200) + (mapY - 200) * (mapY - 200)));
@@ -371,7 +402,7 @@ void placePlayer(Local_Map *map) {
 }
 // Terrain comparator for NPCs
 static int32_t npc_cmp(const void *tile1, const void *tile2) {
-    return ((path_t*) tile1)->cost - ((path_t*) tile2)->cost;
+    return ((npc_node_t*) tile1)->cost - ((npc_node_t*) tile2)->cost;
 }
 // Calculate tile weights for numerous NPCs
 uint32_t tile_weight(char *tile, npc_type n_type) {
@@ -390,6 +421,9 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
     if((!(strcmp(tile, "P"))) ||
     (!(strcmp(tile, "M")))) {
         switch (n_type) {
+            case player:
+                return 10;
+                break;
             case swimmer:
                 return INT_MAX;
                 break;
@@ -412,6 +446,17 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
                 break;
         }
     }
+    // Dashes "-" represent gates
+    if(!(strcmp(tile, "P"))) {
+        switch (n_type) {
+            case player:
+                return 10;
+                break;
+            default:
+                return INT_MAX;
+                break;
+        }
+    }
     // Water, Boulders, and Tree costs
     return INT_MAX;
 }
@@ -419,7 +464,7 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
 void dijkstras_generation(Local_Map *map, npc_type n_type) {
     int x, y;
     heap_t h;
-    path_t npc_heap[21][80], *p;
+    npc_node_t npc_heap[21][80], *p;
     uint32_t current_cost = 10;
     // Set positions of heap nodes
     for(y = 0; y < 21; y++) {
@@ -474,23 +519,15 @@ void dijkstras_generation(Local_Map *map, npc_type n_type) {
             }
         }
     }
-    
-    // Print the path map
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            if(npc_heap[y][x].cost != INT_MAX) {
-                printf("%02d ", npc_heap[y][x].cost % 100);
-            }
-            else {
-                printf("   ");
-            }
-        }
-        printf("\n");
-    }
 }
-
-void generate_npcs() {
-
+// Generate 10 NPCs to place into the heap
+void generate_npcs(heap_t *char_heap) {
+    int x; 
+    for(x = 0; x < 10; x++) {
+        
+    }
+    // playerX = (rand()) % (78 - 2 + 1) + 2;
+    // playerY = (rand()) % (18 - 2 + 1) + 2;
 }
 
 static int32_t character_cmp(const void *c_one, const void *c_two) {
@@ -509,6 +546,7 @@ static int32_t character_cmp(const void *c_one, const void *c_two) {
 int main(int argc, char *argv[]) {
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
+    // Character* chracter_map[21][80];
     // Set seed
     srand(time(0));
     // Generate board
@@ -522,19 +560,11 @@ int main(int argc, char *argv[]) {
     generate_path_and_shops(current_y, current_x);
     placePlayer(world_map[current_y][current_x]);
     // Print Dijkstra's for hikers and rivals
-    printf("Hiker Map\n");
     dijkstras_generation(world_map[current_y][current_x], hiker);
-    printf("\n\n\nRival Map\n");
     dijkstras_generation(world_map[current_y][current_x], rival);
-    // char input = ' ';
-    // int inputX, inputY;
-    // Cardinal Directions
-    // char *verticalCard = current_y - 200 <= 0 ? "North" : "South";
-    // char *horizontalCard = current_y - 200 <= 0 ? "west" : "east";
-    // Path finidng heap and map
     heap_t character_heap;
     heap_init(&character_heap, character_cmp, NULL);
-
+    generate_npcs(&character_heap);
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if((y == playerY) && (x == playerX)) {
@@ -549,59 +579,6 @@ int main(int argc, char *argv[]) {
     // Exit loop if input is q
     while(1) {
         
-        // printf("Current Location: %s%s (%d, %d)\nEnter Command: ", 
-        // verticalCard,
-        // horizontalCard,
-        // current_x - 200, 
-        // current_y - 200);
-        // scanf("%c", &input);
-        // printf("\n");
-        // switch (input) {
-        //     // Move up 1
-        //     case 'n':
-        //         if(current_y > 0) {
-        //             current_y--;
-        //         }
-        //         break;
-        //     // Move down one    
-        //     case 's':
-        //         if(current_y < 400) {
-        //             current_y++;
-        //         }
-        //         break;
-        //     // Move right one    
-        //     case 'e':
-        //         if(current_x < 400) {
-        //             current_x++;
-        //         }
-        //         break;
-        //     // Move left one    
-        //     case 'w':
-        //         if(current_x > 0) {
-        //             current_x--;
-        //         }
-        //         break;
-        //     // Teleport to location (if in bounds)
-        //     case 'f':
-        //         scanf(" %d %d", &inputX, &inputY);
-        //         if(((inputX >= -200) && (inputX <= 200)) && ((inputY >= -200) && (inputY <= 200))) {
-        //             current_x = inputX + 200;
-        //             current_y = inputY + 200;
-        //         }
-        //     default: 
-        //         break;
-        // }
-        // verticalCard = current_y - 200 <= 0 ? "North" : "South";
-        // horizontalCard = current_x - 200 <= 0 ? "west" : "east";
-        // // Generate and allocate new map if going to NULL location
-        // if(world_map[current_y][current_x] == NULL) {
-        //     Local_Map* newMap = (Local_Map*) malloc(sizeof(Local_Map));
-        //     world_map[current_y][current_x] = newMap;
-        //     initalize_grid(world_map[current_y][current_x]);
-        //     generate_voronoi_terrain(world_map[current_y][current_x]);
-        //     generate_path_and_shops(current_x, current_y);
-        //     placePlayer(world_map[current_y][current_x]);
-        // }
     }
     // Free all memory
     for(y = 0; y < 401; y++) {
