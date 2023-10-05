@@ -26,7 +26,7 @@ typedef struct {
     int tileType;
 } Voroni_Point;
 
-typedef struct characters{
+typedef struct characters {
     heap_node_t *hn;
     npc_type type;
     int pos_x;
@@ -42,7 +42,6 @@ typedef struct npc_heap {
   uint8_t from[2];
   int32_t cost;
 } npc_node_t;
-
 // The local map struct
 typedef struct {
     char *terrain[21][80];
@@ -461,31 +460,28 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
     return INT_MAX;
 }
 
-void dijkstras_generation(Local_Map *map, npc_type n_type) {
+void dijkstras_generation(Local_Map *map, npc_type n_type, npc_node_t *npc_heap[21][80]) {
     int x, y;
     heap_t h;
-    npc_node_t npc_heap[21][80], *p;
+    npc_node_t *p;
     uint32_t current_cost = 10;
     // Set positions of heap nodes
     for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            npc_heap[y][x].pos[0] = y;
-            npc_heap[y][x].pos[1] = x;
-        }
-    }
-    // Fill nodes with max cost unless node is the player character
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            npc_heap[y][x].cost = INT_MAX;
+        for(x = 0; x < 80; x++) { 
+            npc_heap[y][x] = (npc_node_t*) malloc(sizeof(npc_heap[y][x]));
+            npc_heap[y][x]->pos[0] = y;
+            npc_heap[y][x]->pos[1] = x;
+            // Fill nodes with max cost unless node is the player character
+            npc_heap[y][x]->cost = INT_MAX;
         }
     }
     // Set player node to 0
-    npc_heap[playerY][playerX].cost = 0;
+    npc_heap[playerY][playerX]->cost = 0;
     heap_init(&h, npc_cmp, NULL);
     // Fill Heap
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
+            npc_heap[y][x]->hn = heap_insert(&h, &npc_heap[y][x]);
         }
     }
     // Temporary int checking variable
@@ -506,15 +502,15 @@ void dijkstras_generation(Local_Map *map, npc_type n_type) {
                 if((y < 0) || (x < 0) || (y > 20) || (x > 79)) {
                     continue;
                 }
-                if((npc_heap[y][x].hn) && 
-                (npc_heap[y][x].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
+                if((npc_heap[y][x]->hn) && 
+                (npc_heap[y][x]->cost > npc_heap[p->pos[0]][p->pos[1]]->cost)) {
                     // Set position of previous node here
-                    npc_heap[y][x].from[0] = p->pos[0];
-                    npc_heap[y][x].from[1] = p->pos[1];
+                    npc_heap[y][x]->from[0] = p->pos[0];
+                    npc_heap[y][x]->from[1] = p->pos[1];
                     tile_checker = tile_weight(map->terrain[y][x], n_type);
-                    npc_heap[y][x].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+                    npc_heap[y][x]->cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]]->cost + current_cost;
                     // Remove node from heap
-                    heap_decrease_key_no_replace(&h, npc_heap[y][x].hn);
+                    heap_decrease_key_no_replace(&h, npc_heap[y][x]->hn);
                 }
             }
         }
@@ -560,8 +556,8 @@ int main(int argc, char *argv[]) {
     generate_path_and_shops(current_y, current_x);
     placePlayer(world_map[current_y][current_x]);
     // Print Dijkstra's for hikers and rivals
-    dijkstras_generation(world_map[current_y][current_x], hiker);
-    dijkstras_generation(world_map[current_y][current_x], rival);
+    dijkstras_generation(world_map[current_y][current_x], hiker, world_map[current_y][current_x]->hiker_paths);
+    dijkstras_generation(world_map[current_y][current_x], rival, world_map[current_y][current_x]->rival_paths);
     heap_t character_heap;
     heap_init(&character_heap, character_cmp, NULL);
     generate_npcs(&character_heap);
