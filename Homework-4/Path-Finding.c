@@ -38,8 +38,8 @@ typedef struct characters {
 // Heap nodes that keep track of cost and previous nodes
 typedef struct npc_heap {
   heap_node_t *hn;
-  uint8_t pos[2];
-  uint8_t from[2];
+  uint8_t *pos[2];
+  uint8_t *from[2];
   int32_t cost;
 } npc_node_t;
 // The local map struct
@@ -461,7 +461,7 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
 }
 
 void dijkstras_generation(Local_Map *map, npc_type n_type, npc_node_t *npc_heap[21][80]) {
-    int x, y;
+    int x, y, z;
     heap_t h;
     npc_node_t *p;
     uint32_t current_cost = 10;
@@ -469,6 +469,10 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_node_t *npc_heap[
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) { 
             npc_heap[y][x] = (npc_node_t*) malloc(sizeof(npc_heap[y][x]));
+            for(z = 0; z < 2; z++) {
+                npc_heap[y][x]->pos[x] = (uint8_t*) malloc(sizeof(npc_heap[y][x]->pos[x]));
+                npc_heap[y][x]->from[x] = (uint8_t*) malloc(sizeof(npc_heap[y][x]->from[x]));
+            }
             npc_heap[y][x]->pos[0] = y;
             npc_heap[y][x]->pos[1] = x;
             // Fill nodes with max cost unless node is the player character

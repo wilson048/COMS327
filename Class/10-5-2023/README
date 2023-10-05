@@ -1,0 +1,70 @@
+Declerations
+- Scope and Lifetime
+Scope - Where in a program a variable is accessible
+Lifetime - when in a program a variable exists
+
+*** auto
+    This is the default for variables defined in functions, so it is rarely seen used explicitly.
+    Variable's scopes is restrictd to the function in which it is declared. Lifetime is the same as that ouf the function
+*** const
+    Makes the variable immutable. Doesn't affect scope or lifetime.
+    Some compileres will put the variable in the text segment, which meants that it's actual lifetime would be 
+    equal to that of the program; however, it woul dbe an error to depend on this
+*** extern
+    Means that the storage for the variable is created elsewhere; used to export data to other compilation units.
+    It would only make sense to use an external decleration for variables in global scope.
+*** static
+    Lifetime of the function is the lifetime of the program, though it's scope is only within the function that it is placed in
+*** register
+    Doesn't affect lifetime or scope
+    The compiler will try to put the variable in a register
+    Error to take address of register variable
+*** volatile
+    Doesn't affect lifetime or scope
+    Tells the compiler that this value could change outsie of the control of the normal program flow
+*** inline
+    Optimization. Doesn not affect lifetime or scope. Only for functions.
+    Similar to function-type macros. Puts function body inside caller without function call.
+* Bitwise operators
+** and
+    Operator is &
+    Like logical and, but on individual bits, 1 if both bits are 1
+    1111 1101 1001 0001 0110 0111 0111 0100
+    0110 1100 0011 1010 1111 0111 0100 1110 &
+    ---------------------------------------
+    0110 1100 0001 0000 0110 0111 0100 0100
+** or
+    Operator is |
+    Like logical or, but on individual bits, 1 if at least one bit is 1
+    1111 1101 1001 0001 0110 0111 0111 0100
+    0110 1100 0011 1010 1111 0111 0100 1110 |
+    ---------------------------------------
+    1111 1101 1011 1011 1111 0111 0111 1110
+** xor
+    Operator is ^
+    Like logical exclusive or, but on individual bits, 1 if exactly one bit is 1
+    1111 1101 1001 0001 0110 0111 0111 0100
+    0110 1100 0011 1010 1111 0111 0100 1110 ^
+    ---------------------------------------
+    1001 0001 1010 1011 1001 0000 0011 1010
+** not
+    Unary compliment operator ~. FLips every bit
+    ~1111 1101 1001 0001 0110 0111 0111 0100
+     0000 0010 0110 1110 1001 1000 1000 1011
+** right shift
+    Operator is >>
+    Move bits to the right (fast division by a power of 2), fills in with zeros
+    1111 1101 1001 0001 0110 0111 0111 0100 >> 3 ==
+    0001 1111 1011 0010 0010 1100 1110 1110
+    This operation (shift by 3) divides by 8
+** left shift
+    Operator is <<
+    Move bits to the left (fast multiplication by a power of 2), fills in with zeros
+    1111 1101 1001 0001 0110 0111 0111 0100 << 5 ==
+    1011 0010 0010 1100 1110 1110 1000 0000
+    This operation (shift by 5) multiplies by 32
+** Bitfields 
+    Used to store boolean values using only one bit. An array of booleans in a single primitive type.
+    Remember that hex is short hand for binary so
+    0x1,       0x02,      0x04,      0x08,      0x10,       0x20,      0x40,      0x80 ==
+    00000001,  00000010,  00000100,  00001000,  000100000,  00100000,  01000000,  10000000
