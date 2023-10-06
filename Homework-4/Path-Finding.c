@@ -38,8 +38,8 @@ typedef struct characters {
 // Heap nodes that keep track of cost and previous nodes
 typedef struct npc_heap {
   heap_node_t *hn;
-  uint8_t pos[2];
-  uint8_t from[2];
+  uint8_t *pos[2];
+  uint8_t *from[2];
   int32_t cost;
 } npc_node_t;
 // Heap nodes without the heap nodes, solution to store Dijkstra generations
@@ -486,10 +486,9 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) { 
-            // Heap nodes
-            npc_maps[y][x] = (npc_tile*) malloc(sizeof(npc_tile));
-            npc_heap[y][x].pos[0] = y;
-            npc_heap[y][x].pos[1] = x;
+            npc_heap[y][x] = (npc_node_t*) malloc(sizeof(npc_heap[y][x]));
+            npc_heap[y][x]->pos[0] = y;
+            npc_heap[y][x]->pos[1] = x;
             // Fill nodes with max cost unless node is the player character
             npc_heap[y][x].cost = INT_MAX;
             // Non-Heap nodes
