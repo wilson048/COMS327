@@ -42,6 +42,14 @@ typedef struct npc_heap {
   uint8_t from[2];
   int32_t cost;
 } npc_node_t;
+// Heap nodes without the heap nodes, solution to store Dijkstra generations
+typedef struct {
+  uint8_t x_pos;
+  uint8_t y_pos;
+  uint8_t x_from;
+  uint8_t y_from;
+  int32_t cost;
+} npc_tile;
 // The local map struct
 typedef struct {
     char *terrain[21][80];
@@ -49,8 +57,8 @@ typedef struct {
     int east_index;
     int north_index;
     int south_index;
-    npc_node_t *hiker_paths[21][80];
-    npc_node_t *rival_paths[21][80];
+    npc_tile *hiker_paths[21][80];
+    npc_tile *rival_paths[21][80];
 } Local_Map;
 
 
@@ -460,28 +468,43 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
     return INT_MAX;
 }
 
-void dijkstras_generation(Local_Map *map, npc_type n_type, npc_node_t *npc_heap[21][80]) {
+void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21][80]) {
     int x, y;
     heap_t h;
-    npc_node_t *p;
+    npc_node_t npc_heap[21][80], *p;
     uint32_t current_cost = 10;
+    // if(!initalized) {
+    //     for(y = 0; y < 21; y++) {
+    //         for(x = 0; x < 80; x++) { 
+                
+    //         }
+    //     }
+    //     initalized = 1;  
+    // }
     // Set positions of heap nodes
+    // Initalize NPC maps for storing
+    
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) { 
-            npc_heap[y][x] = (npc_node_t*) malloc(sizeof(npc_heap[y][x]));
-            npc_heap[y][x]->pos[0] = y;
-            npc_heap[y][x]->pos[1] = x;
+            // Heap nodes
+            npc_maps[y][x] = (npc_tile*) malloc(sizeof(npc_tile));
+            npc_heap[y][x].pos[0] = y;
+            npc_heap[y][x].pos[1] = x;
             // Fill nodes with max cost unless node is the player character
-            npc_heap[y][x]->cost = INT_MAX;
+            npc_heap[y][x].cost = INT_MAX;
+            // Non-Heap nodes
+            npc_maps[y][x]->y_pos = npc_heap[y][x].pos[0];
+            npc_maps[y][x]->x_pos = npc_heap[y][x].pos[1];
+            npc_maps[y][x]->cost = INT_MAX;
         }
     }
     // Set player node to 0
-    npc_heap[playerY][playerX]->cost = 0;
+    npc_heap[playerY][playerX].cost = 0;
     heap_init(&h, npc_cmp, NULL);
     // Fill Heap
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            npc_heap[y][x]->hn = heap_insert(&h, &npc_heap[y][x]);
+            npc_heap[y][x].hn = heap_insert(&h, &npc_heap[y][x]);
         }
     }
     // Temporary int checking variable
@@ -502,19 +525,21 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_node_t *npc_heap[
                 if((y < 0) || (x < 0) || (y > 20) || (x > 79)) {
                     continue;
                 }
-                if((npc_heap[y][x]->hn) && 
-                (npc_heap[y][x]->cost > npc_heap[p->pos[0]][p->pos[1]]->cost)) {
+                if((npc_heap[y][x].hn) && 
+                (npc_heap[y][x].cost > npc_heap[p->pos[0]][p->pos[1]].cost)) {
                     // Set position of previous node here
-                    npc_heap[y][x]->from[0] = p->pos[0];
-                    npc_heap[y][x]->from[1] = p->pos[1];
+                    npc_maps[y][x]->y_from = p->pos[0];
+                    npc_maps[y][x]->x_from = p->pos[1];
                     tile_checker = tile_weight(map->terrain[y][x], n_type);
-                    npc_heap[y][x]->cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]]->cost + current_cost;
+                    npc_heap[y][x].cost = tile_checker == INT_MAX ? INT_MAX : npc_heap[p->pos[0]][p->pos[1]].cost + current_cost;
+                    npc_maps[y][x]->cost = npc_heap[y][x].cost;
                     // Remove node from heap
-                    heap_decrease_key_no_replace(&h, npc_heap[y][x]->hn);
+                    heap_decrease_key_no_replace(&h, npc_heap[y][x].hn);
                 }
             }
         }
     }
+    heap_delete(&h);
 }
 // Generate 10 NPCs to place into the heap
 void generate_npcs(heap_t *char_heap) {
@@ -558,6 +583,18 @@ int main(int argc, char *argv[]) {
     // Print Dijkstra's for hikers and rivals
     dijkstras_generation(world_map[current_y][current_x], hiker, world_map[current_y][current_x]->hiker_paths);
     dijkstras_generation(world_map[current_y][current_x], rival, world_map[current_y][current_x]->rival_paths);
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            if(world_map[current_y][current_x]->rival_paths[y][x]->cost == INT_MAX) {
+                printf("   ");
+            }
+            else {
+                printf("%02d ", world_map[current_y][current_x]->rival_paths[y][x]->cost % 100);
+            }
+        }
+        printf("\n");
+    }
+    printf("\n\n\n");
     heap_t character_heap;
     heap_init(&character_heap, character_cmp, NULL);
     generate_npcs(&character_heap);
@@ -577,9 +614,16 @@ int main(int argc, char *argv[]) {
         
     }
     // Free all memory
+    int i, j;
     for(y = 0; y < 401; y++) {
         for(x = 0; x < 401; x++) {
             if(world_map[y][x] != NULL) {
+                for(i = 0; i < 21; i++) {
+                    for(j = 0; j < 21; j++) {
+                        free(world_map[y][x]->hiker_paths[y][x]);
+                        free(world_map[y][x]->rival_paths[y][x]);
+                    }
+                }
                 free(world_map[y][x]);
             }
         }
