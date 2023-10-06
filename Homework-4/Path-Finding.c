@@ -38,8 +38,8 @@ typedef struct characters {
 // Heap nodes that keep track of cost and previous nodes
 typedef struct npc_heap {
   heap_node_t *hn;
-  uint8_t *pos[2];
-  uint8_t *from[2];
+  uint8_t pos[2];
+  uint8_t from[2];
   int32_t cost;
 } npc_node_t;
 // Heap nodes without the heap nodes, solution to store Dijkstra generations
@@ -486,9 +486,9 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) { 
-            npc_heap[y][x] = (npc_node_t*) malloc(sizeof(npc_heap[y][x]));
-            npc_heap[y][x]->pos[0] = y;
-            npc_heap[y][x]->pos[1] = x;
+            npc_maps[y][x] = (npc_tile*) malloc(sizeof(npc_tile));
+            npc_heap[y][x].pos[0] = y;
+            npc_heap[y][x].pos[1] = x;
             // Fill nodes with max cost unless node is the player character
             npc_heap[y][x].cost = INT_MAX;
             // Non-Heap nodes
@@ -582,6 +582,7 @@ int main(int argc, char *argv[]) {
     // Print Dijkstra's for hikers and rivals
     dijkstras_generation(world_map[current_y][current_x], hiker, world_map[current_y][current_x]->hiker_paths);
     dijkstras_generation(world_map[current_y][current_x], rival, world_map[current_y][current_x]->rival_paths);
+
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if(world_map[current_y][current_x]->rival_paths[y][x]->cost == INT_MAX) {
@@ -618,7 +619,7 @@ int main(int argc, char *argv[]) {
         for(x = 0; x < 401; x++) {
             if(world_map[y][x] != NULL) {
                 for(i = 0; i < 21; i++) {
-                    for(j = 0; j < 21; j++) {
+                    for(j = 0; j < 80; j++) {
                         free(world_map[y][x]->hiker_paths[y][x]);
                         free(world_map[y][x]->rival_paths[y][x]);
                     }
