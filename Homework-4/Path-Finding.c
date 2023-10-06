@@ -582,7 +582,7 @@ int main(int argc, char *argv[]) {
     // Print Dijkstra's for hikers and rivals
     dijkstras_generation(world_map[current_y][current_x], hiker, world_map[current_y][current_x]->hiker_paths);
     dijkstras_generation(world_map[current_y][current_x], rival, world_map[current_y][current_x]->rival_paths);
-
+    // DEBUG: Show hiker and rival paths
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if(world_map[current_y][current_x]->rival_paths[y][x]->cost == INT_MAX) {
@@ -594,7 +594,18 @@ int main(int argc, char *argv[]) {
         }
         printf("\n");
     }
-    printf("\n\n\n");
+    printf("\n\n\nHiker Paths:\n");
+    for(y = 0; y < 21; y++) {
+        for(x = 0; x < 80; x++) {
+            if(world_map[current_y][current_x]->hiker_paths[y][x]->cost == INT_MAX) {
+                printf("   ");
+            }
+            else {
+                printf("%02d ", world_map[current_y][current_x]->hiker_paths[y][x]->cost % 100);
+            }
+        }
+        printf("\n");
+    }
     heap_t character_heap;
     heap_init(&character_heap, character_cmp, NULL);
     generate_npcs(&character_heap);
