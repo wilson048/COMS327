@@ -70,7 +70,12 @@ int playerY = 0;
 // Integer Maximum
 int32_t INT_MAX = 2000000;
 // NPCs to place on the map
-npc_type NPCs[10] = {hiker, hiker, rival, rival, pacer, pacer, explorer, sentry, wanderer, explorer};
+npc_type NPCs[11] = {player, hiker, hiker, rival, rival, pacer, pacer, explorer, sentry, wanderer, explorer};
+// Character array for collision detection
+Character *character_map[21][80];
+// Array of characters to malloc
+Character *characters[11];
+
 
 void initalize_grid(Local_Map *map) {
     int x, y;
@@ -473,20 +478,12 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     heap_t h;
     npc_node_t npc_heap[21][80], *p;
     uint32_t current_cost = 10;
-    // if(!initalized) {
-    //     for(y = 0; y < 21; y++) {
-    //         for(x = 0; x < 80; x++) { 
-                
-    //         }
-    //     }
-    //     initalized = 1;  
-    // }
-    // Set positions of heap nodes
-    // Initalize NPC maps for storing
     
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) { 
+            // So this parts makes it impossible to reuse this method, unless...
             npc_maps[y][x] = (npc_tile*) malloc(sizeof(npc_tile));
+            
             npc_heap[y][x].pos[0] = y;
             npc_heap[y][x].pos[1] = x;
             // Fill nodes with max cost unless node is the player character
@@ -540,16 +537,7 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     }
     heap_delete(&h);
 }
-// Generate 10 NPCs to place into the heap
-void generate_npcs(heap_t *char_heap) {
-    int x; 
-    for(x = 0; x < 10; x++) {
-        
-    }
-    // playerX = (rand()) % (78 - 2 + 1) + 2;
-    // playerY = (rand()) % (18 - 2 + 1) + 2;
-}
-
+// The NPC comparator for the min-heap
 static int32_t character_cmp(const void *c_one, const void *c_two) {
     if(((Character*)c_one)->cost < ((Character*)c_two)->cost) {
         return -1;
@@ -561,6 +549,38 @@ static int32_t character_cmp(const void *c_one, const void *c_two) {
         return -1;
     }
     return 1;
+}
+// Generate 10 NPCs to place into the heap
+void generate_npcs(heap_t *char_heap, Local_Map *map) {
+    int x; 
+    int rand_x = 0;
+    int rand_y = 0;
+    for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
+        characters[x] = (Character*) malloc(sizeof(Character));
+        if(NPCs[x] == player) {
+            characters[x]->pos_x = playerX;
+            characters[x]->pos_y = playerY;
+        }
+        else {
+            // Generate numbers from 1-79 for now
+            do {
+                printf("Randomly Generating nums\n");
+                rand_x = (rand()) % (79 - 1 + 1) + 1;
+                rand_y = (rand()) % (19 - 1 + 1) + 1;
+            } while(tile_weight(map->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
+            characters[x]->pos_x = rand_x;
+            characters[x]->pos_y = rand_y;
+            printf("Done\n");
+
+        }
+        characters[x]->type = NPCs[x];
+        printf("%d\n", NPCs[x]);
+        characters[x]->sequence_num = x;
+        characters[x]->cost = 0;
+        characters[x]->hn = heap_insert(char_heap, characters[x]->hn);
+    }
+    // playerX = (rand()) % (78 - 2 + 1) + 2;
+    // playerY = (rand()) % (18 - 2 + 1) + 2;
 }
 
 int main(int argc, char *argv[]) {
@@ -583,32 +603,32 @@ int main(int argc, char *argv[]) {
     dijkstras_generation(world_map[current_y][current_x], hiker, world_map[current_y][current_x]->hiker_paths);
     dijkstras_generation(world_map[current_y][current_x], rival, world_map[current_y][current_x]->rival_paths);
     // DEBUG: Show hiker and rival paths
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            if(world_map[current_y][current_x]->rival_paths[y][x]->cost == INT_MAX) {
-                printf("   ");
-            }
-            else {
-                printf("%02d ", world_map[current_y][current_x]->rival_paths[y][x]->cost % 100);
-            }
-        }
-        printf("\n");
-    }
-    printf("\n\n\nHiker Paths:\n");
-    for(y = 0; y < 21; y++) {
-        for(x = 0; x < 80; x++) {
-            if(world_map[current_y][current_x]->hiker_paths[y][x]->cost == INT_MAX) {
-                printf("   ");
-            }
-            else {
-                printf("%02d ", world_map[current_y][current_x]->hiker_paths[y][x]->cost % 100);
-            }
-        }
-        printf("\n");
-    }
+    // for(y = 0; y < 21; y++) {
+    //     for(x = 0; x < 80; x++) {
+    //         if(world_map[current_y][current_x]->rival_paths[y][x]->cost == INT_MAX) {
+    //             printf("   ");
+    //         }
+    //         else {
+    //             printf("%02d ", world_map[current_y][current_x]->rival_paths[y][x]->cost % 100);
+    //         }
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n\n\nHiker Paths:\n");
+    // for(y = 0; y < 21; y++) {
+    //     for(x = 0; x < 80; x++) {
+    //         if(world_map[current_y][current_x]->hiker_paths[y][x]->cost == INT_MAX) {
+    //             printf("   ");
+    //         }
+    //         else {
+    //             printf("%02d ", world_map[current_y][current_x]->hiker_paths[y][x]->cost % 100);
+    //         }
+    //     }
+    //     printf("\n");
+    // }
     heap_t character_heap;
     heap_init(&character_heap, character_cmp, NULL);
-    generate_npcs(&character_heap);
+    generate_npcs(&character_heap, world_map[current_y][current_x]);
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if((y == playerY) && (x == playerX)) {
@@ -622,7 +642,8 @@ int main(int argc, char *argv[]) {
     }
     // Exit loop if input is q
     while(1) {
-        
+        // Character charact = heap_remove_min(&char_heap);
+
     }
     // Free all memory
     int i, j;
@@ -638,6 +659,9 @@ int main(int argc, char *argv[]) {
                 free(world_map[y][x]);
             }
         }
+    }
+    for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
+        free(characters[x]);
     }
     heap_delete(&character_heap);
     return 0;
