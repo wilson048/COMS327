@@ -74,7 +74,7 @@ npc_type NPCs[11] = {player, hiker, hiker, rival, rival, pacer, pacer, explorer,
 // Character array for collision detection
 Character *character_map[21][80];
 // Array of characters to malloc
-Character *characters[11];
+
 
 
 void initalize_grid(Local_Map *map) {
@@ -549,52 +549,49 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     heap_delete(&h);
 }
 // The NPC comparator for the min-heap
-// static int32_t character_cmp(const void *c_one, const void *c_two) {
-//     if(((Character*)c_one)->cost != ((Character*)c_two)->cost) {
-//         return ((Character*)c_one)->cost - ((Character*)c_two)->cost;
-//     }
-//     return ((Character*)c_one)->sequence_num - ((Character*)c_two)->sequence_num;
-// }
-// Generate 10 NPCs to place into the heap
-void generate_npcs(heap_t *char_heap, Local_Map *map) {
-    int x; 
-    int rand_x = 0;
-    int rand_y = 0;
-    for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
-        characters[x] = (Character*) malloc(sizeof(Character));
-        if(NPCs[x] == player) {
-            characters[x]->pos_x = playerX;
-            characters[x]->pos_y = playerY;
-            character_map[playerY][playerX] = characters[x];
-        }
-        else {
-            // Generate numbers from 1-79 for now
-            do {
-                printf("Randomly Generating nums\n");
-                rand_x = (rand()) % (79 - 1 + 1) + 1;
-                rand_y = (rand()) % (19 - 1 + 1) + 1;
-            } while(tile_weight(map->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
-            characters[x]->pos_x = rand_x;
-            characters[x]->pos_y = rand_y;
-            character_map[rand_y][rand_x] = characters[x];
-            printf("Done\n");
-        }
-        printf("%dx, %dy\n", characters[x]->pos_x , characters[x]->pos_y);
-        characters[x]->type = NPCs[x];
-        printf("%d\n", NPCs[x]);
-        characters[x]->sequence_num = x;
-        characters[x]->cost = 0;
-        printf("Sequence %d, Cost%d, Type %d\n", characters[x]->sequence_num, characters[x]->cost, characters[x]->type);
-        characters[x]->hn = heap_insert(char_heap, characters[x]->hn);
+static int32_t character_cmp(const void *c_one, const void *c_two) {
+    if(((Character*)c_one)->cost != ((Character*)c_two)->cost) {
+        return ((Character*)c_one)->cost - ((Character*)c_two)->cost;
     }
-    // playerX = (rand()) % (78 - 2 + 1) + 2;
-    // playerY = (rand()) % (18 - 2 + 1) + 2;
+    return ((Character*)c_one)->sequence_num - ((Character*)c_two)->sequence_num;
 }
+// Generate 10 NPCs to place into the heap
+// void generate_npcs(heap_t *char_heap, Local_Map *map) {
+//     int x; 
+//     int rand_x = 0;
+//     int rand_y = 0;
+//     for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
+//         characters[x] = (Character*) malloc(sizeof(Character));
+//         if(NPCs[x] == player) {
+//             characters[x]->pos_x = playerX;
+//             characters[x]->pos_y = playerY;
+//             character_map[playerY][playerX] = characters[x];
+//         }
+//         else {
+//             // Generate numbers from 1-79 for now
+//             do {
+//                 printf("Randomly Generating nums\n");
+//                 rand_x = (rand()) % (79 - 1 + 1) + 1;
+//                 rand_y = (rand()) % (19 - 1 + 1) + 1;
+//             } while(tile_weight(map->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
+//             characters[x]->pos_x = rand_x;
+//             characters[x]->pos_y = rand_y;
+//             character_map[rand_y][rand_x] = characters[x];
+//             printf("Done\n");
+//         }
+//         printf("%dx, %dy\n", characters[x]->pos_x , characters[x]->pos_y);
+//         characters[x]->type = NPCs[x];
+//         printf("%d\n", NPCs[x]);
+//         characters[x]->sequence_num = x;
+//         characters[x]->cost = 0;
+//         printf("Sequence %d, Cost%d, Type %d\n", characters[x]->sequence_num, characters[x]->cost, characters[x]->type);
+//         characters[x]->hn = heap_insert(char_heap, characters[x]->hn);
+//     }
+// }
 
 int main(int argc, char *argv[]) {
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
-    // Character* chracter_map[21][80];
     // Set seed
     srand(time(0));
     // Generate board
@@ -635,9 +632,38 @@ int main(int argc, char *argv[]) {
     //     printf("\n");
     // }
 
-    // heap_t character_heap;
-    // heap_init(&character_heap, character_cmp, NULL);
-    // generate_npcs(&character_heap, world_map[current_y][current_x]);
+    heap_t character_heap;
+    Character characters[11];
+    heap_init(&character_heap, character_cmp, NULL);
+    int rand_x = 0;
+    int rand_y = 0;
+    for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
+        if(NPCs[x] == player) {
+            characters[x].pos_x = playerX;
+            characters[x].pos_y = playerY;
+            character_map[playerY][playerX] = &characters[x];
+        }
+        else {
+            // Generate numbers from 1-79 for now
+            do {
+                printf("Randomly Generating nums\n");
+                rand_x = (rand()) % (79 - 1 + 1) + 1;
+                rand_y = (rand()) % (19 - 1 + 1) + 1;
+            } while(tile_weight(world_map[current_y][current_x]->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
+            characters[x].pos_x = rand_x;
+            characters[x].pos_y = rand_y;
+            character_map[rand_y][rand_x] = &characters[x];
+            printf("Done\n");
+        }
+        printf("%dx, %dy\n", characters[x].pos_x , characters[x].pos_y);
+        characters[x].type = NPCs[x];
+        printf("%d\n", NPCs[x]);
+        characters[x].sequence_num = x;
+        characters[x].cost = 0;
+        printf("Sequence %d, Cost%d, Type %d\n", characters[x].sequence_num, characters[x].cost, characters[x].type);
+        characters[x].hn = heap_insert(&character_heap, &characters[x].hn);
+    }
+    
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if((y == playerY) && (x == playerX)) {
@@ -655,23 +681,20 @@ int main(int argc, char *argv[]) {
 
     }
     // Free all memory
-    // int i, j;
+    int i, j;
     for(y = 0; y < 401; y++) {
         for(x = 0; x < 401; x++) {
             if(world_map[y][x] != NULL) {
-                // for(i = 0; i < 21; i++) {
-                //     for(j = 0; j < 80; j++) {
-                //         free(world_map[y][x]->hiker_paths[y][x]);
-                //         free(world_map[y][x]->rival_paths[y][x]);
-                //     }
-                // }
+                for(i = 0; i < 21; i++) {
+                    for(j = 0; j < 80; j++) {
+                        free(world_map[y][x]->hiker_paths[y][x]);
+                        free(world_map[y][x]->rival_paths[y][x]);
+                    }
+                }
                 free(world_map[y][x]);
             }
         }
     }
-    // for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
-    //     free(characters[x]);
-    // }
-    // heap_delete(&character_heap);
+    heap_delete(&character_heap);
     return 0;
 }
