@@ -395,7 +395,7 @@ void generate_voronoi_terrain(Local_Map *map) {
                     map->terrain[y][x] = "~";
                     break;
                 case 4:
-                    map->terrain[y][x] = "\%";
+                    map->terrain[y][x] = "4";
                     break;
                 case 5:
                     map->terrain[y][x] = "^";
@@ -463,6 +463,17 @@ uint32_t tile_weight(char *tile, npc_type n_type) {
         switch (n_type) {
             case player:
                 return 10;
+                break;
+            default:
+                return INT_MAX;
+                break;
+        }
+    }
+    // Mountains terrain cost
+    if(!(strcmp(tile, "4"))) {
+        switch (n_type) {
+            case hiker:
+                return 15;
                 break;
             default:
                 return INT_MAX;
@@ -538,18 +549,12 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     heap_delete(&h);
 }
 // The NPC comparator for the min-heap
-static int32_t character_cmp(const void *c_one, const void *c_two) {
-    if(((Character*)c_one)->cost < ((Character*)c_two)->cost) {
-        return -1;
-    }
-    if(((Character*)c_one)->cost > ((Character*)c_two)->cost) {
-        return 1;
-    }
-    if(((Character*)c_one)->sequence_num > ((Character*)c_two)->sequence_num) {
-        return -1;
-    }
-    return 1;
-}
+// static int32_t character_cmp(const void *c_one, const void *c_two) {
+//     if(((Character*)c_one)->cost != ((Character*)c_two)->cost) {
+//         return ((Character*)c_one)->cost - ((Character*)c_two)->cost;
+//     }
+//     return ((Character*)c_one)->sequence_num - ((Character*)c_two)->sequence_num;
+// }
 // Generate 10 NPCs to place into the heap
 void generate_npcs(heap_t *char_heap, Local_Map *map) {
     int x; 
@@ -560,6 +565,7 @@ void generate_npcs(heap_t *char_heap, Local_Map *map) {
         if(NPCs[x] == player) {
             characters[x]->pos_x = playerX;
             characters[x]->pos_y = playerY;
+            character_map[playerY][playerX] = characters[x];
         }
         else {
             // Generate numbers from 1-79 for now
@@ -570,13 +576,15 @@ void generate_npcs(heap_t *char_heap, Local_Map *map) {
             } while(tile_weight(map->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
             characters[x]->pos_x = rand_x;
             characters[x]->pos_y = rand_y;
+            character_map[rand_y][rand_x] = characters[x];
             printf("Done\n");
-
         }
+        printf("%dx, %dy\n", characters[x]->pos_x , characters[x]->pos_y);
         characters[x]->type = NPCs[x];
         printf("%d\n", NPCs[x]);
         characters[x]->sequence_num = x;
         characters[x]->cost = 0;
+        printf("Sequence %d, Cost%d, Type %d\n", characters[x]->sequence_num, characters[x]->cost, characters[x]->type);
         characters[x]->hn = heap_insert(char_heap, characters[x]->hn);
     }
     // playerX = (rand()) % (78 - 2 + 1) + 2;
@@ -626,9 +634,10 @@ int main(int argc, char *argv[]) {
     //     }
     //     printf("\n");
     // }
-    heap_t character_heap;
-    heap_init(&character_heap, character_cmp, NULL);
-    generate_npcs(&character_heap, world_map[current_y][current_x]);
+
+    // heap_t character_heap;
+    // heap_init(&character_heap, character_cmp, NULL);
+    // generate_npcs(&character_heap, world_map[current_y][current_x]);
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if((y == playerY) && (x == playerX)) {
@@ -646,23 +655,23 @@ int main(int argc, char *argv[]) {
 
     }
     // Free all memory
-    int i, j;
+    // int i, j;
     for(y = 0; y < 401; y++) {
         for(x = 0; x < 401; x++) {
             if(world_map[y][x] != NULL) {
-                for(i = 0; i < 21; i++) {
-                    for(j = 0; j < 80; j++) {
-                        free(world_map[y][x]->hiker_paths[y][x]);
-                        free(world_map[y][x]->rival_paths[y][x]);
-                    }
-                }
+                // for(i = 0; i < 21; i++) {
+                //     for(j = 0; j < 80; j++) {
+                //         free(world_map[y][x]->hiker_paths[y][x]);
+                //         free(world_map[y][x]->rival_paths[y][x]);
+                //     }
+                // }
                 free(world_map[y][x]);
             }
         }
     }
-    for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
-        free(characters[x]);
-    }
-    heap_delete(&character_heap);
+    // for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
+    //     free(characters[x]);
+    // }
+    // heap_delete(&character_heap);
     return 0;
 }
