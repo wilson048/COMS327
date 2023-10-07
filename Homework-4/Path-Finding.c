@@ -637,6 +637,7 @@ int main(int argc, char *argv[]) {
     heap_init(&character_heap, character_cmp, NULL);
     int rand_x = 0;
     int rand_y = 0;
+    // Start of NPC generation code
     for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
         if(NPCs[x] == player) {
             characters[x].pos_x = playerX;
@@ -666,8 +667,33 @@ int main(int argc, char *argv[]) {
     
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
-            if((y == playerY) && (x == playerX)) {
-                printf("@");                
+            if(character_map[y][x] != NULL) {
+                switch(character_map[y][x]->type) {
+                    case hiker:
+                        printf("h");
+                        break;
+                    case pacer:
+                        printf("p");
+                        break;
+                    case player:
+                        printf("@");
+                        break; 
+                    case sentry:
+                        printf("s");
+                        break;   
+                    case wanderer:
+                        printf("w");
+                        break; 
+                    case rival:
+                        printf("r");
+                        break;
+                    case explorer:
+                        printf("e");
+                        break;   
+                    default:
+                        printf("o");
+                        break;     
+                }                
             }
             else {
                 printf("%s", world_map[current_y][current_x]->terrain[y][x]);
