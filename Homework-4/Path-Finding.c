@@ -572,14 +572,50 @@ static int32_t character_cmp(const void *c_one, const void *c_two) {
 // Direction switcher for wanderers
 void wanderer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
     directions last_dir = c->dir;
+    // Need to keep track of the tile characters
+    int temp_y = c->pos_y;
+    int temp_x = c->pos_x; 
     // If there is a chracter in the direction, or the next tile is an infinity tile, or if the terrain is different, switch directions from current direction
     if((character_map[c->pos_y + y_shift][c->pos_x + x_shift] != NULL) || 
         (tile_weight(map->terrain[c->pos_y + y_shift][c->pos_x + x_shift], c->type) == INT_MAX) ||
         (strcmp(map->terrain[c->pos_y][c->pos_x], 
-                map->terrain[c->pos_y + y_shift][c->pos_x + x_shift]))) {
+                map->terrain[c->pos_y + y_shift][c->pos_x + x_shift]))) {           
         do {
             c->dir = (rand()) % (7 + 1);
-        } while(c->dir == last_dir);
+            switch(c->dir) {
+                    case north:
+                        temp_y = c->pos_y - 1;
+                        break;
+                    case south:
+                        temp_y = c->pos_y + 1;
+                        break;
+                    case west:
+                        temp_x = c->pos_x - 1;
+                        break;
+                    case east:
+                        temp_x = c->pos_x + 1;
+                        break;
+                    case north_west:
+                        temp_y = c->pos_y - 1;
+                        temp_x = c->pos_x - 1;
+                        break;
+                    case north_east:
+                        temp_y = c->pos_y - 1;
+                        temp_x = c->pos_x + 1;
+                        temp_x++;
+                        break;
+                    case south_west:
+                        temp_y = c->pos_y + 1;
+                        temp_x = c->pos_x - 1;
+                        break;
+                    case south_east:
+                        temp_y = c->pos_y + 1;
+                        temp_x = c->pos_x + 1;
+                        break;
+                }
+        } while((c->dir == last_dir) || 
+        (strcmp(map->terrain[c->pos_y][c->pos_x], 
+                map->terrain[temp_y][temp_x])));
     }
 }
 
@@ -758,6 +794,7 @@ int main(int argc, char *argv[]) {
         int temp_cost;
         int temp_loop;
         switch(c->type) {
+            // For player, simply increment their cost by 10 and display the map again
             case player:
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[playerY][playerX], c->type);
                 for(y = 0; y < 21; y++) {
@@ -788,7 +825,7 @@ int main(int argc, char *argv[]) {
                                 default:
                                     printf("o");
                                     break;     
-                            }                
+                            }                // Move to next closest tile coordinates on gradient
                         }
                         else {
                             printf("%s", world_map[current_y][current_x]->terrain[y][x]);
@@ -858,12 +895,14 @@ int main(int argc, char *argv[]) {
                         temp_x++;
                         break;
                 }
-                // Reset all positions
+                // Add Movement costs
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                character_map[c->pos_y][c->pos_x] = NULL;
-                character_map[temp_y][temp_x] = c;
-                c->pos_y = temp_y; 
-                c->pos_x = temp_x;
+                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX) {
+                    character_map[c->pos_y][c->pos_x] = NULL;
+                    character_map[temp_y][temp_x] = c;
+                    c->pos_y = temp_y; 
+                    c->pos_x = temp_x;
+                }
                 break;
             case explorer:
                 // Switch for changing the direction of the wanderer (if any condition is met)
@@ -926,12 +965,14 @@ int main(int argc, char *argv[]) {
                         temp_x++;
                         break;
                 }
-                // Reset all positions
+                // Reset all positions, Tile check for max tiles
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                character_map[c->pos_y][c->pos_x] = NULL;
-                character_map[temp_y][temp_x] = c;
-                c->pos_y = temp_y; 
-                c->pos_x = temp_x;
+                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX) {
+                    character_map[c->pos_y][c->pos_x] = NULL;
+                    character_map[temp_y][temp_x] = c;
+                    c->pos_y = temp_y; 
+                    c->pos_x = temp_x;
+                }
                 break;
             case pacer:
                 // Switch for changing the direction of the wanderer (if any condition is met)
@@ -994,22 +1035,26 @@ int main(int argc, char *argv[]) {
                         temp_x++;
                         break;
                 }
-                // Reset all positions
+                // Reset all positions, Tile check for max tiles
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                character_map[c->pos_y][c->pos_x] = NULL;
-                character_map[temp_y][temp_x] = c;
-                c->pos_y = temp_y; 
-                c->pos_x = temp_x;
+                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX) {
+                    character_map[c->pos_y][c->pos_x] = NULL;
+                    character_map[temp_y][temp_x] = c;
+                    c->pos_y = temp_y; 
+                    c->pos_x = temp_x;
+                }
                 break;
             case rival:
             case hiker:
-                // Get next tile coordinates on gradient
-                temp_y = c->type == rival ? 
-                    world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->y_from : 
-                    world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->y_from;
-                temp_x = c->type == rival ? 
-                    world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->x_from : 
-                    world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->x_from;
+                // Get next tile coordinates on gradient for specific NPC type
+                if(c->type == rival) {
+                    temp_y = world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->y_from;
+                    temp_x = world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->x_from;
+                }
+                else {
+                    temp_y = world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->y_from;
+                    temp_x = world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->x_from;
+                }
                 // Check for any other NPCs on the map, if no NPCs, move to from position on gradient
                 if(character_map[temp_y][temp_x] == NULL) {
                     // Swap character map positions
@@ -1022,33 +1067,40 @@ int main(int argc, char *argv[]) {
                 else {
                     // Check tiles around gradient, move to lowest cost tile on gradient
                     temp_loop = INT_MAX;
-                    temp_y = 0;
-                    temp_x = 0;
+                    temp_y = c->pos_y;
+                    temp_x = c->pos_x;
                     // Search around current player area
                     for(y = -1; y <= 1; y++) {
                         for(x = -1; x <= 1; x++) {
                             if((y == 0) && (x == 0)) {
                                 continue;
                             }
-                            temp_cost = c->type == rival ? 
-                                world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->cost : 
-                                world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->cost;
-                            // Null Checking
+                            if(c->type == rival) {
+                                temp_cost = world_map[current_y][current_x]->rival_paths[c->pos_y + y][c->pos_x + x]->cost;
+                            }
+                            else {
+                                temp_cost = world_map[current_y][current_x]->hiker_paths[c->pos_y + y][c->pos_x + x]->cost;
+                            }
+                            // Move to next closest tile coordinates on gradient
                             if(temp_cost < temp_loop) {
-                                if(character_map[c->pos_y + y][c->pos_x + x] == NULL)
-                                temp_loop = temp_cost;
-                                temp_y = c->pos_y + y;
-                                temp_x = c->pos_x + x;
+                                // Null Checking + Tile checking
+                                if((character_map[c->pos_y + y][c->pos_x + x] == NULL) && 
+                                tile_weight(world_map[current_y][current_x]->terrain[c->pos_y + y][c->pos_x + x], c->type) != INT_MAX) {
+                                    temp_loop = temp_cost;
+                                    temp_y = c->pos_y + y;
+                                    temp_x = c->pos_x + x;
+                                }
+                                
                             }
                         }
-                        // Reset all positions
+                    }
+                    // Reset NPC positions
                         c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
                         character_map[c->pos_y][c->pos_x] = NULL;
                         character_map[temp_y][temp_x] = c;
                         c->pos_y = temp_y; 
                         c->pos_x = temp_x;
-                    }
-                    // Move to next closest tile coordinates on gradient
+                    
                 }
                 break;
             case sentry:
