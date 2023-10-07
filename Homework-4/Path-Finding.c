@@ -568,39 +568,66 @@ static int32_t character_cmp(const void *c_one, const void *c_two) {
     }
     return ((Character*)c_one)->sequence_num - ((Character*)c_two)->sequence_num;
 }
-// Generate 10 NPCs to place into the heap
-// void generate_npcs(heap_t *char_heap, Local_Map *map) {
-//     int x; 
-//     int rand_x = 0;
-//     int rand_y = 0;
-//     for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
-//         characters[x] = (Character*) malloc(sizeof(Character));
-//         if(NPCs[x] == player) {
-//             characters[x]->pos_x = playerX;
-//             characters[x]->pos_y = playerY;
-//             character_map[playerY][playerX] = characters[x];
-//         }
-//         else {
-//             // Generate numbers from 1-79 for now
-//             do {
-//                 printf("Randomly Generating nums\n");
-//                 rand_x = (rand()) % (79 - 1 + 1) + 1;
-//                 rand_y = (rand()) % (19 - 1 + 1) + 1;
-//             } while(tile_weight(map->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
-//             characters[x]->pos_x = rand_x;
-//             characters[x]->pos_y = rand_y;
-//             character_map[rand_y][rand_x] = characters[x];
-//             printf("Done\n");
-//         }
-//         printf("%dx, %dy\n", characters[x]->pos_x , characters[x]->pos_y);
-//         characters[x]->type = NPCs[x];
-//         printf("%d\n", NPCs[x]);
-//         characters[x]->sequence_num = x;
-//         characters[x]->cost = 0;
-//         printf("Sequence %d, Cost%d, Type %d\n", characters[x]->sequence_num, characters[x]->cost, characters[x]->type);
-//         characters[x]->hn = heap_insert(char_heap, characters[x]->hn);
-//     }
-// }
+
+// Direction switcher for wanderers
+void wanderer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
+    directions last_dir = c->dir;
+    // If there is a chracter in the direction, or the next tile is an infinity tile, or if the terrain is different, switch directions from current direction
+    if((character_map[c->pos_y + y_shift][c->pos_x + x_shift] != NULL) || 
+        (tile_weight(map->terrain[c->pos_y + y_shift][c->pos_x + x_shift], c->type) == INT_MAX) ||
+        (strcmp(map->terrain[c->pos_y][c->pos_x], 
+                map->terrain[c->pos_y + y_shift][c->pos_x + x_shift]))) {
+        do {
+            c->dir = (rand()) % (7 + 1);
+        } while(c->dir == last_dir);
+    }
+}
+
+// Direction switcher for explorers
+void explorer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
+    directions last_dir = c->dir;
+    // If there is a chracter in the direction, or the next tile is an infinity tile, switch directions from current direction
+    if((character_map[c->pos_y + y_shift][c->pos_x + x_shift] != NULL) || 
+        (tile_weight(map->terrain[c->pos_y + y_shift][c->pos_x + x_shift], c->type) == INT_MAX)) {
+        do {
+            c->dir = (rand()) % (7 + 1);
+        } while(c->dir == last_dir);
+    }
+}
+// Direction switcher for pacers
+void pacer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
+    // If there is a chracter in the direction, or the next tile is an infinity tile, switch directions to opposite direction
+    if((character_map[c->pos_y + y_shift][c->pos_x + x_shift] != NULL) || 
+        (tile_weight(map->terrain[c->pos_y + y_shift][c->pos_x + x_shift], c->type) == INT_MAX)) {
+            switch(c->dir) {
+            case north:
+                c->dir = south;
+                break;
+            case south:
+                c->dir = north;
+                break;
+            case west:
+                c->dir = east;
+                break;
+            case east:
+                c->dir = west;
+                break;
+            case north_west:
+                c->dir = south_east;
+                break;
+            case north_east:
+                c->dir = south_west;
+                break;
+            case south_west:
+                c->dir = north_east;
+                break;
+            case south_east:
+                c->dir = north_west;
+                break;
+        }
+    }
+    
+}
 
 int main(int argc, char *argv[]) {
     int x, y;
@@ -771,32 +798,208 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case wanderer:
+                // Switch for changing the direction of the wanderer (if any condition is met)
                 switch(c->dir) {
                     case north:
-                        if((character_map[c->pos_y + 1][c->pos_x] != NULL) 
-                        || (tile_weight(map->terrain[c->pos_y + 1][c->pos_x]))) {
-                            
-                        }
+                        wanderer_dir_switch(world_map[current_y][current_x], c, -1, 0);
                         break;
                     case south:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, 1, 0);
                         break;
                     case west:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, 0, -1);
                         break;
                     case east:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, 0, 1);
                         break;
                     case north_west:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, -1, -1);
                         break;
                     case north_east:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, -1, 1);
                         break;
                     case south_west:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, 1, -1);
                         break;
                     case south_east:
+                        wanderer_dir_switch(world_map[current_y][current_x], c, 1, 1);
                         break;
                 }
+                // Switch for moving the NPC
+                temp_y = c->pos_y;
+                temp_x = c->pos_x;
+                switch(c->dir) {
+                    case north:
+                        temp_y--;
+                        break;
+                    case south:
+                        temp_y++;
+                        break;
+                    case west:
+                        temp_x--;
+                        break;
+                    case east:
+                        temp_x++;
+                        break;
+                    case north_west:
+                        temp_y--;
+                        temp_x--;
+                        break;
+                    case north_east:
+                        temp_y--;
+                        temp_x++;
+                        break;
+                    case south_west:
+                        temp_y++;
+                        temp_x--;
+                        break;
+                    case south_east:
+                        temp_y++;
+                        temp_x++;
+                        break;
+                }
+                // Reset all positions
+                c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
+                character_map[c->pos_y][c->pos_x] = NULL;
+                character_map[temp_y][temp_x] = c;
+                c->pos_y = temp_y; 
+                c->pos_x = temp_x;
                 break;
             case explorer:
+                // Switch for changing the direction of the wanderer (if any condition is met)
+                switch(c->dir) {
+                    case north:
+                        explorer_dir_switch(world_map[current_y][current_x], c, -1, 0);
+                        break;
+                    case south:
+                        explorer_dir_switch(world_map[current_y][current_x], c, 1, 0);
+                        break;
+                    case west:
+                        explorer_dir_switch(world_map[current_y][current_x], c, 0, -1);
+                        break;
+                    case east:
+                        explorer_dir_switch(world_map[current_y][current_x], c, 0, 1);
+                        break;
+                    case north_west:
+                        explorer_dir_switch(world_map[current_y][current_x], c, -1, -1);
+                        break;
+                    case north_east:
+                        explorer_dir_switch(world_map[current_y][current_x], c, -1, 1);
+                        break;
+                    case south_west:
+                        explorer_dir_switch(world_map[current_y][current_x], c, 1, -1);
+                        break;
+                    case south_east:
+                        explorer_dir_switch(world_map[current_y][current_x], c, 1, 1);
+                        break;
+                }
+                // Switch for moving the NPC
+                temp_y = c->pos_y;
+                temp_x = c->pos_x;
+                switch(c->dir) {
+                    case north:
+                        temp_y--;
+                        break;
+                    case south:
+                        temp_y++;
+                        break;
+                    case west:
+                        temp_x--;
+                        break;
+                    case east:
+                        temp_x++;
+                        break;
+                    case north_west:
+                        temp_y--;
+                        temp_x--;
+                        break;
+                    case north_east:
+                        temp_y--;
+                        temp_x++;
+                        break;
+                    case south_west:
+                        temp_y++;
+                        temp_x--;
+                        break;
+                    case south_east:
+                        temp_y++;
+                        temp_x++;
+                        break;
+                }
+                // Reset all positions
+                c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
+                character_map[c->pos_y][c->pos_x] = NULL;
+                character_map[temp_y][temp_x] = c;
+                c->pos_y = temp_y; 
+                c->pos_x = temp_x;
                 break;
             case pacer:
+                // Switch for changing the direction of the wanderer (if any condition is met)
+                switch(c->dir) {
+                    case north:
+                        pacer_dir_switch(world_map[current_y][current_x], c, -1, 0);
+                        break;
+                    case south:
+                        pacer_dir_switch(world_map[current_y][current_x], c, 1, 0);
+                        break;
+                    case west:
+                        pacer_dir_switch(world_map[current_y][current_x], c, 0, -1);
+                        break;
+                    case east:
+                        pacer_dir_switch(world_map[current_y][current_x], c, 0, 1);
+                        break;
+                    case north_west:
+                        pacer_dir_switch(world_map[current_y][current_x], c, -1, -1);
+                        break;
+                    case north_east:
+                        pacer_dir_switch(world_map[current_y][current_x], c, -1, 1);
+                        break;
+                    case south_west:
+                        pacer_dir_switch(world_map[current_y][current_x], c, 1, -1);
+                        break;
+                    case south_east:
+                        pacer_dir_switch(world_map[current_y][current_x], c, 1, 1);
+                        break;
+                }
+                // Switch for moving the NPC
+                temp_y = c->pos_y;
+                temp_x = c->pos_x;
+                switch(c->dir) {
+                    case north:
+                        temp_y--;
+                        break;
+                    case south:
+                        temp_y++;
+                        break;
+                    case west:
+                        temp_x--;
+                        break;
+                    case east:
+                        temp_x++;
+                        break;
+                    case north_west:
+                        temp_y--;
+                        temp_x--;
+                        break;
+                    case north_east:
+                        temp_y--;
+                        temp_x++;
+                        break;
+                    case south_west:
+                        temp_y++;
+                        temp_x--;
+                        break;
+                    case south_east:
+                        temp_y++;
+                        temp_x++;
+                        break;
+                }
+                // Reset all positions
+                c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
+                character_map[c->pos_y][c->pos_x] = NULL;
+                character_map[temp_y][temp_x] = c;
+                c->pos_y = temp_y; 
+                c->pos_x = temp_x;
                 break;
             case rival:
             case hiker:
@@ -830,7 +1033,9 @@ int main(int argc, char *argv[]) {
                             temp_cost = c->type == rival ? 
                                 world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->cost : 
                                 world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->cost;
-                            if(temp_loop < temp_cost) {
+                            // Null Checking
+                            if(temp_cost < temp_loop) {
+                                if(character_map[c->pos_y + y][c->pos_x + x] == NULL)
                                 temp_loop = temp_cost;
                                 temp_y = c->pos_y + y;
                                 temp_x = c->pos_x + x;
@@ -846,6 +1051,8 @@ int main(int argc, char *argv[]) {
                     // Move to next closest tile coordinates on gradient
                 }
                 break;
+            case sentry:
+                c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
             default:
                 break;
         }
