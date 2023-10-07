@@ -4,8 +4,20 @@
 #include <time.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include "heap.h"
 
+// Enum for character direction
+typedef enum {
+    north,
+    south,
+    east,
+    west,
+    north_east,
+    north_west,
+    south_east,
+    south_west
+} directions;
 
 // Enum for representing npc types
 typedef enum {
@@ -33,6 +45,7 @@ typedef struct characters {
     int pos_y;
     int cost;
     int sequence_num;
+    directions dir;
 } Character;
 
 // Heap nodes that keep track of cost and previous nodes
@@ -633,7 +646,7 @@ int main(int argc, char *argv[]) {
     // }
 
     heap_t character_heap;
-    Character characters[11];
+    Character characters[11], *c;
     heap_init(&character_heap, character_cmp, NULL);
     int rand_x = 0;
     int rand_y = 0;
@@ -647,24 +660,31 @@ int main(int argc, char *argv[]) {
         else {
             // Generate numbers from 1-79 for now
             do {
-                printf("Randomly Generating nums\n");
                 rand_x = (rand()) % (79 - 1 + 1) + 1;
                 rand_y = (rand()) % (19 - 1 + 1) + 1;
             } while(tile_weight(world_map[current_y][current_x]->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
             characters[x].pos_x = rand_x;
             characters[x].pos_y = rand_y;
             character_map[rand_y][rand_x] = &characters[x];
-            printf("Done\n");
+            switch(NPCs[x]) {
+                // Randomly assign directions to these three NPCs
+                case wanderer:
+                case pacer:
+                case explorer:
+                    characters[x].dir = (rand()) % (7 + 1) + 1;
+                    break;
+                default:
+                    characters[x].dir = north;
+                    break;
+            }
         }
-        printf("%dx, %dy\n", characters[x].pos_x , characters[x].pos_y);
         characters[x].type = NPCs[x];
-        printf("%d\n", NPCs[x]);
         characters[x].sequence_num = x;
         characters[x].cost = 0;
-        printf("Sequence %d, Cost%d, Type %d\n", characters[x].sequence_num, characters[x].cost, characters[x].type);
         characters[x].hn = heap_insert(&character_heap, &characters[x].hn);
     }
-    
+    // End of Character Generation
+    // Map printing
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) {
             if(character_map[y][x] != NULL) {
@@ -702,10 +722,135 @@ int main(int argc, char *argv[]) {
         printf("\n");
     }
     // Exit loop if input is q
-    while(1) {
-        // Character charact = heap_remove_min(&char_heap);
-
-    }
+    do { 
+        // Delay movement for 25 frames
+        usleep(25000);
+        c = heap_remove_min(&character_heap);
+        int temp_y;
+        int temp_x;
+        int temp_cost;
+        int temp_loop;
+        switch(c->type) {
+            case player:
+                c->cost += tile_weight(world_map[current_y][current_x]->terrain[playerY][playerX], c->type);
+                for(y = 0; y < 21; y++) {
+                    for(x = 0; x < 80; x++) {
+                        if(character_map[y][x] != NULL) {
+                            switch(character_map[y][x]->type) {
+                                case hiker:
+                                    printf("h");
+                                    break;
+                                case pacer:
+                                    printf("p");
+                                    break;
+                                case player:
+                                    printf("@");
+                                    break; 
+                                case sentry:
+                                    printf("s");
+                                    break;   
+                                case wanderer:
+                                    printf("w");
+                                    break; 
+                                case rival:
+                                    printf("r");
+                                    break;
+                                case explorer:
+                                    printf("e");
+                                    break;   
+                                default:
+                                    printf("o");
+                                    break;     
+                            }                
+                        }
+                        else {
+                            printf("%s", world_map[current_y][current_x]->terrain[y][x]);
+                        }
+                    }
+                    printf("\n");
+                }
+                break;
+            case wanderer:
+                switch(c->dir) {
+                    case north:
+                        if((character_map[c->pos_y + 1][c->pos_x] != NULL) 
+                        || (tile_weight(map->terrain[c->pos_y + 1][c->pos_x]))) {
+                            
+                        }
+                        break;
+                    case south:
+                        break;
+                    case west:
+                        break;
+                    case east:
+                        break;
+                    case north_west:
+                        break;
+                    case north_east:
+                        break;
+                    case south_west:
+                        break;
+                    case south_east:
+                        break;
+                }
+                break;
+            case explorer:
+                break;
+            case pacer:
+                break;
+            case rival:
+            case hiker:
+                // Get next tile coordinates on gradient
+                temp_y = c->type == rival ? 
+                    world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->y_from : 
+                    world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->y_from;
+                temp_x = c->type == rival ? 
+                    world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->x_from : 
+                    world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->x_from;
+                // Check for any other NPCs on the map, if no NPCs, move to from position on gradient
+                if(character_map[temp_y][temp_x] == NULL) {
+                    // Swap character map positions
+                    c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
+                    character_map[c->pos_y][c->pos_x] = NULL;
+                    character_map[temp_y][temp_x] = c;
+                    c->pos_y = temp_y; 
+                    c->pos_x = temp_x;
+                }
+                else {
+                    // Check tiles around gradient, move to lowest cost tile on gradient
+                    temp_loop = INT_MAX;
+                    temp_y = 0;
+                    temp_x = 0;
+                    // Search around current player area
+                    for(y = -1; y <= 1; y++) {
+                        for(x = -1; x <= 1; x++) {
+                            if((y == 0) && (x == 0)) {
+                                continue;
+                            }
+                            temp_cost = c->type == rival ? 
+                                world_map[current_y][current_x]->rival_paths[c->pos_y][c->pos_x]->cost : 
+                                world_map[current_y][current_x]->hiker_paths[c->pos_y][c->pos_x]->cost;
+                            if(temp_loop < temp_cost) {
+                                temp_loop = temp_cost;
+                                temp_y = c->pos_y + y;
+                                temp_x = c->pos_x + x;
+                            }
+                        }
+                        // Reset all positions
+                        c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
+                        character_map[c->pos_y][c->pos_x] = NULL;
+                        character_map[temp_y][temp_x] = c;
+                        c->pos_y = temp_y; 
+                        c->pos_x = temp_x;
+                    }
+                    // Move to next closest tile coordinates on gradient
+                }
+                break;
+            default:
+                break;
+        }
+        c->hn = heap_insert(&character_heap, c);
+    } while(1);
     // Free all memory
     int i, j;
     for(y = 0; y < 401; y++) {
