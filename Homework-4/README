@@ -1,3 +1,3 @@
 This homework required by the class COM S 327 is a program that places NPCs on map and makes them move accordingly from movement cost.
-The movement for each turn will be gauged by a priority queue for all NPCs located on the grid. A random amount of NPCs can be declared on the command line if it is at least 2 generated NPCs in amount. Different NPCs will move in different ways. 
+The movement for each turn will be gauged by a priority queue for all NPCs located on the grid. A random amount of NPCs can be declared on the command line if it is at least 2 generated NPCs in amount. Different NPCs will move in different ways. I couldn't get command line working properly.
 Sometimes an NPC will freeze up, sometimes it will segmentation fault, and sometimes they will all freeze, but if that doesn't happen, then everything moves as normal.
