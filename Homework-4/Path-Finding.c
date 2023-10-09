@@ -28,8 +28,7 @@ typedef enum {
     sentry,
     explorer,
     pacer,
-    swimmer,
-    other
+    swimmer
 } npc_type;
 // Voronoi points for generating terrain
 typedef struct {
@@ -37,7 +36,7 @@ typedef struct {
     int y;
     int tileType;
 } Voroni_Point;
-
+// CHaracter nodes for the character heap
 typedef struct characters {
     heap_node_t *hn;
     npc_type type;
@@ -506,8 +505,9 @@ void dijkstras_generation(Local_Map *map, npc_type n_type, npc_tile *npc_maps[21
     for(y = 0; y < 21; y++) {
         for(x = 0; x < 80; x++) { 
             // So this parts makes it impossible to reuse this method, unless...
-            npc_maps[y][x] = (npc_tile*) malloc(sizeof(npc_tile));
-            
+            if(npc_maps[y][x] == NULL) {
+                npc_maps[y][x] = (npc_tile*) malloc(sizeof(npc_tile));
+            }
             npc_heap[y][x].pos[0] = y;
             npc_heap[y][x].pos[1] = x;
             // Fill nodes with max cost unless node is the player character
@@ -666,6 +666,7 @@ void pacer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
 }
 
 int main(int argc, char *argv[]) {
+    int default_trainers = 11;
     int x, y;
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
     // Set seed
@@ -713,7 +714,7 @@ int main(int argc, char *argv[]) {
     heap_init(&character_heap, character_cmp, NULL);
     int rand_x = 0;
     int rand_y = 0;
-    // Start of NPC generation code
+    // Start of NPC generation code for default config
     for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
         if(NPCs[x] == player) {
             characters[x].pos_x = playerX;
@@ -721,9 +722,9 @@ int main(int argc, char *argv[]) {
             character_map[playerY][playerX] = &characters[x];
         }
         else {
-            // Generate numbers from 1-79 for now
+            // Generate numbers from 1-78 for now
             do {
-                rand_x = (rand()) % (79 - 1 + 1) + 1;
+                rand_x = (rand()) % (78 - 1 + 1) + 1;
                 rand_y = (rand()) % (19 - 1 + 1) + 1;
             } while(tile_weight(world_map[current_y][current_x]->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
             characters[x].pos_x = rand_x;
@@ -734,7 +735,7 @@ int main(int argc, char *argv[]) {
                 case wanderer:
                 case pacer:
                 case explorer:
-                    characters[x].dir = (rand()) % (7 + 1) + 1;
+                    characters[x].dir = (rand()) % (7 + 1);
                     break;
                 default:
                     characters[x].dir = north;
@@ -903,6 +904,9 @@ int main(int argc, char *argv[]) {
                     c->pos_y = temp_y; 
                     c->pos_x = temp_x;
                 }
+                // else {
+                //     printf("Can't Move, tile weight at (%d, %d) is INT_MAX for wanderer\n", temp_x, temp_y);
+                // } 
                 break;
             case explorer:
                 // Switch for changing the direction of the wanderer (if any condition is met)
@@ -973,6 +977,9 @@ int main(int argc, char *argv[]) {
                     c->pos_y = temp_y; 
                     c->pos_x = temp_x;
                 }
+                // else {
+                //     printf("Can't Move, tile weight at (%d, %d) is INT_MAX for explorer\n", temp_x, temp_y);
+                // } 
                 break;
             case pacer:
                 // Switch for changing the direction of the wanderer (if any condition is met)
@@ -1043,6 +1050,9 @@ int main(int argc, char *argv[]) {
                     c->pos_y = temp_y; 
                     c->pos_x = temp_x;
                 }
+                // else {
+                //     printf("Can't Move, tile weight at (%d, %d) is INT_MAX for pacer\n", temp_x, temp_y);
+                // } 
                 break;
             case rival:
             case hiker:
@@ -1095,11 +1105,11 @@ int main(int argc, char *argv[]) {
                         }
                     }
                     // Reset NPC positions
-                        c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                        character_map[c->pos_y][c->pos_x] = NULL;
-                        character_map[temp_y][temp_x] = c;
-                        c->pos_y = temp_y; 
-                        c->pos_x = temp_x;
+                    c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
+                    character_map[c->pos_y][c->pos_x] = NULL;
+                    character_map[temp_y][temp_x] = c;
+                    c->pos_y = temp_y; 
+                    c->pos_x = temp_x;
                     
                 }
                 break;
