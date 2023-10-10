@@ -81,8 +81,8 @@ int playerX = 0;
 int playerY = 0;
 // Integer Maximum
 int32_t INT_MAX = 2000000;
-// NPCs to place on the map
-npc_type NPCs[11] = {player, hiker, hiker, rival, rival, pacer, pacer, explorer, sentry, wanderer, explorer};
+// Default NPCs to place on the map
+npc_type NPCs[20] = {player, hiker, rival, pacer, wanderer, explorer, sentry, rival, hiker, wanderer, explorer, sentry, pacer, explorer, sentry, wanderer, pacer, wanderer, hiker, rival};
 // Character array for collision detection
 Character *character_map[21][80];
 // Array of characters to malloc
@@ -666,8 +666,31 @@ void pacer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
 }
 
 int main(int argc, char *argv[]) {
-    int default_trainers = 11;
     int x, y;
+    // The num trainers switch
+    int default_trainers = 11;
+    // Take in input
+    for(y = 1; y < argc; y++) {
+        if(!(strcmp(argv[y], "-numtrainers"))) {
+            if(y + 1 < argc) {
+                default_trainers = atoi(argv[y + 1]) + 1;
+                // Deny any inputs with more than 19 trainers
+                if(default_trainers > 20) {
+                    printf("Cannot have more than 19 trainers\n");
+                    return -1;
+                }
+                // Deny any trainers with less than one trainer
+                if(default_trainers < 2) {
+                    printf("Cannot have less than one trainer\n");
+                    return -1;
+                }
+                y++;
+            } else {
+                printf("Usage: ./Path-Finding -numtrainers {number}\n");
+                return -1;
+            }
+        }
+    }
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
     // Set seed
     srand(time(0));
@@ -710,12 +733,12 @@ int main(int argc, char *argv[]) {
     // }
 
     heap_t character_heap;
-    Character characters[11], *c;
+    Character characters[20], *c;
     heap_init(&character_heap, character_cmp, NULL);
     int rand_x = 0;
     int rand_y = 0;
     // Start of NPC generation code for default config
-    for(x = 0; x < sizeof(NPCs) / sizeof(NPCs[0]); x++) {
+    for(x = 0; x < default_trainers; x++) {
         if(NPCs[x] == player) {
             characters[x].pos_x = playerX;
             characters[x].pos_y = playerY;
@@ -726,7 +749,10 @@ int main(int argc, char *argv[]) {
             do {
                 rand_x = (rand()) % (78 - 1 + 1) + 1;
                 rand_y = (rand()) % (19 - 1 + 1) + 1;
-            } while(tile_weight(world_map[current_y][current_x]->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX || character_map[rand_y][rand_x] != NULL);
+                // Do not let ANY NPCs generate on INT_MAX tiles, on Character tiles, or on paths
+            } while(tile_weight(world_map[current_y][current_x]->terrain[rand_y][rand_x], NPCs[x]) == INT_MAX 
+            || character_map[rand_y][rand_x] != NULL 
+            || !(strcmp(world_map[current_y][current_x]->terrain[rand_y][rand_x], "#")));
             characters[x].pos_x = rand_x;
             characters[x].pos_y = rand_y;
             character_map[rand_y][rand_x] = &characters[x];
