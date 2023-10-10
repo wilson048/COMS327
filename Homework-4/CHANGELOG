@@ -1,4 +1,5 @@
-894a0bf (HEAD -> main, origin/main, origin/HEAD) Fix NPC wiping bug
+922be10 (HEAD -> main, origin/main, origin/HEAD) Fix Wanderer border crossing bug
+894a0bf Fix NPC wiping bug
 e89eb5b Update CHANGELOG
 e1ba828 Added -numtrainer switch
 8683c23 Add CHANGELOG
