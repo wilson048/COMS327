@@ -1,4 +1,6 @@
-e1ba828 (HEAD -> main, origin/main, origin/HEAD) Added -numtrainer switch
+894a0bf (HEAD -> main, origin/main, origin/HEAD) Fix NPC wiping bug
+e89eb5b Update CHANGELOG
+e1ba828 Added -numtrainer switch
 8683c23 Add CHANGELOG
 087cb34 Fix a couple of bugs
 c2c727b Added movement for rest of NPCs

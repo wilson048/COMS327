@@ -922,10 +922,13 @@ int main(int argc, char *argv[]) {
                         temp_x++;
                         break;
                 }
-                // Add Movement costs
+                // Add Movement costs only if all wanderer conditions are met
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
                 if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX && 
-                character_map[temp_y][temp_x] == NULL) {
+                character_map[temp_y][temp_x] == NULL && 
+                !(strcmp(world_map[current_y][current_x]->terrain[temp_y][temp_x], 
+                world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x]))) {
+
                     character_map[c->pos_y][c->pos_x] = NULL;
                     character_map[temp_y][temp_x] = c;
                     c->pos_y = temp_y; 

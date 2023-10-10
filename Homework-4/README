@@ -1,4 +1,4 @@
 This homework required by the class COM S 327 is a program that places NPCs on map and makes them move accordingly from movement cost.
 The movement for each turn will be gauged by a priority queue for all NPCs located on the grid where different NPCs will move in different ways.
-The -numtrainers flag take a range of NPCs from 1-19 and displays an error message if the number is outside those bounds.
-Sometimes an NPC will freeze up, sometimes it will segmentation fault, and sometimes they will all freeze, but if that doesn't happen, then everything moves as normal.
+The -numtrainers flag take a range of NPCs from 1-19 and displays an error message if the number is outside those bounds. 
+Sometimes an NPC will freeze up and that will be due to the fact that their new random direction is invalid so they end up speding a turn rerolling thier direction. Or they just freeze completely. Sometimes it will segmentation fault and sometimes they will all freeze, but if that doesn't happen, then everything moves as normal.
