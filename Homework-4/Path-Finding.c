@@ -924,7 +924,8 @@ int main(int argc, char *argv[]) {
                 }
                 // Add Movement costs
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX) {
+                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX && 
+                character_map[temp_y][temp_x] == NULL) {
                     character_map[c->pos_y][c->pos_x] = NULL;
                     character_map[temp_y][temp_x] = c;
                     c->pos_y = temp_y; 
@@ -997,7 +998,8 @@ int main(int argc, char *argv[]) {
                 }
                 // Reset all positions, Tile check for max tiles
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX) {
+                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX && 
+                character_map[temp_y][temp_x] == NULL) {
                     character_map[c->pos_y][c->pos_x] = NULL;
                     character_map[temp_y][temp_x] = c;
                     c->pos_y = temp_y; 
@@ -1070,7 +1072,8 @@ int main(int argc, char *argv[]) {
                 }
                 // Reset all positions, Tile check for max tiles
                 c->cost += tile_weight(world_map[current_y][current_x]->terrain[c->pos_y][c->pos_x], c->type);
-                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX) {
+                if(tile_weight(world_map[current_y][current_x]->terrain[temp_y][temp_x], c->type) != INT_MAX && 
+                character_map[temp_y][temp_x] == NULL) {
                     character_map[c->pos_y][c->pos_x] = NULL;
                     character_map[temp_y][temp_x] = c;
                     c->pos_y = temp_y; 
