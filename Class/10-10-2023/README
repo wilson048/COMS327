@@ -1,0 +1,43 @@
+Question 1a - printf("You're plastic!")
+Question 1b - prints "Stop trying to make "fetch" happen"
+Question 1c - prints "On Saturdays we wear pink"
+Question 1d - Runtime Error, String literals are READ-only char *s
+Question 1e - *p is NULL on the first iteration, so no output
+Question 1f - Runtime Error, Strings do not start with a NULL byte, undefined behavior, not specefied what is in front of s, may print "Is butter a carb?"
+
+Question 2a - 
+void swap(int *a, int *b) { // Pass int pointers
+    int tmp; // use non-pointer temp to swap pointers of a and b, use stars -1 for each pointer present in a
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+Question 2b -
+void freeplusplus(void **p) { // Passing a single pointer would make p be a copy of f, so NULL is only assigned to the copy which is why a double pointer is reuqired
+    free(*p); // Will be freed regardless
+    *p = NULL; // Will only be NULL if a double pointer is used
+}
+Question 2c - 
+char *strndup(const char *s, size_t n) {
+    char *t - malloc((n + 1) * sizeof(char)); // Create new pointer that mallocs space equal to the size of n + 1 so that the NULL byte is malloced
+    if(!t) { // NULL check if insufficient memory was available
+        return NULL;
+    }
+    int i;
+    for(i = 0; i < n && s[i]; i++){ // Leave loop if reached end of n or reached NULL byte
+        t[i] = s[i]; // Assign chars to indicies at t
+    } 
+    t[i] = "\0" // NULL byte
+    return t;
+}
+
+Question 3a - l.head = list_item_t * that's just what a l.head is
+Question 3b - l.compare("A", "B") = int32_t the function returns an int32_t
+Quesiton 3c - &l.length = uint32_t * returns address of uint32_t variables
+Question 3d - *l.head->next = list_item_t dereferenced list_item_t
+Quesiton 3e - *it list_item_t = *it is a list_item_t dereferenced
+Question 3f - (it == li) = int - compare two pointers, so produces int
+Question 3g - l.compare = int32_t (*)(const void *, const void *) pointer to a function
+Question 3h - (*it).next->datum = void * defeference list iterator, then go to next, then fetch void pointer data
+Question 3i - (&l)[7] list_t = dereferenced list_t by indexing it // This would be an error to execute, however value of this statement would be valid
+QUestion 3j - *((char *)li->datum) = char casting to a character pointer, then dereferencing it
