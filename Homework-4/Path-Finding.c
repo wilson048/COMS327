@@ -573,8 +573,8 @@ static int32_t character_cmp(const void *c_one, const void *c_two) {
 void wanderer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift) {
     directions last_dir = c->dir;
     // Need to keep track of the tile characters
-    int temp_y = c->pos_y;
-    int temp_x = c->pos_x; 
+    int temp_y;
+    int temp_x;
     // If there is a chracter in the direction, or the next tile is an infinity tile, or if the terrain is different, switch directions from current direction
     if((character_map[c->pos_y + y_shift][c->pos_x + x_shift] != NULL) || 
         (tile_weight(map->terrain[c->pos_y + y_shift][c->pos_x + x_shift], c->type) == INT_MAX) ||
@@ -582,37 +582,40 @@ void wanderer_dir_switch(Local_Map *map, Character *c, int y_shift, int x_shift)
                 map->terrain[c->pos_y + y_shift][c->pos_x + x_shift]))) {           
         do {
             c->dir = (rand()) % (7 + 1);
+            temp_y = c->pos_y;
+            temp_x = c->pos_x; 
             switch(c->dir) {
                     case north:
-                        temp_y = c->pos_y - 1;
+                        temp_y--;
                         break;
                     case south:
-                        temp_y = c->pos_y + 1;
+                        temp_y++;
                         break;
                     case west:
-                        temp_x = c->pos_x - 1;
+                        temp_x--;
                         break;
                     case east:
-                        temp_x = c->pos_x + 1;
+                        temp_x++;
                         break;
                     case north_west:
-                        temp_y = c->pos_y - 1;
-                        temp_x = c->pos_x - 1;
+                        temp_y--;
+                        temp_x--;
                         break;
                     case north_east:
-                        temp_y = c->pos_y - 1;
-                        temp_x = c->pos_x + 1;
+                        temp_y--;
                         temp_x++;
                         break;
                     case south_west:
-                        temp_y = c->pos_y + 1;
-                        temp_x = c->pos_x - 1;
+                        temp_y++;
+                        temp_x--;
                         break;
                     case south_east:
-                        temp_y = c->pos_y + 1;
-                        temp_x = c->pos_x + 1;
+                        temp_y++;
+                        temp_x++;
                         break;
-                }
+            }
+            // Source of infinite looping
+            // printf("Current X: %d Current Y:%d New X: %d New Y:%d New Tile: %s Current Direction %d\n ", c->pos_x, c->pos_y, temp_x, temp_y, map->terrain[temp_y][temp_x], c->dir);
         } while((c->dir == last_dir) || 
         (strcmp(map->terrain[c->pos_y][c->pos_x], 
                 map->terrain[temp_y][temp_x])));
@@ -693,7 +696,9 @@ int main(int argc, char *argv[]) {
     }
     Local_Map* startMap = (Local_Map*) malloc(sizeof(Local_Map));
     // Set seed
+    // Debug seed 1697908543
     srand(time(0));
+    // printf("Using seed %ld\n", time(0));
     // Generate board
     int current_x = 200;
     int current_y = 200;
@@ -738,7 +743,7 @@ int main(int argc, char *argv[]) {
     int rand_x = 0;
     int rand_y = 0;
     // Start of NPC generation code for default config
-    for(x = 0; x < default_trainers; x++) {
+    for(x = 0; x < default_trainers + 1; x++) {
         if(NPCs[x] == player) {
             characters[x].pos_x = playerX;
             characters[x].pos_y = playerY;
@@ -816,6 +821,7 @@ int main(int argc, char *argv[]) {
         // Delay movement for 25 frames
         usleep(25000);
         c = heap_remove_min(&character_heap);
+        // printf("Sequence Num: %d Current X: %d Current Y: %d\n", c->sequence_num, c->pos_x, c->pos_y);
         int temp_y;
         int temp_x;
         int temp_cost;
