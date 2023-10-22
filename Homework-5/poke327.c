@@ -154,14 +154,14 @@ typedef struct world {
 world_t world;
 
 static pair_t all_dirs[8] = {
-  { -1, -1 },
-  { -1,  0 },
-  { -1,  1 },
-  {  0, -1 },
-  {  0,  1 },
-  {  1, -1 },
-  {  1,  0 },
-  {  1,  1 },
+  { -1, -1 }, // North West
+  { -1,  0 }, // West
+  { -1,  1 }, // South West
+  {  0, -1 }, // North
+  {  0,  1 }, // South
+  {  1, -1 }, // North East
+  {  1,  0 }, // East
+  {  1,  1 }, // South East
 };
 
 /* Just to make the following table fit in 80 columns */
@@ -488,19 +488,21 @@ static void move_swimmer_func(character_t *c, pair_t dest)
   }
 }
 
-static void move_pc_func(character_t *c, pair_t dest)
+static void move_pc_func(character_t *c, pair_t dest, pair_t dir)
 {
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
   if ((move_cost[char_pc][world.cur_map->map[c->pos[dim_y] +
-                                                    c->npc->dir[dim_y]]
+                                                    dir[dim_y]]
                                                   [c->pos[dim_x] +
-                                                    c->npc->dir[dim_x]]] ==
-          INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+                                                    dir[dim_x]]] ==
+          INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
+                                          [c->pos[dim_x] + dir[dim_x]]) {
     return;
   }
-
+  // Move Player if possible
+  dest[dim_x] += dir[dim_x];
+  dest[dim_y] += dir[dim_y];
 }
 
 void (*move_func[num_movement_types])(character_t *, pair_t) = {
@@ -511,7 +513,7 @@ void (*move_func[num_movement_types])(character_t *, pair_t) = {
   move_sentry_func,
   move_explorer_func,
   move_swimmer_func,
-  move_pc_func,
+  // move_pc_func,
 };
 
 void rand_pos(pair_t pos)
@@ -1852,31 +1854,55 @@ void game_loop()
       switch (playerInput) {
         
         case '1':
-
+          // South West
+          move_pc_func(c, d, all_dirs[2]);
+          break;
         case '2':
+          // South
+          move_pc_func(c, d, all_dirs[4]);
+          break;
         case '3':
+          // South East
+          move_pc_func(c, d, all_dirs[7]);
+          break;
         case '4':
+          // West
+          move_pc_func(c, d, all_dirs[1]);
+          break;
         case '5':
         case ' ':
         case '.':
-          c->next_turn += move_cost[char_pc][world.cur_map->map[c->pos[dim_y]]
-                                                           [c->pos[dim_x]]];
+          c->next_turn += move_cost[char_pc][world.cur_map->map[c->pos[dim_x]]
+                                                           [c->pos[dim_y]]];
           break;
         case '6':
+          // East
+          move_pc_func(c, d, all_dirs[6]);
+          break;
         case '7':
+          // North West
+          move_pc_func(c, d, all_dirs[0]);
+          break;
         case '8':
+          // North
+          move_pc_func(c, d, all_dirs[3]);
+          break;
         case '9':
+          // North East
+          move_pc_func(c, d, all_dirs[5]);
+          break;
+        // End game
         case 'q':
           finished = 1;
           break;
       }
+      // Call player move function
       
-      move_func[c->npc->mtype](c, d);
       // Move the NPCs and do shit if conditions are met
       if(c->pos[dim_y] != d[dim_y] || c->pos[dim_x] != d[dim_x]) {
         world.cur_map->cmap[c->pos[dim_y]][c->pos[dim_x]] = NULL;
         world.cur_map->cmap[d[dim_y]][d[dim_x]] = c;
-        c->next_turn += move_cost[c->npc->ctype][world.cur_map->map[d[dim_y]]
+        c->next_turn += move_cost[char_pc][world.cur_map->map[d[dim_y]]
                                                                   [d[dim_x]]];
         c->pos[dim_y] = d[dim_y];
         c->pos[dim_x] = d[dim_x];
