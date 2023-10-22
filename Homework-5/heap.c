@@ -29,7 +29,7 @@ struct heap_node {
     (n2)->prev = (n1);                    \
   }                                       \
 })
-// Source of memory leak
+
 #define insert_heap_node_in_list(n, l) ({ \
   (n)->next = (l);                        \
   (n)->prev = (l)->prev;                  \
@@ -133,10 +133,11 @@ void heap_delete(heap_t *h)
 heap_node_t *heap_insert(heap_t *h, void *v)
 {
   heap_node_t *n;
+
   assert((n = calloc(1, sizeof (*n))));
   n->datum = v;
+
   if (h->min) {
-    // Source of memory leak, fixed as heap needed comparator
     insert_heap_node_in_list(n, h->min);
   } else {
     n->next = n->prev = n;
@@ -296,7 +297,7 @@ static void heap_cascading_cut(heap_t *h, heap_node_t *n)
       n->mark = 1;
     } else {
       heap_cut(h, n, p);
-      heap_cascading_cut(h, n);
+      heap_cascading_cut(h, p);
     }
   }
 }
