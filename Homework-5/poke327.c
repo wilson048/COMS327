@@ -38,8 +38,8 @@ typedef int16_t pair_t[num_dims];
 #define TREE_PROB          95
 #define BOULDER_PROB       95
 #define WORLD_SIZE         401
-
-#define MIN_TRAINERS     7
+// DEBUG - Change to generate more trainers
+#define MIN_TRAINERS     24
 #define ADD_TRAINER_PROB 60
 
 #define MOUNTAIN_SYMBOL       '%'
@@ -362,7 +362,78 @@ void display_pokebuilding_screen(terrain_type_t building_type) {
     refresh();
   }
 }
-// Move explorer func above rival and hiker funcs
+// Display all the trainers on the map
+void display_all_trainers() {
+  int start_list = 0;
+  int end_list = 10;
+  int leaveTrainerList = 0;
+  int x, y;
+  // Run through character list
+  int total_trainers = 0;
+  // Keep track of position on list
+  int cursor = 0;
+  // Take player input
+  int playerInput;
+  
+  // Create trainers menu
+  WINDOW * menuwin = newwin(world.char_seq_num, 0, 0, 0);
+  clear();
+  refresh();
+  // wrefresh(menuwin);
+  keypad(menuwin, 1);
+  
+  character_t *character_list[world.char_seq_num];
+  // Search for trainers on the board
+  for(y = 0; y < MAP_Y; y++) {
+      for(x = 0; x < MAP_X; x++) {
+        if(world.cur_map->cmap[y][x]) {
+          character_list[total_trainers] = world.cur_map->cmap[y][x];
+          total_trainers++;
+      }
+    }
+  }
+  while(!leaveTrainerList) {
+    total_trainers = 0;
+    for(x = start_list; x < end_list; x++) {
+      if(x == cursor) {
+        wattron(menuwin, A_REVERSE);
+      }
+      mvwprintw(menuwin, x, 1, "Trainer found at X: %d Y: %d", character_list[x]->pos[dim_x], character_list[y]->pos[dim_y]);
+      wattroff(menuwin, A_REVERSE);
+    }
+    total_trainers = 0;
+    // Output board
+    
+    wrefresh(menuwin);
+    playerInput = wgetch(menuwin);
+    if(playerInput == 27) {
+      leaveTrainerList = 1;
+    }
+    switch (playerInput) {
+      case 27:
+        leaveTrainerList = 1;
+        break;
+      case KEY_UP:
+        if(cursor != 0) {
+          cursor--;
+        }
+        break;
+      case KEY_DOWN:
+        if(cursor != world.char_seq_num - 1) {
+          cursor++;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  wclear(menuwin);
+  wrefresh(menuwin);
+  clear();
+  refresh();
+}
+// Move explorer func above rival and hiker funcs so that rivals and
+// hikers can move like explorers when they are done
 static void move_explorer_func(character_t *c, pair_t dest)
 {
   dest[dim_x] = c->pos[dim_x];
@@ -2130,6 +2201,7 @@ void game_loop()
     if (c == &world.pc) {
       
       clear();
+      // Changed this function to print on ncurses
       print_map();
       int playerInput = getch();
       // Check for tile validity
@@ -2186,6 +2258,7 @@ void game_loop()
         // End game
         case 'q':
           finished = 1;
+          // Fill D with original coordinates
           d[dim_y] = c->pos[dim_y];
           d[dim_x] = c->pos[dim_x];
           break;
@@ -2198,6 +2271,9 @@ void game_loop()
           d[dim_x] = c->pos[dim_x];
           break;
         case 't':
+          display_all_trainers();
+          d[dim_y] = c->pos[dim_y];
+          d[dim_x] = c->pos[dim_x];
           break;
         default:
           d[dim_y] = c->pos[dim_y];
@@ -2206,9 +2282,14 @@ void game_loop()
         
       }
       // Call player move function
-      
+
+      // c->pos[dim_x] + all_dirs[i & 0x7][dim_x] != 0 &&
+      // c->pos[dim_x] + all_dirs[i & 0x7][dim_x] != MAP_X - 1 &&
+      // c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != 0 &&
+      // c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != MAP_Y - 1
       // Stop movement on edge of grid
-      // if(d[dim_y] <= 0 || d[dim_y] >= 20 || d[dim_x] <= 0 || d[dim_x] >= 79) {
+      // if(d[dim_y] <= 0 || d[dim_y] >= MAP_Y - 1 || d[dim_x] <= 0 || d[dim_x] >= MAP_X - 1) {
+      //   refresh();
       //   continue;
       // }
       // Move the Player and do shit if movement conditions are met
