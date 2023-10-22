@@ -394,7 +394,7 @@ static void move_explorer_func(character_t *c, pair_t dest)
 {
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
-
+  // Check for tile validity
   if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
                                                 c->npc->dir[dim_y]]
                                                [c->pos[dim_x] +
@@ -492,6 +492,15 @@ static void move_pc_func(character_t *c, pair_t dest)
 {
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
+  if ((move_cost[char_pc][world.cur_map->map[c->pos[dim_y] +
+                                                    c->npc->dir[dim_y]]
+                                                  [c->pos[dim_x] +
+                                                    c->npc->dir[dim_x]]] ==
+          INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+    return;
+  }
+
 }
 
 void (*move_func[num_movement_types])(character_t *, pair_t) = {
@@ -688,7 +697,7 @@ void init_pc()
   world.pc.pos[dim_y] = y;
   world.pc.symbol = PC_SYMBOL;
   world.pc.pc = malloc(sizeof (*world.pc.pc));
-
+  
   world.cur_map->cmap[y][x] = &world.pc;
   world.pc.next_turn = 0;
 
@@ -1472,7 +1481,7 @@ static void print_map()
   int x, y;
   int default_reached = 0;
 
-  printf("\n\n\n");
+  printw("\n");
 
   for (y = 0; y < MAP_Y; y++) {
     for (x = 0; x < MAP_X; x++) {
@@ -1839,9 +1848,11 @@ void game_loop()
       clear();
       print_map();
       int playerInput = getch();
-
+      // Check for tile validity
       switch (playerInput) {
+        
         case '1':
+
         case '2':
         case '3':
         case '4':
@@ -1859,6 +1870,18 @@ void game_loop()
           finished = 1;
           break;
       }
+      
+      move_func[c->npc->mtype](c, d);
+      // Move the NPCs and do shit if conditions are met
+      if(c->pos[dim_y] != d[dim_y] || c->pos[dim_x] != d[dim_x]) {
+        world.cur_map->cmap[c->pos[dim_y]][c->pos[dim_x]] = NULL;
+        world.cur_map->cmap[d[dim_y]][d[dim_x]] = c;
+        c->next_turn += move_cost[c->npc->ctype][world.cur_map->map[d[dim_y]]
+                                                                  [d[dim_x]]];
+        c->pos[dim_y] = d[dim_y];
+        c->pos[dim_x] = d[dim_x];
+      }
+      
       refresh();
     } else {
       move_func[c->npc->mtype](c, d);
