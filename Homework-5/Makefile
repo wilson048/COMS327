@@ -8,4 +8,4 @@ heap.o: heap.c heap.h
 	gcc -Wall -Werror -ggdb heap.c -c
 
 clean:
-	rm -f *.o poke327
+	rm -f *.o poke327 fuckup

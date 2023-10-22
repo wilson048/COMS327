@@ -112,6 +112,7 @@ typedef struct pc {
 typedef struct npc {
   character_type_t ctype;
   movement_type_t mtype;
+  int has_battled;
   pair_t dir;
 } npc_t;
 
@@ -277,13 +278,162 @@ uint32_t can_see(map_t *m, character_t *voyeur, character_t *exhibitionist)
 
   return 1;
 }
+// Screen Functions will be here
+// void display_trainers_screen() {
+
+// }
+// Show NPC Battle Screen 
+void display_battle_screen(character_t *c) {
+  
+  int leaveBattle = 0;
+  // move_hiker,
+  // move_rival,
+  // move_pace,
+  // move_wander,
+  // move_sentry,
+  // move_explore,
+  // move_swim,
+  // move_pc,
+  int playerInput;
+  while(!leaveBattle) {
+    clear();
+    switch (c->npc->mtype) {
+      case move_hiker:
+        printw("Battling Hiker. Press ESC to quit");
+        break;
+      case move_rival:
+        printw("Battling Rival. Press ESC to quit");
+        break;
+      case move_pace:
+        printw("Battling Pacer. Press ESC to quit");
+        break;
+      case move_wander:
+        printw("Battling Wanderer. Press ESC to quit");
+        break;
+      case move_sentry:
+        printw("Battling Sentry. Press ESC to quit");
+        break;
+      case move_explore:
+        printw("Battling Explorer. Press ESC to quit");
+        break;
+      case move_swim:
+        printw("Battling Swimmer. Press ESC to quit");
+        break;
+      default:
+        printw("Battling ERROR. Press ESC to quit");
+        break;
+    }
+    playerInput = getch();
+    if(playerInput == 27) {
+      leaveBattle = 1;
+    }
+    refresh();
+  }
+}
+// Pokemart/Pokecenter display func
+void display_pokebuilding_screen(terrain_type_t building_type) {
+  int leaveBuilding = 0;
+  // move_hiker,
+  // move_rival,
+  // move_pace,
+  // move_wander,
+  // move_sentry,
+  // move_explore,
+  // move_swim,
+  // move_pc,
+  int playerInput;
+  while(!leaveBuilding) {
+    clear();
+    switch (building_type) {
+      case ter_center:
+        printw("Entered Pokemon Center. Press < to quit");
+        break;
+      case ter_mart:
+        printw("Entered PokeMart. Press < to quit");
+        break;
+      default:
+        printw("Entered ERROR. Press < to quit");
+        break;
+    }
+    playerInput = getch();
+    if(playerInput == '<') {
+      leaveBuilding = 1;
+    }
+    refresh();
+  }
+}
+// Move explorer func above rival and hiker funcs
+static void move_explorer_func(character_t *c, pair_t dest)
+{
+  dest[dim_x] = c->pos[dim_x];
+  dest[dim_y] = c->pos[dim_y];
+  // Check for tile validity but point a potential square with player
+  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
+                                                c->npc->dir[dim_y]]
+                                               [c->pos[dim_x] +
+                                                c->npc->dir[dim_x]]] ==
+       INT_MAX)) {
+    rand_dir(c->npc->dir);
+  }
+  // Original
+  // if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
+  //                                               c->npc->dir[dim_y]]
+  //                                              [c->pos[dim_x] +
+  //                                               c->npc->dir[dim_x]]] ==
+  //      INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+  //                                     [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+  //   rand_dir(c->npc->dir);
+  // }
+
+  // Remove NPC collison check
+  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
+                                                c->npc->dir[dim_y]]
+                                               [c->pos[dim_x] +
+                                                c->npc->dir[dim_x]]] !=
+       INT_MAX) &&
+      !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+    dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+    dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
+  }
+  // Check if tile has character
+  else if(world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+                           
+    if(c->npc->has_battled) {
+      // Reassign direction in the original way
+      if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
+                                                c->npc->dir[dim_y]]
+                                               [c->pos[dim_x] +
+                                                c->npc->dir[dim_x]]] ==
+       INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                                      [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+      rand_dir(c->npc->dir);
+      }
+    }                        
+    // Check if tile with character is the player and the character has not battled yet
+    if((world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]] == &world.pc) && 
+                          (!(c->npc->has_battled))) {
+      c->npc->has_battled = 1; 
+      display_battle_screen(c);
+    } 
+    // Stay on same tile
+    dest[dim_x] = c->pos[dim_x];
+    dest[dim_y] = c->pos[dim_y];
+  }
+}
 
 static void move_hiker_func(character_t *c, pair_t dest)
 {
   int min;
   int base;
   int i;
-  
+  // Make hikers move like explorers when they have been battled
+  if(c->npc->has_battled) {
+    move_explorer_func(c, dest);
+    return;
+  }
   base = rand() & 0x7;
 
   dest[dim_x] = c->pos[dim_x];
@@ -305,6 +455,26 @@ static void move_hiker_func(character_t *c, pair_t dest)
       min = world.hiker_dist[dest[dim_y]][dest[dim_x]];
     }
   }
+  int x, y;
+  // Proximity check for player because the hiker should be moving to the player when they are next to them
+  // But with current implementation, the hiker only surronds the player
+  if(!(c->npc->has_battled)) {
+    for(y = -1; y <= 1; y++) {
+      for(x = -1; x <= 1; x++) {
+          if(world.cur_map->cmap[c->pos[dim_y] + y]
+                                [c->pos[dim_x] + x] && 
+                                world.cur_map->cmap[c->pos[dim_y] + y]
+                                [c->pos[dim_x] + x] == &world.pc) {                        
+          // Check if tile with character is the player and the character has not battled yet                    
+          display_battle_screen(c);
+          c->npc->has_battled = 1;
+          // Stay on same tile if rival has sucuessfully engaged in battle with PC
+          dest[dim_x] = c->pos[dim_x];
+          dest[dim_y] = c->pos[dim_y];
+        } 
+      }
+    }
+  }
 }
 
 static void move_rival_func(character_t *c, pair_t dest)
@@ -314,24 +484,49 @@ static void move_rival_func(character_t *c, pair_t dest)
   int i;
   
   base = rand() & 0x7;
-
+  // Make rivals move like explorers when they have been battled
+  if(c->npc->has_battled) {
+    move_explorer_func(c, dest);
+    return;
+  }
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
   min = INT_MAX;
   
   for (i = base; i < 8 + base; i++) {
+    
     if ((world.rival_dist[c->pos[dim_y] + all_dirs[i & 0x7][dim_y]]
                          [c->pos[dim_x] + all_dirs[i & 0x7][dim_x]] <
          min) &&
-        !world.cur_map->cmap[c->pos[dim_y] + all_dirs[i & 0x7][dim_y]]
+        (!world.cur_map->cmap[c->pos[dim_y] + all_dirs[i & 0x7][dim_y]]
                             [c->pos[dim_x] + all_dirs[i & 0x7][dim_x]] &&
         c->pos[dim_x] + all_dirs[i & 0x7][dim_x] != 0 &&
         c->pos[dim_x] + all_dirs[i & 0x7][dim_x] != MAP_X - 1 &&
         c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != 0 &&
-        c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != MAP_Y - 1) {
+        c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != MAP_Y - 1)) {
       dest[dim_x] = c->pos[dim_x] + all_dirs[i & 0x7][dim_x];
       dest[dim_y] = c->pos[dim_y] + all_dirs[i & 0x7][dim_y];
       min = world.rival_dist[dest[dim_y]][dest[dim_x]];
+    }
+  }
+  int x, y;
+  // Proximity check for player because the rival should be moving to the player when they are next to them
+  // But with current implementation, the rival only surronds the player
+  if(!(c->npc->has_battled)) {
+    for(y = -1; y <= 1; y++) {
+      for(x = -1; x <= 1; x++) {
+          if(world.cur_map->cmap[c->pos[dim_y] + y]
+                                [c->pos[dim_x] + x] && 
+                                world.cur_map->cmap[c->pos[dim_y] + y]
+                                [c->pos[dim_x] + x] == &world.pc) {                        
+          // Check if tile with character is the player and the character has not battled yet                    
+          display_battle_screen(c);
+          c->npc->has_battled = 1;
+          // Stay on same tile if rival has sucuessfully engaged in battle with PC
+          dest[dim_x] = c->pos[dim_x];
+          dest[dim_y] = c->pos[dim_y];
+        } 
+      }
     }
   }
 }
@@ -345,10 +540,16 @@ static void move_pacer_func(character_t *c, pair_t dest)
 
   t = world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
                         [c->pos[dim_x] + c->npc->dir[dim_x]];
+  // Original
+  // if ((t != ter_path && t != ter_grass && t != ter_clearing) ||
+  //     world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+  //                        [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+  //   c->npc->dir[dim_x] *= -1;
+  //   c->npc->dir[dim_y] *= -1;
+  // }
 
-  if ((t != ter_path && t != ter_grass && t != ter_clearing) ||
-      world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                         [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+  // Remove NPC collison check
+  if ((t != ter_path && t != ter_grass && t != ter_clearing)) {
     c->npc->dir[dim_x] *= -1;
     c->npc->dir[dim_y] *= -1;
   }
@@ -359,6 +560,40 @@ static void move_pacer_func(character_t *c, pair_t dest)
     dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
     dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
   }
+  // // Check if tile has character
+  else if(world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+                           
+    if(c->npc->has_battled) {
+      // Reassign direction in the original way
+      t = world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+                        [c->pos[dim_x] + c->npc->dir[dim_x]];
+
+      if ((t != ter_path && t != ter_grass && t != ter_clearing) ||
+          world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                            [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        c->npc->dir[dim_x] *= -1;
+        c->npc->dir[dim_y] *= -1;
+      }
+
+      if ((t == ter_path || t == ter_grass || t == ter_clearing) &&
+          !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                              [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+        dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
+      }
+    }                        
+    // Check if tile with character is the player and the character has not battled yet
+    if((world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]] == &world.pc) && 
+                          (!(c->npc->has_battled))) {
+      c->npc->has_battled = 1; 
+      display_battle_screen(c);
+    } 
+    // Stay on same tile
+    dest[dim_x] = c->pos[dim_x];
+    dest[dim_y] = c->pos[dim_y];
+  }
 }
 
 static void move_wanderer_func(character_t *c, pair_t dest)
@@ -366,11 +601,18 @@ static void move_wanderer_func(character_t *c, pair_t dest)
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
 
+  // Original
+  // if ((world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+  //                        [c->pos[dim_x] + c->npc->dir[dim_x]] !=
+  //      world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]) ||
+  //     world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+  //                        [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+  //   rand_dir(c->npc->dir);
+  // }
+  // Remove NPC collison check
   if ((world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
                          [c->pos[dim_x] + c->npc->dir[dim_x]] !=
-       world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]) ||
-      world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                         [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+       world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]])) {
     rand_dir(c->npc->dir);
   }
 
@@ -382,38 +624,46 @@ static void move_wanderer_func(character_t *c, pair_t dest)
     dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
     dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
   }
+  // Check if tile has character
+  else if(world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+                           
+    if(c->npc->has_battled) {
+      // Reassign direction in the original way
+      if ((world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+                         [c->pos[dim_x] + c->npc->dir[dim_x]] !=
+          world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]) ||
+          world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                            [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        rand_dir(c->npc->dir);
+      }
+
+      if ((world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+                            [c->pos[dim_x] + c->npc->dir[dim_x]] ==
+          world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]) &&
+          !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                              [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+        dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
+      }
+    }                        
+    // Check if tile with character is the player and the character has not battled yet
+    if((world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                          [c->pos[dim_x] + c->npc->dir[dim_x]] == &world.pc) && 
+                          (!(c->npc->has_battled))) {
+      c->npc->has_battled = 1; 
+      display_battle_screen(c);
+    } 
+    // Stay on same tile
+    dest[dim_x] = c->pos[dim_x];
+    dest[dim_y] = c->pos[dim_y];
+  }
 }
 
 static void move_sentry_func(character_t *c, pair_t dest)
 {
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
-}
-
-static void move_explorer_func(character_t *c, pair_t dest)
-{
-  dest[dim_x] = c->pos[dim_x];
-  dest[dim_y] = c->pos[dim_y];
-  // Check for tile validity
-  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
-                                                c->npc->dir[dim_y]]
-                                               [c->pos[dim_x] +
-                                                c->npc->dir[dim_x]]] ==
-       INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                                      [c->pos[dim_x] + c->npc->dir[dim_x]]) {
-    rand_dir(c->npc->dir);
-  }
-
-  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
-                                                c->npc->dir[dim_y]]
-                                               [c->pos[dim_x] +
-                                                c->npc->dir[dim_x]]] !=
-       INT_MAX) &&
-      !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
-    dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
-    dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
-  }
 }
 
 static void move_swimmer_func(character_t *c, pair_t dest)
@@ -425,8 +675,10 @@ static void move_swimmer_func(character_t *c, pair_t dest)
   dest[dim_y] = c->pos[dim_y];
 
   if (is_adjacent(world.pc.pos, ter_water) &&
-      can_see(world.cur_map, c, &world.pc)) {
+      can_see(world.cur_map, c, &world.pc) && 
+      (!(c->npc->has_battled))) {
     /* PC is next to this body of water; swim to the PC */
+    // Also stop following PC after battling them
 
     dir[dim_x] = world.pc.pos[dim_x] - c->pos[dim_x];
     if (dir[dim_x]) {
@@ -483,21 +735,39 @@ static void move_swimmer_func(character_t *c, pair_t dest)
 
   if (m->cmap[dest[dim_y]][dest[dim_x]]) {
     /* Occupied.  Just be patient. */
+    if(m->cmap[dest[dim_y]][dest[dim_x]] == &world.pc && (!(c->npc->has_battled))) {
+      c->npc->has_battled = 1; 
+      display_battle_screen(c);
+    }
     dest[dim_x] = c->pos[dim_x];
     dest[dim_y] = c->pos[dim_y];
   }
 }
-
+// Changed this func in order to take in a direction
 static void move_pc_func(character_t *c, pair_t dest, pair_t dir)
 {
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
+  // Don't move on infinity tile
   if ((move_cost[char_pc][world.cur_map->map[c->pos[dim_y] +
                                                     dir[dim_y]]
                                                   [c->pos[dim_x] +
                                                     dir[dim_x]]] ==
-          INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
+          INT_MAX)) {
+    return;
+  }
+  // Initiate a Pokemon Battle if needed from player movement
+  if (world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
                                           [c->pos[dim_x] + dir[dim_x]]) {
+    // Check has battled flag
+    if(!(world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
+                                          [c->pos[dim_x] + dir[dim_x]]->npc->has_battled)) {
+      // Flag has battled
+      display_battle_screen(world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
+                                          [c->pos[dim_x] + dir[dim_x]]);
+      world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
+                                          [c->pos[dim_x] + dir[dim_x]]->npc->has_battled = 1;
+    }
     return;
   }
   // Move Player if possible
@@ -513,6 +783,7 @@ void (*move_func[num_movement_types])(character_t *, pair_t) = {
   move_sentry_func,
   move_explorer_func,
   move_swimmer_func,
+  // Changed this func in order to take in more data
   // move_pc_func,
 };
 
@@ -540,6 +811,8 @@ void new_hiker()
   c->npc->mtype = move_hiker;
   c->npc->dir[dim_x] = 0;
   c->npc->dir[dim_y] = 0;
+  // Add has battled flag
+  c->npc->has_battled = 0;
   c->symbol = HIKER_SYMBOL;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
@@ -566,6 +839,8 @@ void new_rival()
   c->npc->mtype = move_rival;
   c->npc->dir[dim_x] = 0;
   c->npc->dir[dim_y] = 0;
+  // Add has battled flag
+  c->npc->has_battled = 0;
   c->symbol = RIVAL_SYMBOL;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
@@ -589,6 +864,8 @@ void new_swimmer()
   c->pos[dim_x] = pos[dim_x];
   c->npc->ctype = char_swimmer;
   c->npc->mtype = move_swim;
+  // Add has battled flag
+  c->npc->has_battled = 0;
   rand_dir(c->npc->dir);
   c->symbol = SWIMMER_SYMBOL;
   c->next_turn = 0;
@@ -613,6 +890,8 @@ void new_char_other()
   c->pos[dim_y] = pos[dim_y];
   c->pos[dim_x] = pos[dim_x];
   c->npc->ctype = char_other;
+  // Add has battled flag
+  c->npc->has_battled = 0;
   switch (rand() % 4) {
   case 0:
     c->npc->mtype = move_pace;
@@ -1842,70 +2121,106 @@ void game_loop()
   // Initalize screen
   initscr();
   raw();
+  cbreak();
+  noecho();
   int finished = 0;
   while (!finished) {
     c = heap_remove_min(&world.cur_map->turn);
     //    print_character(c);
     if (c == &world.pc) {
+      
       clear();
       print_map();
       int playerInput = getch();
       // Check for tile validity
       switch (playerInput) {
-        
         case '1':
+        case 'b':
           // South West
           move_pc_func(c, d, all_dirs[2]);
           break;
         case '2':
+        case 'j':
           // South
           move_pc_func(c, d, all_dirs[4]);
           break;
         case '3':
+        case 'n':
           // South East
           move_pc_func(c, d, all_dirs[7]);
           break;
         case '4':
+        case 'h':
           // West
           move_pc_func(c, d, all_dirs[1]);
           break;
         case '5':
         case ' ':
         case '.':
-          c->next_turn += move_cost[char_pc][world.cur_map->map[c->pos[dim_x]]
-                                                           [c->pos[dim_y]]];
+          c->next_turn += move_cost[char_pc][world.cur_map->map[c->pos[dim_y]]
+                                                           [c->pos[dim_x]]];
+          // Fill D with original coordianates
+          d[dim_y] = c->pos[dim_y];
+          d[dim_x] = c->pos[dim_x];
           break;
         case '6':
+        case 'l':
           // East
           move_pc_func(c, d, all_dirs[6]);
           break;
         case '7':
+        case 'y':
           // North West
           move_pc_func(c, d, all_dirs[0]);
           break;
         case '8':
+        case 'k':
           // North
           move_pc_func(c, d, all_dirs[3]);
           break;
         case '9':
+        case 'u':
           // North East
           move_pc_func(c, d, all_dirs[5]);
           break;
         // End game
         case 'q':
           finished = 1;
+          d[dim_y] = c->pos[dim_y];
+          d[dim_x] = c->pos[dim_x];
           break;
+        case '>':
+          if(world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]] == ter_center || world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]] == ter_mart) {
+            display_pokebuilding_screen(world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]);
+          }
+          
+          d[dim_y] = c->pos[dim_y];
+          d[dim_x] = c->pos[dim_x];
+          break;
+        case 't':
+          break;
+        default:
+          d[dim_y] = c->pos[dim_y];
+          d[dim_x] = c->pos[dim_x];
+          break;
+        
       }
       // Call player move function
       
-      // Move the NPCs and do shit if conditions are met
-      if(c->pos[dim_y] != d[dim_y] || c->pos[dim_x] != d[dim_x]) {
+      // Stop movement on edge of grid
+      // if(d[dim_y] <= 0 || d[dim_y] >= 20 || d[dim_x] <= 0 || d[dim_x] >= 79) {
+      //   continue;
+      // }
+      // Move the Player and do shit if movement conditions are met
+      if((!(finished)) && ((c->pos[dim_y] != d[dim_y]) || (c->pos[dim_x] != d[dim_x]))) {
         world.cur_map->cmap[c->pos[dim_y]][c->pos[dim_x]] = NULL;
         world.cur_map->cmap[d[dim_y]][d[dim_x]] = c;
         c->next_turn += move_cost[char_pc][world.cur_map->map[d[dim_y]]
-                                                                  [d[dim_x]]];
+                                                            [d[dim_x]]];
         c->pos[dim_y] = d[dim_y];
         c->pos[dim_x] = d[dim_x];
+        // Run Dijkstras again
+        pathfind(world.cur_map);
       }
       
       refresh();
