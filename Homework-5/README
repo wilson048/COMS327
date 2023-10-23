@@ -1,3 +1,6 @@
 This homework required by the class COM S 327 is a program that will allow the user to move the player on the board.
 Each time the player moves, the path map gradients are regenerated and all eligible NPCs take their turn.
 When the player tries to touch a trainer or a trainer touches the player, a battle is initated. The player can now enter the Pokemon facilites located on the map. All characters on the map cannot leave the board for the time being.
+
+The swimmers will engage the player, but will subsequentely ignore them after battling the player. 
+The trainer display displays 10 trainers at a time, and scrolls through a character array accordingly

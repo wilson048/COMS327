@@ -365,7 +365,7 @@ void display_pokebuilding_screen(terrain_type_t building_type) {
 // Display all the trainers on the map
 void display_all_trainers() {
   int start_list = 0;
-  int end_list = 10;
+  int end_list = 9;
   int leaveTrainerList = 0;
   int x, y;
   // Run through character list
@@ -392,18 +392,37 @@ void display_all_trainers() {
       }
     }
   }
+  // Calculate location from player
+  int dist_y;
+  int dist_x;
   while(!leaveTrainerList) {
+    wclear(menuwin);
     total_trainers = 0;
-    for(x = start_list; x < end_list; x++) {
+    for(x = start_list; x <= end_list; x++) {
       if(x == cursor) {
         wattron(menuwin, A_REVERSE);
       }
-      mvwprintw(menuwin, x, 1, "Trainer found at X: %d Y: %d", character_list[x]->pos[dim_x], character_list[y]->pos[dim_y]);
+      // Print out Player on players on the map
+      if(character_list[x] == &world.pc) {
+        mvwprintw(menuwin, total_trainers, 1, "Player %c at X: %d Y: %d", character_list[x]->symbol, 
+        character_list[x]->pos[dim_x], 
+        character_list[y]->pos[dim_y]);
+      }
+      else {
+        // Calculatons done here
+        dist_y = character_list[x]->pos[dim_y] - world.pc.pos[dim_y];
+        dist_x = character_list[x]->pos[dim_x] - world.pc.pos[dim_x];
+        mvwprintw(menuwin, total_trainers, 1, "Trainer %c, %d %s, %d %s", character_list[x]->symbol, 
+        abs(dist_y), 
+        dist_y < 0 ? "North" : "South", 
+        abs(dist_x), 
+        dist_x < 0 ? "West" : "East");
+      }
       wattroff(menuwin, A_REVERSE);
+      total_trainers++;
     }
     total_trainers = 0;
     // Output board
-    
     wrefresh(menuwin);
     playerInput = wgetch(menuwin);
     if(playerInput == 27) {
@@ -414,11 +433,19 @@ void display_all_trainers() {
         leaveTrainerList = 1;
         break;
       case KEY_UP:
+        if(cursor == start_list && start_list != 0) {
+          start_list--;
+          end_list--;
+        }
         if(cursor != 0) {
           cursor--;
         }
         break;
       case KEY_DOWN:
+        if(cursor == end_list && end_list != world.char_seq_num - 1) {
+          start_list++;
+          end_list++;
+        }
         if(cursor != world.char_seq_num - 1) {
           cursor++;
         }
@@ -2288,10 +2315,10 @@ void game_loop()
       // c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != 0 &&
       // c->pos[dim_y] + all_dirs[i & 0x7][dim_y] != MAP_Y - 1
       // Stop movement on edge of grid
-      // if(d[dim_y] <= 0 || d[dim_y] >= MAP_Y - 1 || d[dim_x] <= 0 || d[dim_x] >= MAP_X - 1) {
-      //   refresh();
-      //   continue;
-      // }
+      if(d[dim_y] <= 0 || d[dim_y] >= MAP_Y - 1 || d[dim_x] <= 0 || d[dim_x] >= MAP_X - 1) {
+        d[dim_y] = c->pos[dim_y];
+        d[dim_x] = c->pos[dim_x];
+      }
       // Move the Player and do shit if movement conditions are met
       if((!(finished)) && ((c->pos[dim_y] != d[dim_y]) || (c->pos[dim_x] != d[dim_x]))) {
         world.cur_map->cmap[c->pos[dim_y]][c->pos[dim_x]] = NULL;
