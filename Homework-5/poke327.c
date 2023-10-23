@@ -466,48 +466,28 @@ static void move_explorer_func(character_t *c, pair_t dest)
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
   // Check for tile validity but point a potential square with player
-  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
-                                                c->npc->dir[dim_y]]
-                                               [c->pos[dim_x] +
-                                                c->npc->dir[dim_x]]] ==
-       INT_MAX)) {
+  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]] == INT_MAX)) {
     rand_dir(c->npc->dir);
   }
-  // Original
-  // if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
-  //                                               c->npc->dir[dim_y]]
-  //                                              [c->pos[dim_x] +
-  //                                               c->npc->dir[dim_x]]] ==
-  //      INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-  //                                     [c->pos[dim_x] + c->npc->dir[dim_x]]) {
-  //   rand_dir(c->npc->dir);
-  // }
-
-  // Remove NPC collison check
-  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
-                                                c->npc->dir[dim_y]]
-                                               [c->pos[dim_x] +
-                                                c->npc->dir[dim_x]]] !=
-       INT_MAX) &&
-      !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+  
+  if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]] != INT_MAX) &&
+      !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]) {
     dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
     dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
   }
   // Check if tile has character
-  else if(world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                          [c->pos[dim_x] + c->npc->dir[dim_x]]) {
-                           
+  else if(world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]) {                
     if(c->npc->has_battled) {
-      // Reassign direction in the original way
-      if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
-                                                c->npc->dir[dim_y]]
-                                               [c->pos[dim_x] +
-                                                c->npc->dir[dim_x]]] ==
-       INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                                      [c->pos[dim_x] + c->npc->dir[dim_x]]) {
-      rand_dir(c->npc->dir);
+      // Reassign direction in the original way 
+      if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]] [c->pos[dim_x] + c->npc->dir[dim_x]]] == INT_MAX) || 
+          world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        rand_dir(c->npc->dir);
       }
+      if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]] != INT_MAX) &&
+        !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+        dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
+  }
     }                        
     // Check if tile with character is the player and the character has not battled yet
     if((world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
@@ -528,6 +508,11 @@ static void move_explorer_func(character_t *c, pair_t dest)
        INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
                                       [c->pos[dim_x] + c->npc->dir[dim_x]]) {
       rand_dir(c->npc->dir);
+      }
+      if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]] != INT_MAX) &&
+      !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+        dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
       }
     }
   }
@@ -897,24 +882,17 @@ static void move_pc_func(character_t *c, pair_t dest, pair_t dir)
   dest[dim_x] = c->pos[dim_x];
   dest[dim_y] = c->pos[dim_y];
   // Don't move on infinity tile
-  if ((move_cost[char_pc][world.cur_map->map[c->pos[dim_y] +
-                                                    dir[dim_y]]
-                                                  [c->pos[dim_x] +
-                                                    dir[dim_x]]] ==
-          INT_MAX)) {
+  if ((move_cost[char_pc][world.cur_map->map[c->pos[dim_y] + dir[dim_y]][c->pos[dim_x] + dir[dim_x]]] == INT_MAX)) {
     return;
   }
   // Initiate a Pokemon Battle if needed from player movement
   if (world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
                                           [c->pos[dim_x] + dir[dim_x]]) {
     // Check has battled flag
-    if(!(world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
-                                          [c->pos[dim_x] + dir[dim_x]]->npc->has_battled)) {
+    if(!(world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]][c->pos[dim_x] + dir[dim_x]]->npc->has_battled)) {
       // Flag has battled
-      display_battle_screen(world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
-                                          [c->pos[dim_x] + dir[dim_x]]);
-      world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]]
-                                          [c->pos[dim_x] + dir[dim_x]]->npc->has_battled = 1;
+      display_battle_screen(world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]][c->pos[dim_x] + dir[dim_x]]);
+      world.cur_map->cmap[c->pos[dim_y] + dir[dim_y]][c->pos[dim_x] + dir[dim_x]]->npc->has_battled = 1;
     }
     return;
   }
