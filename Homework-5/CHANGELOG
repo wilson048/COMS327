@@ -1,0 +1,8 @@
+97323c7 (HEAD -> main, origin/main, origin/HEAD) Finished Homework-5
+8b405ce Add all required features
+3bcdf77 Added Trainer List
+7b6fc6f Added Battle Checks for all Characters
+aa1cc93 Got movement working, but resting crashes
+908e5f9 Add curses to assignment
+e43be72 Now using solution code
+ae626d4 Init Homework 5
