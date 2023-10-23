@@ -487,11 +487,10 @@ static void move_explorer_func(character_t *c, pair_t dest)
         !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]]) {
         dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
         dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
-  }
+      }
     }                        
     // Check if tile with character is the player and the character has not battled yet
-    if((world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
-                          [c->pos[dim_x] + c->npc->dir[dim_x]] == &world.pc) && 
+    if((world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]][c->pos[dim_x] + c->npc->dir[dim_x]] == &world.pc) && 
                           (!(c->npc->has_battled))) {
       c->npc->has_battled = 1; 
       display_battle_screen(c);
@@ -555,10 +554,8 @@ static void move_hiker_func(character_t *c, pair_t dest)
   if(!(c->npc->has_battled)) {
     for(y = -1; y <= 1; y++) {
       for(x = -1; x <= 1; x++) {
-          if(world.cur_map->cmap[c->pos[dim_y] + y]
-                                [c->pos[dim_x] + x] && 
-                                world.cur_map->cmap[c->pos[dim_y] + y]
-                                [c->pos[dim_x] + x] == &world.pc) {                        
+          if(world.cur_map->cmap[c->pos[dim_y] + y][c->pos[dim_x] + x] && 
+              world.cur_map->cmap[c->pos[dim_y] + y][c->pos[dim_x] + x] == &world.pc) {                        
           // Check if tile with character is the player and the character has not battled yet                    
           display_battle_screen(c);
           c->npc->has_battled = 1;
