@@ -515,10 +515,21 @@ static void move_explorer_func(character_t *c, pair_t dest)
                           (!(c->npc->has_battled))) {
       c->npc->has_battled = 1; 
       display_battle_screen(c);
+      // Stay on same tile
+      dest[dim_x] = c->pos[dim_x];
+      dest[dim_y] = c->pos[dim_y];
     } 
-    // Stay on same tile
-    dest[dim_x] = c->pos[dim_x];
-    dest[dim_y] = c->pos[dim_y];
+    else {
+      // Reassign direction in the original way if not pointing to player character
+      if ((move_cost[char_other][world.cur_map->map[c->pos[dim_y] +
+                                                c->npc->dir[dim_y]]
+                                               [c->pos[dim_x] +
+                                                c->npc->dir[dim_x]]] ==
+       INT_MAX) || world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                                      [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+      rand_dir(c->npc->dir);
+      }
+    }
   }
 }
 
@@ -687,10 +698,30 @@ static void move_pacer_func(character_t *c, pair_t dest)
                           (!(c->npc->has_battled))) {
       c->npc->has_battled = 1; 
       display_battle_screen(c);
+      // Stay on same tile
+      dest[dim_x] = c->pos[dim_x];
+      dest[dim_y] = c->pos[dim_y];
     } 
-    // Stay on same tile
-    dest[dim_x] = c->pos[dim_x];
-    dest[dim_y] = c->pos[dim_y];
+    // Move originally if not pointing to player character
+    else {
+      // Reassign direction in the original way
+      t = world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+                        [c->pos[dim_x] + c->npc->dir[dim_x]];
+
+      if ((t != ter_path && t != ter_grass && t != ter_clearing) ||
+          world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                            [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        c->npc->dir[dim_x] *= -1;
+        c->npc->dir[dim_y] *= -1;
+      }
+
+      if ((t == ter_path || t == ter_grass || t == ter_clearing) &&
+          !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                              [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+        dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
+      }
+    }
   }
 }
 
@@ -751,10 +782,29 @@ static void move_wanderer_func(character_t *c, pair_t dest)
                           (!(c->npc->has_battled))) {
       c->npc->has_battled = 1; 
       display_battle_screen(c);
+      // Stay on same tile
+      dest[dim_x] = c->pos[dim_x];
+      dest[dim_y] = c->pos[dim_y];
     } 
-    // Stay on same tile
-    dest[dim_x] = c->pos[dim_x];
-    dest[dim_y] = c->pos[dim_y];
+    // Move originally if not pointing to player character
+    else {
+      if ((world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+                         [c->pos[dim_x] + c->npc->dir[dim_x]] !=
+          world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]) ||
+          world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                            [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        rand_dir(c->npc->dir);
+      }
+
+      if ((world.cur_map->map[c->pos[dim_y] + c->npc->dir[dim_y]]
+                            [c->pos[dim_x] + c->npc->dir[dim_x]] ==
+          world.cur_map->map[c->pos[dim_y]][c->pos[dim_x]]) &&
+          !world.cur_map->cmap[c->pos[dim_y] + c->npc->dir[dim_y]]
+                              [c->pos[dim_x] + c->npc->dir[dim_x]]) {
+        dest[dim_x] = c->pos[dim_x] + c->npc->dir[dim_x];
+        dest[dim_y] = c->pos[dim_y] + c->npc->dir[dim_y];
+      }
+    }
   }
 }
 
