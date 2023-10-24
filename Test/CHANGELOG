@@ -1,0 +1,22 @@
+922be10 (HEAD -> main, origin/main, origin/HEAD) Fix Wanderer border crossing bug
+894a0bf Fix NPC wiping bug
+e89eb5b Update CHANGELOG
+e1ba828 Added -numtrainer switch
+8683c23 Add CHANGELOG
+087cb34 Fix a couple of bugs
+c2c727b Added movement for rest of NPCs
+026d98d Implemented Movement for 3 NPCs
+cb1301d Making progress on movement
+2f8af27 Get NPCs to display
+1e4c687 Moved character insertion into main
+00db538 Change inner boulders to mountains with "4"
+a920165 Start on generating heap nodes
+1232d50 Actually made way to save path maps
+15de4de Actually storing path maps now
+baf4c49 Found Way to Save npc path maps
+d1cf587 Found Way to save path maps
+f1f0fca Add 10-5 class + Work on HW4
+bae5240 First attempt to store path maps in local maps
+4462c44 Add NPC Infrastructure
+cab93df Create Character Comparator
+d909374 Init Homework 4
