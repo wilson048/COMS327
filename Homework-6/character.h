@@ -32,15 +32,18 @@ extern const char *char_type_name[num_character_types];
 
 extern int32_t move_cost[num_character_types][num_terrain_types];
 
-typedef struct npc {
-  character_type_t ctype;
-  movement_type_t mtype;
-  int defeated;
-  pair_t dir;
-} npc_t;
+class npc : public character {
+  public:
+    character_type_t ctype;
+    movement_type_t mtype;
+    int defeated;
+    pair_t dir;
+};
 
-typedef struct pc {
-} pc_t;
+class pc : public character {
+  public:
+    pc *pc_t;
+};
 
 /* character is defined in poke327.h to allow an instance of character
  * in world without including character.h in poke327.h                 */

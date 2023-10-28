@@ -396,7 +396,7 @@ int32_t cmp_char_turns(const void *key, const void *with)
 void delete_character(void *v)
 {
   if (v == &world.pc) {
-    free(world.pc.pc);
+    free(world.pc.pc_t);
   } else {
     free(((character_t *) v)->npc);
     free(v);
@@ -456,7 +456,7 @@ void pathfind(map_t *m)
     }
   }
 
-  while ((c = heap_remove_min(&h))) {
+  while ((c = (path_t *) heap_remove_min(&h))) {
     c->hn = NULL;
     if ((p[c->pos[dim_y] - 1][c->pos[dim_x] - 1].hn) &&
         (world.hiker_dist[c->pos[dim_y] - 1][c->pos[dim_x] - 1] >
@@ -553,7 +553,7 @@ void pathfind(map_t *m)
     }
   }
 
-  while ((c = heap_remove_min(&h))) {
+  while ((c = (path_t *) heap_remove_min(&h))) {
     c->hn = NULL;
     if ((p[c->pos[dim_y] - 1][c->pos[dim_x] - 1].hn) &&
         (world.rival_dist[c->pos[dim_y] - 1][c->pos[dim_x] - 1] >
