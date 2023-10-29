@@ -1,5 +1,5 @@
 #ifndef IO_H
-# define IO_H
+#define IO_H
 
 typedef struct character character_t;
 typedef int16_t pair_t[2];
