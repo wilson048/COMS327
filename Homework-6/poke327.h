@@ -71,19 +71,19 @@ typedef int16_t pair_t[num_dims];
 #define heightxy(x, y) (m->height[y][x])
 
 typedef enum __attribute__ ((__packed__)) terrain_type {
-  ter_boulder,
-  ter_tree,
-  ter_path,
-  ter_mart,
-  ter_center,
-  ter_grass,
-  ter_clearing,
-  ter_mountain,
-  ter_forest,
-  ter_water,
-  ter_gate,
-  num_terrain_types,
-  ter_debug
+  ter_boulder = 0,
+  ter_tree = 1,
+  ter_path = 2,
+  ter_mart = 3,
+  ter_center = 4,
+  ter_grass = 5,
+  ter_clearing = 6,
+  ter_mountain = 7,
+  ter_forest = 8,
+  ter_water = 9,
+  ter_gate = 10,
+  num_terrain_types = 11,
+  ter_debug = 12
 } terrain_type_t;
 
 class map_t {
@@ -96,13 +96,13 @@ class map_t {
     int8_t n, s, e, w;
 };
 
-typedef struct npc npc_t;
-typedef struct pc pc_t;
+class npc npc_t;
+class pc pc_t;
 /* Here instead of character.h to abvoid including character.h */
 class character {
   public:
     npc *npc;
-    pc *pc;
+    pc *pc_t;
     pair_t pos;
     char symbol;
     int next_turn;
@@ -118,7 +118,7 @@ class world_t {
     * we only need one pair at any given time.      */
     int hiker_dist[MAP_Y][MAP_X];
     int rival_dist[MAP_Y][MAP_X];
-    pc_t pc;
+    pc pc;
     int quit;
     int add_trainer_prob;
     int char_seq_num;

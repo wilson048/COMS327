@@ -1,0 +1,6 @@
+This homework required by the class COM S 327 is a program that will allow the user to move the player on the board.
+Each time the player moves, the path map gradients are regenerated and all eligible NPCs take their turn.
+When the player tries to touch a trainer or a trainer touches the player, a battle is initated. The player can now enter the Pokemon facilites located on the map. The player can additionally move to other maps, either by moving through a gate or by flying to a location within the 401 x 401 world.
+
+This program will be converted to C++ with a full port of all the major structs like map_t, character_t, pc_t, and npc_t being converted to classes.
+

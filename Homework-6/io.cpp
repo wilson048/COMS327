@@ -102,8 +102,8 @@ static void io_print_message_queue(uint32_t y, uint32_t x)
  **************************************************************************/
 static int compare_trainer_distance(const void *v1, const void *v2)
 {
-  const character_t *const *c1 = v1;
-  const character_t *const *c2 = v2;
+  const character_t *const *c1 = (const character_t * const *) v1;
+  const character_t *const *c2 = (const character_t * const *) v2;
 
   return (world.rival_dist[(*c1)->pos[dim_y]][(*c1)->pos[dim_x]] -
           world.rival_dist[(*c2)->pos[dim_y]][(*c2)->pos[dim_x]]);
@@ -114,7 +114,7 @@ static character_t *io_nearest_visible_trainer()
   character_t **c, *n;
   uint32_t x, y, count;
 
-  c = malloc(world.cur_map->num_trainers * sizeof (*c));
+  c = (character_t **) malloc(world.cur_map->num_trainers * sizeof (*c));
 
   /* Get a linear list of trainers */
   for (count = 0, y = 1; y < MAP_Y - 1; y++) {
@@ -297,7 +297,7 @@ static void io_list_trainers_display(character_t **c,
   uint32_t i;
   char (*s)[40]; /* pointer to array of 40 char */
 
-  s = (char *[40]) malloc(count * sizeof (*s));
+  s = (char (*)[40]) malloc(count * sizeof (*s));
 
   mvprintw(3, 19, " %-40s ", "");
   /* Borrow the first element of our array for this string: */
@@ -387,7 +387,7 @@ void io_battle(character_t *aggressor, character_t *defender)
   mvprintw(0, 0, "Aww, how'd you get so strong?  You and your pokemon must share a special bond!");
   refresh();
   getch();
-  if (aggressor->pc) {
+  if (aggressor->pc_t) {
     npc = defender;
   } else {
     npc = aggressor;
