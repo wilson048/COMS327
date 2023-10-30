@@ -231,7 +231,7 @@ void io_display()
       }
     }
   }
-
+  // mvprintw(0, 0, "Current Map position: %d X %d Y", world.cur_idx[dim_x] - 200, world.cur_idx[dim_y] - 200);
   mvprintw(23, 1, "PC position is (%2d,%2d) on map %d%cx%d%c.",
            world.player->pos[dim_x],
            world.player->pos[dim_y],
@@ -372,10 +372,10 @@ static void io_list_trainers()
 
   c = (character **)(world.cur_map->num_trainers * sizeof(*c));
   // Debug file printing
-  std::ofstream myfile;
-  myfile.open("Inputs.txt", std::ios_base::app);
-  myfile << "Adding NPC to list\n";
-  myfile.close();
+  // std::ofstream myfile;
+  // myfile.open("Inputs.txt", std::ios_base::app);
+  // myfile << "Adding NPC to list\n";
+  // myfile.close();
   /* Get a linear list of trainers */
   for (count = 0, y = 1; y < MAP_Y - 1; y++)
   {
@@ -618,10 +618,28 @@ void io_handle_input(pair_t dest)
       io_display();
       mvprintw(0, 0, "Enter X coordianate: ");
       refresh();
-
+      echo();
+      int temp_x; 
+      mvscanw(0, 21, "%d", &temp_x);
       io_display();
       mvprintw(0, 0, "Enter Y coordianate: ");
       refresh();
+      int temp_y;
+      mvscanw(0, 21, "%d", &temp_y);
+      noecho();
+      if(temp_x < -200 || temp_x > 200 || temp_y < 200 || temp_y > 200) {
+        mvprintw(0, 0, "Invalid Coordianates");
+        refresh();
+        break;
+      }
+      mvprintw(0, 0, "Press any movement key to teleport");
+      refresh();
+      // Offset by 200
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+      world.cur_idx[dim_y] = temp_y + 200;
+      world.cur_idx[dim_x] = temp_x + 200;
+      // We are teleporting, so mark it
+      new_map(1);
       break;
     case 't':
       io_list_trainers();
