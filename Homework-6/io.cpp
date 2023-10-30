@@ -616,23 +616,23 @@ void io_handle_input(pair_t dest)
       break;
     case 'f':
       io_display();
-      mvprintw(0, 0, "Enter X coordianate: ");
+      mvprintw(0, 24, "Enter X coordianate: ");
       refresh();
       echo();
       int temp_x; 
-      mvscanw(0, 21, "%d", &temp_x);
+      mvscanw(0, 46, "%d", &temp_x);
       io_display();
-      mvprintw(0, 0, "Enter Y coordianate: ");
+      mvprintw(0, 24, "Enter Y coordianate: ");
       refresh();
       int temp_y;
-      mvscanw(0, 21, "%d", &temp_y);
+      mvscanw(0, 46, "%d", &temp_y);
       noecho();
-      if(temp_x < -200 || temp_x > 200 || temp_y < 200 || temp_y > 200) {
-        mvprintw(0, 0, "Invalid Coordianates");
+      if(temp_x < -200 || temp_x > 200 || temp_y < -200 || temp_y > 200) {
+        mvprintw(0, 24, "Invalid Coordianates");
         refresh();
         break;
       }
-      mvprintw(0, 0, "Press any movement key to teleport");
+      mvprintw(0, 24, "Press any movement key to teleport");
       refresh();
       // Offset by 200
       world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
