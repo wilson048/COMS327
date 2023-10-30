@@ -367,11 +367,15 @@ static void io_list_trainers_display(character_t **c,
 
 static void io_list_trainers()
 {
-  character_t **c;
+  character **c;
   uint32_t x, y, count;
 
-  c = (character_t **)(world.cur_map->num_trainers * sizeof(*c));
-
+  c = (character **)(world.cur_map->num_trainers * sizeof(*c));
+  // Debug file printing
+  std::ofstream myfile;
+  myfile.open("Inputs.txt", std::ios_base::app);
+  myfile << "Adding NPC to list\n";
+  myfile.close();
   /* Get a linear list of trainers */
   for (count = 0, y = 1; y < MAP_Y - 1; y++)
   {
@@ -384,7 +388,6 @@ static void io_list_trainers()
       }
     }
   }
-
   /* Sort it by distance from PC */
   qsort(c, count, sizeof(*c), compare_trainer_distance);
 
@@ -487,17 +490,36 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
 
   if (world.cur_map->map[dest[dim_y]][dest[dim_x]] == ter_gate)
   {
+    if(dest[dim_y] == 0) {
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+      world.cur_idx[dim_y]--;
+      new_map(0);
+    }
+    else if(dest[dim_y] == MAP_Y - 1) {
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+      world.cur_idx[dim_y]++;
+      new_map(0);
+    }
+    else if(dest[dim_x] == 0) {
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+      world.cur_idx[dim_x]--;
+      new_map(0);
+    }
+    else if(dest[dim_x] == MAP_X - 1) {
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+      world.cur_idx[dim_x]++;
+      new_map(0);
+    }
     /* Can't leave the map */
-    return 1;
+    return 0;
   }
-
   if (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])
   {
     // Debug file printing
-    std::ofstream myfile;
-    myfile.open("Inputs.txt", std::ios_base::app);
-    myfile << "Result of dynamic cast: " << (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr) << "\n";
-    myfile << "Battle Status: " << (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])->defeated) << "\n";
+    // std::ofstream myfile;
+    // myfile.open("Inputs.txt", std::ios_base::app);
+    // myfile << "Result of dynamic cast: " << (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr) << "\n";
+    // myfile << "Battle Status: " << (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])->defeated) << "\n";
     
     if (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr &&
         dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])->defeated)
@@ -511,9 +533,9 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
       // Not actually moving, so set dest back to PC position
       dest[dim_x] = world.player->pos[dim_x];
       dest[dim_y] = world.player->pos[dim_y];
-      myfile << "Success!\n";
+      // myfile << "Success!\n";
     }
-    myfile.close();
+    // myfile.close();
   }
 
   if (move_cost[char_pc][world.cur_map->map[dest[dim_y]][dest[dim_x]]] ==
@@ -591,6 +613,15 @@ void io_handle_input(pair_t dest)
       world.quit = 1;
       turn_not_consumed = 0;
       break;
+      break;
+    case 'f':
+      io_display();
+      mvprintw(0, 0, "Enter X coordianate: ");
+      refresh();
+
+      io_display();
+      mvprintw(0, 0, "Enter Y coordianate: ");
+      refresh();
       break;
     case 't':
       io_list_trainers();

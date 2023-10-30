@@ -467,7 +467,7 @@ void delete_character(void *v)
   }
   else
   {
-    free(((character *)v));
+    // free(((character *)v));
     free(v);
   }
 }
