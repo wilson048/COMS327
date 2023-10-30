@@ -867,7 +867,8 @@ void new_hiker()
            pos[dim_x] < 3 || pos[dim_x] > MAP_X - 4 ||
            pos[dim_y] < 3 || pos[dim_y] > MAP_Y - 4);
 
-  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  // world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = new npc();
   // c->npc = (npc *) malloc(sizeof (*c->npc));
   c->pos[dim_y] = pos[dim_y];
   c->pos[dim_x] = pos[dim_x];
@@ -897,7 +898,8 @@ void new_rival()
            pos[dim_x] < 3 || pos[dim_x] > MAP_X - 4 ||
            pos[dim_y] < 3 || pos[dim_y] > MAP_Y - 4);
 
-  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  // world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = new npc();
   // c->npc = (npc *) malloc(sizeof (*c->npc));
   c->pos[dim_y] = pos[dim_y];
   c->pos[dim_x] = pos[dim_x];
@@ -924,7 +926,8 @@ void new_swimmer()
   } while (world.cur_map->map[pos[dim_y]][pos[dim_x]] != ter_water ||
            world.cur_map->cmap[pos[dim_y]][pos[dim_x]]);
 
-  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *) malloc(sizeof(*c));
+  // world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = new npc();
   // c->npc = (npc *) malloc(sizeof (*c->npc));
   c->pos[dim_y] = pos[dim_y];
   c->pos[dim_x] = pos[dim_x];
@@ -953,7 +956,8 @@ void new_char_other()
            pos[dim_x] < 3 || pos[dim_x] > MAP_X - 4 ||
            pos[dim_y] < 3 || pos[dim_y] > MAP_Y - 4);
 
-  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  // world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = (npc *)malloc(sizeof(*c));
+  world.cur_map->cmap[pos[dim_y]][pos[dim_x]] = c = new npc();
   // c->npc = (npc *) malloc(sizeof (*c->npc));
   c->pos[dim_y] = pos[dim_y];
   c->pos[dim_x] = pos[dim_x];
@@ -1029,50 +1033,52 @@ void init_pc()
     y = rand() % (MAP_Y - 2) + 1;
   } while (world.cur_map->map[y][x] != ter_path);
 
-  world.player.pos[dim_x] = x;
-  world.player.pos[dim_y] = y;
-  world.player.symbol = PC_SYMBOL;
   // world.player = (pc *) malloc(sizeof (world.player));
+  world.player = new pc();
+  world.player->pos[dim_x] = x;
+  world.player->pos[dim_y] = y;
+  world.player->symbol = PC_SYMBOL;
+  
   // world.pc.npc = NULL;
 
-  world.cur_map->cmap[y][x] = &world.player;
-  world.player.next_turn = 0;
+  world.cur_map->cmap[y][x] = world.player;
+  world.player->next_turn = 0;
 
-  world.player.seq_num = world.char_seq_num++;
+  world.player->seq_num = world.char_seq_num++;
 
-  heap_insert(&world.cur_map->turn, &world.player);
+  heap_insert(&world.cur_map->turn, world.player);
 }
 
 void place_pc()
 {
   character_t *c;
 
-  if (world.player.pos[dim_x] == 1)
+  if (world.player->pos[dim_x] == 1)
   {
-    world.player.pos[dim_x] = MAP_X - 2;
+    world.player->pos[dim_x] = MAP_X - 2;
   }
-  else if (world.player.pos[dim_x] == MAP_X - 2)
+  else if (world.player->pos[dim_x] == MAP_X - 2)
   {
-    world.player.pos[dim_x] = 1;
+    world.player->pos[dim_x] = 1;
   }
-  else if (world.player.pos[dim_y] == 1)
+  else if (world.player->pos[dim_y] == 1)
   {
-    world.player.pos[dim_y] = MAP_Y - 2;
+    world.player->pos[dim_y] = MAP_Y - 2;
   }
-  else if (world.player.pos[dim_y] == MAP_Y - 2)
+  else if (world.player->pos[dim_y] == MAP_Y - 2)
   {
-    world.player.pos[dim_y] = 1;
+    world.player->pos[dim_y] = 1;
   }
 
-  world.cur_map->cmap[world.player.pos[dim_y]][world.player.pos[dim_x]] = &world.player;
+  world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = world.player;
 
   if ((c = (character_t *)heap_peek_min(&world.cur_map->turn)))
   {
-    world.player.next_turn = c->next_turn;
+    world.player->next_turn = c->next_turn;
   }
   else
   {
-    world.player.next_turn = 0;
+    world.player->next_turn = 0;
   }
 }
 
@@ -1191,15 +1197,15 @@ int new_map(int teleport)
   {
     do
     {
-      world.cur_map->cmap[world.player.pos[dim_y]][world.player.pos[dim_x]] = NULL;
-      world.player.pos[dim_x] = rand_range(1, MAP_X - 2);
-      world.player.pos[dim_y] = rand_range(1, MAP_Y - 2);
-    } while (world.cur_map->cmap[world.player.pos[dim_y]][world.player.pos[dim_x]] ||
-             (move_cost[char_pc][world.cur_map->map[world.player.pos[dim_y]]
-                                                   [world.player.pos[dim_x]]] ==
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+      world.player->pos[dim_x] = rand_range(1, MAP_X - 2);
+      world.player->pos[dim_y] = rand_range(1, MAP_Y - 2);
+    } while (world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] ||
+             (move_cost[char_pc][world.cur_map->map[world.player->pos[dim_y]]
+                                                   [world.player->pos[dim_x]]] ==
               DIJKSTRA_PATH_MAX) ||
-             world.rival_dist[world.player.pos[dim_y]][world.player.pos[dim_x]] < 0);
-    world.cur_map->cmap[world.player.pos[dim_y]][world.player.pos[dim_x]] = &world.player;
+             world.rival_dist[world.player->pos[dim_y]][world.player->pos[dim_x]] < 0);
+    world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = world.player;
     pathfind(world.cur_map);
   }
 
@@ -1291,17 +1297,17 @@ void game_loop()
   {
     c = (character *) heap_remove_min(&world.cur_map->turn);
 
-    move_func[static_cast<pc *>(c) == nullptr ? static_cast<npc *>(c)->mtype : move_pc](c, d);
+    move_func[dynamic_cast<pc *>(c) == nullptr ? static_cast<npc *>(c)->mtype : move_pc](c, d);
 
     world.cur_map->cmap[c->pos[dim_y]][c->pos[dim_x]] = NULL;
     world.cur_map->cmap[d[dim_y]][d[dim_x]] = c;
 
-    if (static_cast<pc *>(c))
+    if (dynamic_cast<pc *>(c) != nullptr)
     {
       pathfind(world.cur_map);
     }
 
-    c->next_turn += move_cost[static_cast<npc *>(c) != nullptr ? static_cast<npc *>(c)->ctype : char_pc]
+    c->next_turn += move_cost[dynamic_cast<npc *>(c) != nullptr ? static_cast<npc *>(c)->ctype : char_pc]
                              [world.cur_map->map[d[dim_y]][d[dim_x]]];
 
     c->pos[dim_y] = d[dim_y];

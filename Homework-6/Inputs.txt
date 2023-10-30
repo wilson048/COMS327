@@ -1,0 +1,4 @@
+NPC defender
+NPC marked as defeated1
+NPC defender
+NPC marked as defeated1

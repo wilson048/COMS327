@@ -131,7 +131,7 @@ static character_t *io_nearest_visible_trainer()
     for (x = 1; x < MAP_X - 1; x++)
     {
       if (world.cur_map->cmap[y][x] && world.cur_map->cmap[y][x] !=
-                                           &world.player)
+                                           world.player)
       {
         c[count++] = world.cur_map->cmap[y][x];
       }
@@ -233,8 +233,8 @@ void io_display()
   }
 
   mvprintw(23, 1, "PC position is (%2d,%2d) on map %d%cx%d%c.",
-           world.player.pos[dim_x],
-           world.player.pos[dim_y],
+           world.player->pos[dim_x],
+           world.player->pos[dim_y],
            abs(world.cur_idx[dim_x] - (WORLD_SIZE / 2)),
            world.cur_idx[dim_x] - (WORLD_SIZE / 2) >= 0 ? 'E' : 'W',
            abs(world.cur_idx[dim_y] - (WORLD_SIZE / 2)),
@@ -247,10 +247,10 @@ void io_display()
     attron(COLOR_PAIR(COLOR_RED));
     mvprintw(22, 55, "%c at vector %d%cx%d%c.",
              c->symbol,
-             abs(c->pos[dim_y] - world.player.pos[dim_y]),
-             ((c->pos[dim_y] - world.player.pos[dim_y]) <= 0 ? 'N' : 'S'),
-             abs(c->pos[dim_x] - world.player.pos[dim_x]),
-             ((c->pos[dim_x] - world.player.pos[dim_x]) <= 0 ? 'W' : 'E'));
+             abs(c->pos[dim_y] - world.player->pos[dim_y]),
+             ((c->pos[dim_y] - world.player->pos[dim_y]) <= 0 ? 'N' : 'S'),
+             abs(c->pos[dim_x] - world.player->pos[dim_x]),
+             ((c->pos[dim_x] - world.player->pos[dim_x]) <= 0 ? 'W' : 'E'));
     attroff(COLOR_PAIR(COLOR_RED));
   }
   else
@@ -335,10 +335,10 @@ static void io_list_trainers_display(character_t **c,
              //  char_type_name[c[i]->npc->ctype],
              char_type_name[static_cast<npc *>(c[i])->ctype],
              c[i]->symbol,
-             abs(c[i]->pos[dim_y] - world.player.pos[dim_y]),
-             ((c[i]->pos[dim_y] - world.player.pos[dim_y]) <= 0 ? "North" : "South"),
-             abs(c[i]->pos[dim_x] - world.player.pos[dim_x]),
-             ((c[i]->pos[dim_x] - world.player.pos[dim_x]) <= 0 ? "West" : "East"));
+             abs(c[i]->pos[dim_y] - world.player->pos[dim_y]),
+             ((c[i]->pos[dim_y] - world.player->pos[dim_y]) <= 0 ? "North" : "South"),
+             abs(c[i]->pos[dim_x] - world.player->pos[dim_x]),
+             ((c[i]->pos[dim_x] - world.player->pos[dim_x]) <= 0 ? "West" : "East"));
     if (count <= 13)
     {
       /* Handle the non-scrolling case right here. *
@@ -378,7 +378,7 @@ static void io_list_trainers()
     for (x = 1; x < MAP_X - 1; x++)
     {
       if (world.cur_map->cmap[y][x] && world.cur_map->cmap[y][x] !=
-                                           &world.player)
+                                           world.player)
       {
         c[count++] = world.cur_map->cmap[y][x];
       }
@@ -413,40 +413,30 @@ void io_pokemon_center()
 void io_battle(character *aggressor, character *defender)
 {
   npc *n;
-  std::ofstream myfile;
-  myfile.open("Inputs.txt", std::ios_base::app);
   
-  
-
   io_display();
-  mvprintw(0, 0, "Aww, how'd you get so strong?  You and your pokemon must share a special bond!");
   refresh();
   getch();
-  if (static_cast<pc *>(aggressor) != nullptr)
+  if (dynamic_cast<pc *>(aggressor) != nullptr)
   {
     n = static_cast<npc *>(defender);
-    myfile << "NPC defender\n";
   }
   else
   {
     n = static_cast<npc *>(aggressor);
-    myfile << "NPC aggressor\n";
   }
 
   n->defeated = 1;
-  myfile << "NPC marked as defeated";
-  myfile << n->defeated << "\n";
   if (n->ctype == char_hiker || n->ctype == char_rival)
   {
     n->mtype = move_wander;
   }
-  myfile.close();
 }
 
 uint32_t move_pc_dir(uint32_t input, pair_t dest)
 {
-  dest[dim_y] = world.player.pos[dim_y];
-  dest[dim_x] = world.player.pos[dim_x];
+  dest[dim_y] = world.player->pos[dim_y];
+  dest[dim_x] = world.player->pos[dim_x];
 
   switch (input)
   {
@@ -482,12 +472,12 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
     dest[dim_x]++;
     break;
   case '>':
-    if (world.cur_map->map[world.player.pos[dim_y]][world.player.pos[dim_x]] ==
+    if (world.cur_map->map[world.player->pos[dim_y]][world.player->pos[dim_x]] ==
         ter_mart)
     {
       io_pokemart();
     }
-    if (world.cur_map->map[world.player.pos[dim_y]][world.player.pos[dim_x]] ==
+    if (world.cur_map->map[world.player->pos[dim_y]][world.player->pos[dim_x]] ==
         ter_center)
     {
       io_pokemon_center();
@@ -511,10 +501,10 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
     }
     else if (static_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr)
     {
-      io_battle(&world.player, world.cur_map->cmap[dest[dim_y]][dest[dim_x]]);
+      io_battle(world.player, world.cur_map->cmap[dest[dim_y]][dest[dim_x]]);
       // Not actually moving, so set dest back to PC position
-      dest[dim_x] = world.player.pos[dim_x];
-      dest[dim_y] = world.player.pos[dim_y];
+      dest[dim_x] = world.player->pos[dim_x];
+      dest[dim_y] = world.player->pos[dim_y];
     }
   }
 
@@ -580,16 +570,16 @@ void io_handle_input(pair_t dest)
     case ' ':
     case '.':
     case KEY_B2:
-      dest[dim_y] = world.player.pos[dim_y];
-      dest[dim_x] = world.player.pos[dim_x];
+      dest[dim_y] = world.player->pos[dim_y];
+      dest[dim_x] = world.player->pos[dim_x];
       turn_not_consumed = 0;
       break;
     case '>':
       turn_not_consumed = move_pc_dir('>', dest);
       break;
     case 'Q':
-      dest[dim_y] = world.player.pos[dim_y];
-      dest[dim_x] = world.player.pos[dim_x];
+      dest[dim_y] = world.player->pos[dim_y];
+      dest[dim_x] = world.player->pos[dim_x];
       world.quit = 1;
       turn_not_consumed = 0;
       break;
@@ -626,8 +616,8 @@ void io_handle_input(pair_t dest)
       io_queue_message("Have fun!  And happy printing!");
       io_queue_message("Oh!  And use 'Q' to quit!");
 
-      dest[dim_y] = world.player.pos[dim_y];
-      dest[dim_x] = world.player.pos[dim_x];
+      dest[dim_y] = world.player->pos[dim_y];
+      dest[dim_x] = world.player->pos[dim_x];
       turn_not_consumed = 0;
       break;
     default:

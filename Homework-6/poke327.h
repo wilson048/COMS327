@@ -129,7 +129,7 @@ public:
    * we only need one pair at any given time.      */
   int hiker_dist[MAP_Y][MAP_X];
   int rival_dist[MAP_Y][MAP_X];
-  class pc player;
+  class pc *player;
   int quit;
   int add_trainer_prob;
   int char_seq_num;
