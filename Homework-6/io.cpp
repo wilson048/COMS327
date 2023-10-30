@@ -333,7 +333,7 @@ static void io_list_trainers_display(character_t **c,
   {
     snprintf(s[i], 40, "%16s %c: %2d %s by %2d %s",
              //  char_type_name[c[i]->npc->ctype],
-             char_type_name[static_cast<npc *>(c[i])->ctype],
+             char_type_name[dynamic_cast<npc *>(c[i])->ctype],
              c[i]->symbol,
              abs(c[i]->pos[dim_y] - world.player->pos[dim_y]),
              ((c[i]->pos[dim_y] - world.player->pos[dim_y]) <= 0 ? "North" : "South"),
@@ -377,8 +377,8 @@ static void io_list_trainers()
   {
     for (x = 1; x < MAP_X - 1; x++)
     {
-      if (world.cur_map->cmap[y][x] && world.cur_map->cmap[y][x] !=
-                                           world.player)
+      if (world.cur_map->cmap[y][x] && dynamic_cast<pc *>(world.cur_map->cmap[y][x]) ==
+                                            nullptr)
       {
         c[count++] = world.cur_map->cmap[y][x];
       }
@@ -413,17 +413,17 @@ void io_pokemon_center()
 void io_battle(character *aggressor, character *defender)
 {
   npc *n;
-  
   io_display();
+  mvprintw(0, 0, "Aww, how'd you get so strong?  You and your pokemon must share a special bond!");
   refresh();
   getch();
   if (dynamic_cast<pc *>(aggressor) != nullptr)
   {
-    n = static_cast<npc *>(defender);
+    n = dynamic_cast<npc *>(defender);
   }
   else
   {
-    n = static_cast<npc *>(aggressor);
+    n = dynamic_cast<npc *>(aggressor);
   }
 
   n->defeated = 1;
@@ -493,19 +493,27 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
 
   if (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])
   {
-    if (static_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr &&
-        static_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])->defeated)
+    // Debug file printing
+    std::ofstream myfile;
+    myfile.open("Inputs.txt", std::ios_base::app);
+    myfile << "Result of dynamic cast: " << (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr) << "\n";
+    myfile << "Battle Status: " << (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])->defeated) << "\n";
+    
+    if (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr &&
+        dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])->defeated)
     {
       // Some kind of greeting here would be nice
       return 1;
     }
-    else if (static_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr)
+    else if (dynamic_cast<npc *> (world.cur_map->cmap[dest[dim_y]][dest[dim_x]]) != nullptr)
     {
       io_battle(world.player, world.cur_map->cmap[dest[dim_y]][dest[dim_x]]);
       // Not actually moving, so set dest back to PC position
       dest[dim_x] = world.player->pos[dim_x];
       dest[dim_y] = world.player->pos[dim_y];
+      myfile << "Success!\n";
     }
+    myfile.close();
   }
 
   if (move_cost[char_pc][world.cur_map->map[dest[dim_y]][dest[dim_x]]] ==

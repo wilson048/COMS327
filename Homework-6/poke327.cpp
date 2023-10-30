@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <unistd.h>
+#include <fstream>
 
 #include "heap.h"
 #include "poke327.h"

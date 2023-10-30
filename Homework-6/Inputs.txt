@@ -1,4 +1,52 @@
-NPC defender
-NPC marked as defeated1
-NPC defender
-NPC marked as defeated1
+
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 0
+Success!
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 0
+Success!
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 0
+Success!
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 0
+Success!
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 1
+Result of dynamic cast: 1
+Battle Status: 0
+Success!
