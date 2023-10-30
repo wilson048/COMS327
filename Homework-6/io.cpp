@@ -371,11 +371,7 @@ static void io_list_trainers()
   uint32_t x, y, count;
 
   c = (character **)(world.cur_map->num_trainers * sizeof(*c));
-  // Debug file printing
-  // std::ofstream myfile;
-  // myfile.open("Inputs.txt", std::ios_base::app);
-  // myfile << "Adding NPC to list\n";
-  // myfile.close();
+
   /* Get a linear list of trainers */
   for (count = 0, y = 1; y < MAP_Y - 1; y++)
   {
@@ -490,6 +486,11 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
 
   if (world.cur_map->map[dest[dim_y]][dest[dim_x]] == ter_gate)
   {
+    // Debug file printing
+    // std::ofstream myfile;
+    // myfile.open("Inputs.txt", std::ios_base::app);
+    // myfile << "Attempting to move onto gate\n";
+    // myfile.close();
     if(dest[dim_y] == 0) {
       world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
       world.cur_idx[dim_y]--;
@@ -510,8 +511,12 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
       world.cur_idx[dim_x]++;
       new_map(0);
     }
-    /* Can't leave the map */
-    return 0;
+    else {
+      // Move onto gate 1 tile away from leave gate
+      return 0;
+    }
+    /* Can leave the map */
+    return 1;
   }
   if (world.cur_map->cmap[dest[dim_y]][dest[dim_x]])
   {
