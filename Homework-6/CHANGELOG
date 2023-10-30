@@ -1,0 +1,15 @@
+be32894 (HEAD -> main, origin/main, origin/HEAD) Finished Homework 6
+c2152da Band-Aid Fix for moving to other maps via walking
+b2d445c Fix final fly bug
+aa01531 Fix Fly bug
+7e58b37 Added Fly
+26ef435 Can move to different maps by walking
+abe6874 Can now battle trainers
+21eaf8e Can move on map but can't battle yet
+7c03f98 Add start to movement with bugs
+acacefb got complied c++ code
+f3cf8fe Add changes to file + formatting
+1296096 Make progress on porting + README
+b337295 Resolve editor errors for now
+77ad38b Convert to CPP files
+447b1cc Init Homework-6
