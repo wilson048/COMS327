@@ -1,11 +1,44 @@
-poke327: poke327.o heap.o
-	g++ -ggdb poke327.o heap.o -o poke327 -lm -lc -lncurses
+CC = gcc
+CXX = g++
+ECHO = echo
+RM = rm -f
 
-poke327.o: poke327.c heap.h
-	g++ -Wall -Werror -ggdb poke327.cpp -c
+TERM = "F2023"
 
-heap.o: heap.c heap.h
-	gcc -Wall -Werror -ggdb heap.c -c
+CFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
+CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
+
+LDFLAGS = -lncurses
+
+BIN = poke327
+OBJS = poke327.o heap.o io.o character.o
+
+all: $(BIN) etags
+
+$(BIN): $(OBJS)
+	@$(ECHO) Linking $@
+	@$(CC) $^ -o $@ $(LDFLAGS)
+
+-include $(OBJS:.o=.d)
+
+%.o: %.c
+	@$(ECHO) Compiling $<
+	@$(CC) $(CFLAGS) -MMD -MF $*.d -c $<
+
+%.o: %.cpp
+	@$(ECHO) Compiling $<
+	@$(CXX) $(CXXFLAGS) -MMD -MF $*.d -c $<
+
+.PHONY: all clean clobber etags
 
 clean:
-	rm -f *.o poke327 fuckup
+	@$(ECHO) Removing all generated files
+	@$(RM) *.o $(BIN) *.d TAGS core vgcore.* gmon.out
+
+clobber: clean
+	@$(ECHO) Removing backup files
+	@$(RM) *~ \#* *pgm
+
+etags:
+	@$(ECHO) Updating TAGS
+	@etags *.[ch]

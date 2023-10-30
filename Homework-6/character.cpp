@@ -450,12 +450,12 @@ void (*move_func[num_movement_types])(character *, pair_t) = {
 
 int32_t cmp_char_turns(const void *key, const void *with)
 {
-  return ((((character_t *)key)->next_turn ==
-           ((character_t *)with)->next_turn)
-              ? (((character_t *)key)->seq_num -
-                 ((character_t *)with)->seq_num)
-              : (((character_t *)key)->next_turn -
-                 ((character_t *)with)->next_turn));
+  return ((((character *)key)->next_turn ==
+           ((character *)with)->next_turn)
+              ? (((character *)key)->seq_num -
+                 ((character *)with)->seq_num)
+              : (((character *)key)->next_turn -
+                 ((character *)with)->next_turn));
 }
 
 void delete_character(void *v)
@@ -466,7 +466,7 @@ void delete_character(void *v)
   }
   else
   {
-    free(((character_t *)v));
+    free(((character *)v));
     free(v);
   }
 }

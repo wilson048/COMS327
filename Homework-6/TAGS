@@ -75,7 +75,7 @@ io.h,97
 typedef struct character character_t;4,27
 typedef int16_t pair_t[pair_t5,65
 
-poke327.h,2511
+poke327.h,2550
 #define POKE327_H2,18
 #define malloc(11,139
 #define rand_under(19,396
@@ -140,31 +140,32 @@ class character92,2042
   char symbol;98,2112
   int next_turn;99,2127
   int seq_num;100,2144
-class pc 103,2201
-class map_t107,2235
-  terrain_type_t map[map110,2257
-  uint8_t height[height111,2293
-  character *cmap[cmap112,2325
-  heap_t turn;113,2358
-  int32_t num_trainers;114,2373
-  int8_t n,115,2397
-  int8_t n, s,115,2397
-  int8_t n, s, e,115,2397
-  int8_t n, s, e, w;115,2397
-class world_t121,2477
-  map_t *world[world124,2501
-  pair_t cur_idx;125,2541
-  map_t *cur_map;cur_map126,2559
-  int hiker_dist[hiker_dist129,2684
-  int rival_dist[rival_dist130,2716
-  class pc player;131,2748
-  int quit;132,2767
-  int add_trainer_prob;133,2779
-  int char_seq_num;134,2803
-#define rand_dir(143,3033
-typedef struct path150,3198
-  heap_node_t *hn;hn152,3220
-  uint8_t pos[pos153,3239
-  uint8_t from[from154,3257
-  int32_t cost;155,3276
-} path_t;156,3292
+  virtual ~character(101,2159
+class pc 104,2227
+class map_t108,2261
+  terrain_type_t map[map111,2283
+  uint8_t height[height112,2319
+  character *cmap[cmap113,2351
+  heap_t turn;114,2384
+  int32_t num_trainers;115,2399
+  int8_t n,116,2423
+  int8_t n, s,116,2423
+  int8_t n, s, e,116,2423
+  int8_t n, s, e, w;116,2423
+class world_t122,2503
+  map_t *world[world125,2527
+  pair_t cur_idx;126,2567
+  map_t *cur_map;cur_map127,2585
+  int hiker_dist[hiker_dist130,2710
+  int rival_dist[rival_dist131,2742
+  class pc *player;player132,2774
+  int quit;133,2794
+  int add_trainer_prob;134,2806
+  int char_seq_num;135,2830
+#define rand_dir(144,3060
+typedef struct path151,3225
+  heap_node_t *hn;hn153,3247
+  uint8_t pos[pos154,3266
+  uint8_t from[from155,3284
+  int32_t cost;156,3303
+} path_t;157,3319
