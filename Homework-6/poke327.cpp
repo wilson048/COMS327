@@ -1091,12 +1091,28 @@ int new_map(int teleport)
   int d, p;
   int e, w, n, s;
   int x, y;
-
+  // Old map checker
   if (world.world[world.cur_idx[dim_y]][world.cur_idx[dim_x]])
   {
     world.cur_map = world.world[world.cur_idx[dim_y]][world.cur_idx[dim_x]];
+    // Randomly place PC without checking where they should actually go
     place_pc();
-
+    // Bring teleport check for flying back to old maps
+    if (teleport)
+    {
+      do
+      {
+        world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = NULL;
+        world.player->pos[dim_x] = rand_range(1, MAP_X - 2);
+        world.player->pos[dim_y] = rand_range(1, MAP_Y - 2);
+      } while (world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] ||
+              (move_cost[char_pc][world.cur_map->map[world.player->pos[dim_y]]
+                                                    [world.player->pos[dim_x]]] ==
+                DIJKSTRA_PATH_MAX) ||
+              world.rival_dist[world.player->pos[dim_y]][world.player->pos[dim_x]] < 0);
+      world.cur_map->cmap[world.player->pos[dim_y]][world.player->pos[dim_x]] = world.player;
+      pathfind(world.cur_map);
+    }
     return 0;
   }
 
