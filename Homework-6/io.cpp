@@ -315,7 +315,7 @@ static void io_scroll_trainer_list(char (*s)[40], uint32_t count)
   }
 }
 
-static void io_list_trainers_display(character_t **c,
+static void io_list_trainers_display(npc **c,
                                      uint32_t count)
 {
   uint32_t i;
@@ -333,7 +333,7 @@ static void io_list_trainers_display(character_t **c,
   {
     snprintf(s[i], 40, "%16s %c: %2d %s by %2d %s",
              //  char_type_name[c[i]->npc->ctype],
-             char_type_name[dynamic_cast<npc *>(c[i])->ctype],
+             char_type_name[c[i]->ctype],
              c[i]->symbol,
              abs(c[i]->pos[dim_y] - world.player->pos[dim_y]),
              ((c[i]->pos[dim_y] - world.player->pos[dim_y]) <= 0 ? "North" : "South"),
@@ -367,20 +367,24 @@ static void io_list_trainers_display(character_t **c,
 
 static void io_list_trainers()
 {
-  character **c;
+  npc **c;
   uint32_t x, y, count;
 
-  c = (character **)(world.cur_map->num_trainers * sizeof(*c));
+  c = (npc **) malloc(world.cur_map->num_trainers * sizeof(*c));
 
   /* Get a linear list of trainers */
   for (count = 0, y = 1; y < MAP_Y - 1; y++)
   {
     for (x = 1; x < MAP_X - 1; x++)
     {
-      if (world.cur_map->cmap[y][x] && dynamic_cast<pc *>(world.cur_map->cmap[y][x]) ==
-                                            nullptr)
+      if (world.cur_map->cmap[y][x] && world.cur_map->cmap[y][x] != world.player)
       {
-        c[count++] = world.cur_map->cmap[y][x];
+         // Debug file printing
+        // std::ofstream myfile;
+        // myfile.open("Inputs.txt", std::ios_base::app);
+        // myfile << "Have good attempt to add NPC to c array\n";
+        // myfile.close();
+        c[count++] = (npc*) world.cur_map->cmap[y][x];
       }
     }
   }
