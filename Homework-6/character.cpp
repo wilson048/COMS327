@@ -171,7 +171,7 @@ static void move_hiker_func(character *c, pair_t dest)
     if (world.hiker_dist[n->pos[dim_y] + all_dirs[i & 0x7][dim_y]]
                         [n->pos[dim_x] + all_dirs[i & 0x7][dim_x]] == 0)
     {
-      io_battle(c, &world.pc);
+      io_battle(c, &world.player);
       break;
     }
   }
@@ -210,7 +210,7 @@ static void move_rival_func(character *c, pair_t dest)
     if (world.rival_dist[n->pos[dim_y] + all_dirs[i & 0x7][dim_y]]
                         [n->pos[dim_x] + all_dirs[i & 0x7][dim_x]] == 0)
     {
-      io_battle(c, &world.pc);
+      io_battle(c, &world.player);
       break;
     }
   }
@@ -228,9 +228,9 @@ static void move_pacer_func(character *c, pair_t dest)
   if (!n->defeated &&
       world.cur_map->cmap[n->pos[dim_y] + n->dir[dim_y]]
                          [n->pos[dim_x] + n->dir[dim_x]] ==
-          &world.pc)
+          &world.player)
   {
-    io_battle(n, &world.pc);
+    io_battle(n, &world.player);
     return;
   }
 
@@ -264,9 +264,9 @@ static void move_wanderer_func(character *c, pair_t dest)
   if (!n->defeated &&
       world.cur_map->cmap[n->pos[dim_y] + n->dir[dim_y]]
                          [n->pos[dim_x] + n->dir[dim_x]] ==
-          &world.pc)
+          &world.player)
   {
-    io_battle(c, &world.pc);
+    io_battle(c, &world.player);
     return;
   }
 
@@ -310,9 +310,9 @@ static void move_explorer_func(character *c, pair_t dest)
   if (!n->defeated &&
       world.cur_map->cmap[n->pos[dim_y] + n->dir[dim_y]]
                          [n->pos[dim_x] + n->dir[dim_x]] ==
-          &world.pc)
+          &world.player)
   {
-    io_battle(n, &world.pc);
+    io_battle(n, &world.player);
     return;
   }
 
@@ -350,28 +350,28 @@ static void move_swimmer_func(character *c, pair_t dest)
   dest[dim_x] = n->pos[dim_x];
   dest[dim_y] = n->pos[dim_y];
 
-  if (is_adjacent(world.pc.pos, ter_water) &&
-      can_see(world.cur_map, n, &world.pc))
+  if (is_adjacent(world.player.pos, ter_water) &&
+      can_see(world.cur_map, n, &world.player))
   {
     /* PC is next to this body of water; swim to the PC */
 
-    dir[dim_x] = world.pc.pos[dim_x] - c->pos[dim_x];
+    dir[dim_x] = world.player.pos[dim_x] - c->pos[dim_x];
     if (dir[dim_x])
     {
       dir[dim_x] /= abs(dir[dim_x]);
     }
-    dir[dim_y] = world.pc.pos[dim_y] - c->pos[dim_y];
+    dir[dim_y] = world.player.pos[dim_y] - c->pos[dim_y];
     if (dir[dim_y])
     {
       dir[dim_y] /= abs(dir[dim_y]);
     }
-
+    // Add static casts to remove narrowing error as numbers will never grow large enough to lose data
     if ((m->map[dest[dim_y] + dir[dim_y]]
                [dest[dim_x] + dir[dim_x]] == ter_water) ||
         ((m->map[dest[dim_y] + dir[dim_y]]
                 [dest[dim_x] + dir[dim_x]] == ter_path) &&
-         is_adjacent(((pair_t){(dest[dim_x] + dir[dim_x]),
-                               (dest[dim_y] + dir[dim_y])}),
+         is_adjacent(((pair_t){(static_cast<int16_t>(dest[dim_x] + dir[dim_x])),
+                               (static_cast<int16_t>(dest[dim_y] + dir[dim_y]))}),
                      ter_water)))
     {
       dest[dim_x] += dir[dim_x];
@@ -379,7 +379,7 @@ static void move_swimmer_func(character *c, pair_t dest)
     }
     else if ((m->map[dest[dim_y]][dest[dim_x] + dir[dim_x]] == ter_water) ||
              ((m->map[dest[dim_y]][dest[dim_x] + dir[dim_x]] == ter_path) &&
-              is_adjacent(((pair_t){(dest[dim_x] + dir[dim_x]),
+              is_adjacent(((pair_t){(static_cast<int16_t>(dest[dim_x] + dir[dim_x])),
                                     (dest[dim_y])}),
                           ter_water)))
     {
@@ -388,7 +388,7 @@ static void move_swimmer_func(character *c, pair_t dest)
     else if ((m->map[dest[dim_y] + dir[dim_y]][dest[dim_x]] == ter_water) ||
              ((m->map[dest[dim_y] + dir[dim_y]][dest[dim_x]] == ter_path) &&
               is_adjacent(((pair_t){(dest[dim_x]),
-                                    (dest[dim_y] + dir[dim_y])}),
+                                    (static_cast<int16_t>(dest[dim_y] + dir[dim_y]))}),
                           ter_water)))
     {
       dest[dim_y] += dir[dim_y];
@@ -403,8 +403,8 @@ static void move_swimmer_func(character *c, pair_t dest)
                [dest[dim_x] + dir[dim_x]] != ter_water) ||
         !((m->map[dest[dim_y] + dir[dim_y]]
                  [dest[dim_x] + dir[dim_x]] == ter_path) &&
-          is_adjacent(((pair_t){dest[dim_x] + dir[dim_x],
-                                dest[dim_y] + dir[dim_y]}),
+          is_adjacent(((pair_t){static_cast<int16_t>(dest[dim_x] + dir[dim_x]),
+                                static_cast<int16_t>(dest[dim_y] + dir[dim_y])}),
                       ter_water)))
     {
       rand_dir(dir);
@@ -414,8 +414,8 @@ static void move_swimmer_func(character *c, pair_t dest)
                [dest[dim_x] + dir[dim_x]] == ter_water) ||
         ((m->map[dest[dim_y] + dir[dim_y]]
                 [dest[dim_x] + dir[dim_x]] == ter_path) &&
-         is_adjacent(((pair_t){dest[dim_x] + dir[dim_x],
-                               dest[dim_y] + dir[dim_y]}),
+         is_adjacent(((pair_t){static_cast<int16_t>(dest[dim_x] + dir[dim_x]),
+                               static_cast<int16_t>(dest[dim_y] + dir[dim_y])}),
                      ter_water)))
     {
       dest[dim_x] += dir[dim_x];
@@ -460,7 +460,7 @@ int32_t cmp_char_turns(const void *key, const void *with)
 
 void delete_character(void *v)
 {
-  if (v == &world.pc)
+  if (v == &world.player)
   {
     // free(world.pc);
   }
@@ -516,8 +516,8 @@ void pathfind(map_t *m)
       world.hiker_dist[y][x] = world.rival_dist[y][x] = DIJKSTRA_PATH_MAX;
     }
   }
-  world.hiker_dist[world.pc.pos[dim_y]][world.pc.pos[dim_x]] =
-      world.rival_dist[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = 0;
+  world.hiker_dist[world.player.pos[dim_y]][world.player.pos[dim_x]] =
+      world.rival_dist[world.player.pos[dim_y]][world.player.pos[dim_x]] = 0;
 
   heap_init(&h, hiker_cmp, NULL);
 
@@ -536,7 +536,7 @@ void pathfind(map_t *m)
     }
   }
 
-  while ((c = (path_t *)heap_remove_min(&h)))
+  while ((c = (path_t *) heap_remove_min(&h)))
   {
     c->hn = NULL;
     if ((p[c->pos[dim_y] - 1][c->pos[dim_x] - 1].hn) &&

@@ -98,6 +98,7 @@ public:
   char symbol;
   int next_turn;
   int seq_num;
+  virtual ~character() {}
 };
 // Moved to here so world can store pc
 class pc : public character
@@ -128,7 +129,7 @@ public:
    * we only need one pair at any given time.      */
   int hiker_dist[MAP_Y][MAP_X];
   int rival_dist[MAP_Y][MAP_X];
-  pc pc;
+  class pc player;
   int quit;
   int add_trainer_prob;
   int char_seq_num;
