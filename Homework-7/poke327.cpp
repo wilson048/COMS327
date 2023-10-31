@@ -1193,6 +1193,29 @@ int main(int argc, char *argv[])
   
   init_world();
 
+  // const char *dbpath = "pokedex/pokedex/data/csv"
+  // char *filename = pokemon.csv
+  // char *home = getenv ("HOME");
+  // len = strlen(home) + strlen(dbpath) + strlen(filename) + 1
+  // char *file = malloc(len + 1)
+  // strcpy(file, home)
+  // strcat(file, dbpath)
+  // strcat(file, filename)
+  // ifstream f(file);
+  // or FILE *f = fopen(file, "r")
+  // #include <ifstream>
+  // i.peek()
+  // ifstream i(file) // constructor to open file
+  // get() 
+  // getline()
+  // std::istream::getline(char *s, int size)
+  // std:getline(istream &, std::string &)
+  // operator>>
+  // skip leading whitespace, the read until next whitespace
+  // stringstream
+  // use << to build strings
+  // use str() to return a reference to the string
+
   /* print_hiker_dist(); */
   
   /*
