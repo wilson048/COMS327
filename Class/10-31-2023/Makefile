@@ -1,3 +1,5 @@
+darray: darray.cpp
+	g++ -Wall -Werror -ggdb darray.cpp -o darray
 cpp-to-c: cpp-port.o cpp-to-c.o
 	g++ cpp-to-c.o cpp-port.o -o cpp-to-c
 
