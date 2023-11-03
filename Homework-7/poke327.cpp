@@ -1143,55 +1143,57 @@ void usage(char *s)
 
 int main(int argc, char *argv[])
 {
-  struct timeval tv;
-  uint32_t seed;
-  int long_arg;
-  int do_seed;
-  //  char c;
-  //  int x, y;
-  int i;
 
-  do_seed = 1;
   
-  if (argc > 1) {
-    for (i = 1, long_arg = 0; i < argc; i++, long_arg = 0) {
-      if (argv[i][0] == '-') { /* All switches start with a dash */
-        if (argv[i][1] == '-') {
-          argv[i]++;    /* Make the argument have a single dash so we can */
-          long_arg = 1; /* handle long and short args at the same place.  */
-        }
-        switch (argv[i][1]) {
-        case 's':
-          if ((!long_arg && argv[i][2]) ||
-              (long_arg && strcmp(argv[i], "-seed")) ||
-              argc < ++i + 1 /* No more arguments */ ||
-              !sscanf(argv[i], "%u", &seed) /* Argument is not an integer */) {
-            usage(argv[0]);
-          }
-          do_seed = 0;
-          break;
-        default:
-          usage(argv[0]);
-        }
-      } else { /* No dash */
-        usage(argv[0]);
-      }
-    }
-  }
+  // struct timeval tv;
+  // uint32_t seed;
+  // int long_arg;
+  // int do_seed;
+  // //  char c;
+  // //  int x, y;
+  // int i;
 
-  if (do_seed) {
-    /* Allows me to start the game more than once *
-     * per second, as opposed to time().          */
-    gettimeofday(&tv, NULL);
-    seed = (tv.tv_usec ^ (tv.tv_sec << 20)) & 0xffffffff;
-  }
-
-  printf("Using seed: %u\n", seed);
-  srand(seed);
-
-  io_init_terminal();
+  // do_seed = 1;
   
-  init_world();
+  // if (argc > 1) {
+  //   for (i = 1, long_arg = 0; i < argc; i++, long_arg = 0) {
+  //     if (argv[i][0] == '-') { /* All switches start with a dash */
+  //       if (argv[i][1] == '-') {
+  //         argv[i]++;    /* Make the argument have a single dash so we can */
+  //         long_arg = 1; /* handle long and short args at the same place.  */
+  //       }
+  //       switch (argv[i][1]) {
+  //       case 's':
+  //         if ((!long_arg && argv[i][2]) ||
+  //             (long_arg && strcmp(argv[i], "-seed")) ||
+  //             argc < ++i + 1 /* No more arguments */ ||
+  //             !sscanf(argv[i], "%u", &seed) /* Argument is not an integer */) {
+  //           usage(argv[0]);
+  //         }
+  //         do_seed = 0;
+  //         break;
+  //       default:
+  //         usage(argv[0]);
+  //       }
+  //     } else { /* No dash */
+  //       usage(argv[0]);
+  //     }
+  //   }
+  // }
+
+  // if (do_seed) {
+  //   /* Allows me to start the game more than once *
+  //    * per second, as opposed to time().          */
+  //   gettimeofday(&tv, NULL);
+  //   seed = (tv.tv_usec ^ (tv.tv_sec << 20)) & 0xffffffff;
+  // }
+
+  // printf("Using seed: %u\n", seed);
+  // srand(seed);
+
+  // io_init_terminal();
+  
+  // init_world();
 
   // const char *dbpath = "pokedex/pokedex/data/csv"
   // char *filename = pokemon.csv
@@ -1279,11 +1281,11 @@ int main(int argc, char *argv[])
 
   */
 
-  game_loop();
+  // game_loop();
   
-  delete_world();
+  // delete_world();
 
-  io_reset_terminal();
+  // io_reset_terminal();
   
   return 0;
 }
