@@ -34,7 +34,7 @@ class stats {
 /* Class for names of pokemon types */
 class type_names {
     public:
-        int id;
+        int type_id;
         int language_id;
         string name;
 };
@@ -220,7 +220,49 @@ void read_file(string file_name) {
                 cout << "Game Index: " << element.game_index << endl;
                 cout << "\n";
             }
+        }
+    }
+    if(!(strcmp(correct_files[file_index], "type_names"))) {
+        std::vector<type_names> type_names_vector;
+        // Put all lines of file into list
+        while(getline(csv_file, segment)) {
+            list.push_back(segment);
+        }
 
+        // For all lines from the file, divide each CSV into individual values
+        for(auto & element : list) {
+            type_names type_names_obj;
+            // Comma separator
+            std::string comma_sep = ",";
+
+            size_t pos = 0;
+            std::string token;
+
+            int element_index = 0;
+
+            while((pos = element.find(comma_sep)) != std::string::npos) {
+                token = element.substr(0, pos);
+                element.erase(0, pos + comma_sep.length());
+                // Assign data to correct areas
+                switch(element_index) {
+                    case 0:
+                        type_names_obj.type_id = stoi(token);
+                        break;
+                    case 1:
+                        type_names_obj.language_id = stoi(token);
+                        break;
+                }
+                element_index++;
+            }
+            type_names_obj.name = element;
+            type_names_vector.push_back(type_names_obj);
+            // Print out everything
+            for(auto & element : type_names_vector) {
+                cout << "Type ID: " << element.type_id << endl;
+                cout << "Language ID: " << element.language_id << endl;
+                cout << "Name of Type: " << element.name << endl;
+                cout << "\n";
+            }
         }
     }
 }
