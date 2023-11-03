@@ -566,4 +566,60 @@ void read_file(string file_name) {
             }
         }
     }   
+    if(!(strcmp(correct_files[file_index], "pokemon_stats"))) {
+        std::vector<pokemon_stats> pokemon_stats_vector;
+        // Put all lines of file into list
+        while(getline(csv_file, segment)) {
+            list.push_back(segment);
+        }
+
+        // For all lines from the file, divide each CSV into individual values
+        for(auto & element : list) {
+            pokemon_stats pokemon_stats_obj;
+            // Comma separator
+            std::string comma_sep = ",";
+
+            size_t pos = 0;
+            std::string token;
+
+            int element_index = 0;
+
+            while((pos = element.find(comma_sep)) != std::string::npos) {
+                token = element.substr(0, pos);
+                element.erase(0, pos + comma_sep.length());
+                // Assign data to correct areas
+                switch(element_index) {
+                    case 0:
+                    
+                        pokemon_stats_obj.id = stoi(token);
+                        break;
+                    case 1:
+                        pokemon_stats_obj.stat_id = stoi(token);
+                        break;
+                    case 2:
+                        pokemon_stats_obj.base_stat = stoi(token);
+                        break;
+                }
+                element_index++;
+            }
+            try {
+                pokemon_stats_obj.effort = stoi(token);
+            }
+            catch (exception& e) {
+                pokemon_stats_obj.effort = INT_MAX;
+            }
+            pokemon_stats_vector.push_back(pokemon_stats_obj);
+            // Print out everything
+            for(auto & element : pokemon_stats_vector) {
+                cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
+                cout << "Stat ID: " << (element.stat_id == INT_MAX ? "" : std::to_string(element.stat_id)) << endl;
+                cout << "Base Stat: " << (element.base_stat == INT_MAX ? "" : std::to_string(element.base_stat)) << endl;
+                cout << "Effort: " << (element.effort == INT_MAX ? "" : std::to_string(element.effort)) << endl;
+                cout << "\n";
+            }
+        }
+    }
+    if(!(strcmp(correct_files[file_index], "pokemon_species"))) {
+        
+    }
 }

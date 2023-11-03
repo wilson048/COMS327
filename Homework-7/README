@@ -2,3 +2,5 @@ This homework required by the class COMS327 is a program
 that reads certain pokemon attributes from specfic CSV files
 contained within a database and outputs a more readable format
 to the terminal.
+
+Reading pokemon_moves.csv took forever to parse, considering it have over half a million entries
