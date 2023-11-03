@@ -48,11 +48,11 @@ class experience {
 };
 
 /* Class for move attributes */
-class move {
+class moves {
     public:
         int id;
         string identifier;
-        int gen_id;
+        int generation_id;
         int type_id;
         int power;
         int pp;
@@ -306,6 +306,178 @@ void read_file(string file_name) {
                 cout << "Growth Rate ID: " << element.growth_rate_id << endl;
                 cout << "Level: " << element.level << endl;
                 cout << "Experience : " << element.experience << endl;
+                cout << "\n";
+            }
+        }
+    }
+    if(!(strcmp(correct_files[file_index], "moves"))) {
+        std::vector<moves> moves_vector;
+        // Put all lines of file into list
+        while(getline(csv_file, segment)) {
+            list.push_back(segment);
+        }
+
+        // For all lines from the file, divide each CSV into individual values
+        for(auto & element : list) {
+            moves moves_obj;
+            // Comma separator
+            std::string comma_sep = ",";
+
+            size_t pos = 0;
+            std::string token;
+
+            int element_index = 0;
+
+            while((pos = element.find(comma_sep)) != std::string::npos) {
+                token = element.substr(0, pos);
+                element.erase(0, pos + comma_sep.length());
+                // Assign data to correct areas
+                switch(element_index) {
+                    case 0:
+                        // Run regularly
+                        try {
+                            moves_obj.id = stoi(token);
+                        }
+                        // Place INT_MAX in place of empty entry
+                        catch (exception& e) {
+                            moves_obj.id = INT_MAX;
+                        }
+                        break;
+                    case 1:
+                        // Run regularly
+                        try {
+                            moves_obj.identifier = token;
+                        }
+                        // Place empty string in place of empty entry
+                        catch (exception& e) {
+                            moves_obj.identifier = "";
+                        }
+                        
+                        break;
+                    case 2:
+                        try {
+                            moves_obj.generation_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.generation_id = INT_MAX;
+                        }
+                        break;
+                    case 3:
+                        try {
+                            moves_obj.type_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.type_id = INT_MAX;
+                        }
+                        break;
+                    case 4:
+                        try {
+                            moves_obj.power = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.power = INT_MAX;
+                        }
+                        break;
+                    case 5: 
+                        try {
+                            moves_obj.pp = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.pp = INT_MAX;
+                        }
+                        break;
+                    case 6:
+                        try {
+                            moves_obj.accuracy = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.accuracy = INT_MAX;
+                        }
+                        break;
+                    case 7:
+                        try {
+                            moves_obj.prioirty = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.prioirty = INT_MAX;
+                        }
+                        break;
+                    case 8:
+                        try {
+                            moves_obj.target_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.target_id = INT_MAX;
+                        }
+                        break;
+                    case 9:
+                        try {
+                            moves_obj.damage_class_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.damage_class_id = INT_MAX;
+                        }
+                        break;
+                    case 10:
+                        try {
+                            moves_obj.effect_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.effect_id = INT_MAX;
+                        }
+                        break;
+                    case 11:
+                        try {
+                            moves_obj.effect_chance = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.effect_chance = INT_MAX;
+                        }
+                        break;
+                    case 12:
+                        try {
+                            moves_obj.contest_type_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.contest_type_id = INT_MAX;
+                        }
+                        break;
+                    case 13:
+                        try {
+                            moves_obj.contest_effect_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            moves_obj.contest_effect_id = INT_MAX;
+                        }
+                        break;
+                }
+                element_index++;
+            }
+            try {
+                moves_obj.super_contest_effect_id = stoi(element);
+            }
+            catch (exception& e) {
+                moves_obj.super_contest_effect_id = INT_MAX;
+            }
+            
+            moves_vector.push_back(moves_obj);
+            // Print out everything
+            for(auto & element : moves_vector) {
+                cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
+                cout << "Identifier: " << element.identifier << endl;
+                cout << "Generation ID: " << (element.generation_id == INT_MAX ? "" : std::to_string(element.generation_id)) << endl;
+                cout << "Type ID: " << (element.type_id == INT_MAX ? "" : std::to_string(element.type_id)) << endl;
+                cout << "Power: " << (element.power == INT_MAX ? "" : std::to_string(element.power)) << endl;
+                cout << "PP: " << (element.pp == INT_MAX ? "" : std::to_string(element.pp))<< endl;
+                cout << "Accuracy: " << (element.accuracy == INT_MAX ? "" : std::to_string(element.accuracy))<< endl;
+                cout << "Prioirty: " << (element.prioirty == INT_MAX ? "" : std::to_string(element.prioirty))<< endl;
+                cout << "Target ID: " << (element.target_id == INT_MAX ? "" : std::to_string(element.target_id))<< endl;
+                cout << "Damage Class ID: " << (element.damage_class_id == INT_MAX ? "" : std::to_string(element.damage_class_id))<< endl;
+                cout << "Effect ID: " << (element.effect_id == INT_MAX ? "" : std::to_string(element.effect_id))<< endl;
+                cout << "Effect Chance: " << (element.effect_chance == INT_MAX ? "" : std::to_string(element.effect_chance))<< endl;
+                cout << "Contest Type ID: " << (element.contest_type_id == INT_MAX ? "" : std::to_string(element.contest_type_id))<< endl;
+                cout << "Contest Effect ID: " << (element.contest_effect_id == INT_MAX ? "" : std::to_string(element.contest_effect_id))<< endl;
+                cout << "Super Contest Type ID: " << (element.super_contest_effect_id == INT_MAX ? "" : std::to_string(element.super_contest_effect_id))<< endl;
                 cout << "\n";
             }
         }
