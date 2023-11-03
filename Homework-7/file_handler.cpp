@@ -152,6 +152,7 @@ int parse_file(const char* file_name) {
     else if (!(stat(strcat(getenv("HOME"), "/.poke327/pokedex/pokedex/data/csv/"), &sb))) {
         read_file(alt_path + f + ".csv");
     }
+    // ../pokedex/pokedex/data/csv/
     else if (!(stat(HARD_PATH, &sb))) {
         read_file(HARD_PATH + f + ".csv");
     }
@@ -161,5 +162,65 @@ int parse_file(const char* file_name) {
     return 0;
 }
 void read_file(string file_name) {
-    cout << "Can print file!" << endl;
+    // Load CSV
+    ifstream csv_file;
+    csv_file.open(file_name);
+
+    std::string segment;
+    std::vector<std::string> list;
+
+    getline(csv_file, segment);
+
+    if(!(strcmp(correct_files[file_index], "stats"))) {
+        std::vector<stats> stats_vector;
+        // Put all lines of file into list
+        while(getline(csv_file, segment)) {
+            list.push_back(segment);
+        }
+
+        // For all lines from the file, divide each CSV into individual values
+        for(auto & element : list) {
+            stats stats_obj;
+            // Comma separator
+            std::string comma_sep = ",";
+
+            size_t pos = 0;
+            std::string token;
+
+            int element_index = 0;
+
+            while((pos = element.find(comma_sep)) != std::string::npos) {
+                token = element.substr(0, pos);
+                element.erase(0, pos + comma_sep.length());
+                // Assign data to correct areas
+                switch(element_index) {
+                    case 0:
+                        stats_obj.id = token;
+                        break;
+                    case 1:
+                        stats_obj.damage_class_id = token;
+                        break;
+                    case 2:
+                        stats_obj.identifier = token;
+                        break;
+                    case 3:
+                        stats_obj.is_battle_only = token;
+                        break;
+                }
+                element_index++;
+            }
+            stats_obj.game_index = element;
+            stats_vector.push_back(stats_obj);
+            // Print out everything
+            for(auto & element : stats_vector) {
+                cout << "ID: " << element.id << endl;
+                cout << "Damage Class ID: " << element.damage_class_id << endl;
+                cout << "Identifier: " << element.identifier << endl;
+                cout << "Is Battle Only: " << element.is_battle_only << endl;
+                cout << "Game Index: " << element.game_index << endl;
+                cout << "\n";
+            }
+
+        }
+    }
 }
