@@ -11,7 +11,7 @@ using namespace std;
 // Global to keep track of the array file to load and read
 int file_index;
 // Array of valid CSV files to read
-const char* correct_files[10] = {"pokemon", "pokemon_moves", "pokemon_species", "pokemon_stats", "pokemon_types", "moves", "expereince", "type_names", "stats"};
+const char* correct_files[10] = {"pokemon", "pokemon_moves", "pokemon_species", "pokemon_stats", "pokemon_types", "moves", "experience", "type_names", "stats"};
 /* Class for pokemon stats */
 class pokemon_stats {
     public:
@@ -42,9 +42,9 @@ class type_names {
 /* Class for experience stats */
 class experience {
     public:
-        int growth_rate;
+        int growth_rate_id;
         int level;
-        int exp;
+        int experience;
 };
 
 /* Class for move attributes */
@@ -170,7 +170,7 @@ void read_file(string file_name) {
     std::vector<std::string> list;
 
     getline(csv_file, segment);
-
+    // Read stats.csv
     if(!(strcmp(correct_files[file_index], "stats"))) {
         std::vector<stats> stats_vector;
         // Put all lines of file into list
@@ -222,6 +222,7 @@ void read_file(string file_name) {
             }
         }
     }
+    // read type_names.csv
     if(!(strcmp(correct_files[file_index], "type_names"))) {
         std::vector<type_names> type_names_vector;
         // Put all lines of file into list
@@ -261,6 +262,50 @@ void read_file(string file_name) {
                 cout << "Type ID: " << element.type_id << endl;
                 cout << "Language ID: " << element.language_id << endl;
                 cout << "Name of Type: " << element.name << endl;
+                cout << "\n";
+            }
+        }
+    }
+    // read expereince.csv
+    if(!(strcmp(correct_files[file_index], "experience"))) {
+        std::vector<experience> experience_vector;
+        // Put all lines of file into list
+        while(getline(csv_file, segment)) {
+            list.push_back(segment);
+        }
+
+        // For all lines from the file, divide each CSV into individual values
+        for(auto & element : list) {
+            experience experience_obj;
+            // Comma separator
+            std::string comma_sep = ",";
+
+            size_t pos = 0;
+            std::string token;
+
+            int element_index = 0;
+
+            while((pos = element.find(comma_sep)) != std::string::npos) {
+                token = element.substr(0, pos);
+                element.erase(0, pos + comma_sep.length());
+                // Assign data to correct areas
+                switch(element_index) {
+                    case 0:
+                        experience_obj.growth_rate_id = stoi(token);
+                        break;
+                    case 1:
+                        experience_obj.level = stoi(token);
+                        break;
+                }
+                element_index++;
+            }
+            experience_obj.experience = stoi(element);
+            experience_vector.push_back(experience_obj);
+            // Print out everything
+            for(auto & element : experience_vector) {
+                cout << "Growth Rate ID: " << element.growth_rate_id << endl;
+                cout << "Level: " << element.level << endl;
+                cout << "Experience : " << element.experience << endl;
                 cout << "\n";
             }
         }
