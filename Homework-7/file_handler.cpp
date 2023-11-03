@@ -71,7 +71,7 @@ class moves {
 class pokemon_moves {
     public:
         int pokemon_id;
-        int version_id;
+        int version_group_id;
         int move_id;
         int pokemon_move_method_id;
         int level;
@@ -482,4 +482,88 @@ void read_file(string file_name) {
             }
         }
     }
+    if(!(strcmp(correct_files[file_index], "pokemon_moves"))) {
+        std::vector<pokemon_moves> pokemon_moves_vector;
+        // Put all lines of file into list
+        while(getline(csv_file, segment)) {
+            list.push_back(segment);
+        }
+
+        // For all lines from the file, divide each CSV into individual values
+        for(auto & element : list) {
+            pokemon_moves pokemon_moves_obj;
+            // Comma separator
+            std::string comma_sep = ",";
+
+            size_t pos = 0;
+            std::string token;
+
+            int element_index = 0;
+
+            while((pos = element.find(comma_sep)) != std::string::npos) {
+                token = element.substr(0, pos);
+                element.erase(0, pos + comma_sep.length());
+                // Assign data to correct areas
+                switch(element_index) {
+                    case 0:
+                        try {
+                            pokemon_moves_obj.pokemon_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            pokemon_moves_obj.pokemon_id = INT_MAX;
+                        }
+                        break;
+                    case 1:
+                        try {
+                            pokemon_moves_obj.version_group_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            pokemon_moves_obj.version_group_id = INT_MAX;
+                        }
+                        break;
+                    case 2:
+                        try {
+                            pokemon_moves_obj.move_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            pokemon_moves_obj.move_id = INT_MAX;
+                        }
+                        break;
+                    case 3:
+                        try {
+                            pokemon_moves_obj.pokemon_move_method_id = stoi(token);
+                        }
+                        catch (exception& e) {
+                            pokemon_moves_obj.pokemon_move_method_id = INT_MAX;
+                        }
+                        break;
+                    case 4:
+                        try {
+                            pokemon_moves_obj.level = stoi(token);
+                        }
+                        catch (exception& e) {
+                            pokemon_moves_obj.level = INT_MAX;
+                        }
+                }
+                element_index++;
+            }
+            try {
+                pokemon_moves_obj.order = stoi(token);
+            }
+            catch (exception& e) {
+                pokemon_moves_obj.order = INT_MAX;
+            }
+            pokemon_moves_vector.push_back(pokemon_moves_obj);
+            // Print out everything
+            for(auto & element : pokemon_moves_vector) {
+                cout << "Pokemon ID: " << (element.pokemon_id == INT_MAX ? "" : std::to_string(element.pokemon_id)) << endl;
+                cout << "Version Group ID: " << (element.version_group_id == INT_MAX ? "" : std::to_string(element.version_group_id)) << endl;
+                cout << "Move ID: " << (element.move_id == INT_MAX ? "" : std::to_string(element.move_id)) << endl;
+                cout << "Move Method ID: " << (element.pokemon_move_method_id == INT_MAX ? "" : std::to_string(element.pokemon_move_method_id)) << endl;
+                cout << "Level: " << (element.level == INT_MAX ? "" : std::to_string(element.level)) << endl;
+                cout << "Order: " << (element.order == INT_MAX ? "" : std::to_string(element.order)) << endl;
+                cout << "\n";
+            }
+        }
+    }   
 }
