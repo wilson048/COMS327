@@ -13,6 +13,7 @@
 #include "poke327.h"
 #include "character.h"
 #include "io.h"
+#include "file_handler.h"
 
 typedef struct queue_node {
   int x, y;
@@ -1144,6 +1145,17 @@ void usage(char *s)
 int main(int argc, char *argv[])
 {
 
+  if(argc == 2) {
+    if(confirm_file_name(argv[1])) {
+      parse_file(argv[1]);
+    }
+    else {
+      printf("Incorrect file name!\n");
+    }
+  }
+  else {
+    printf("Usage: ./poke327 \"filename\"\n");
+  }
   
   // struct timeval tv;
   // uint32_t seed;

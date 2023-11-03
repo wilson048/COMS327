@@ -22,15 +22,6 @@ class pokemon_stats {
 };
 
 /* Class for stats */
-class pokemon_stats {
-    public:
-        int id;
-        int stat_id;
-        int base_stat;
-        int effort;
-};
-
-/* Class for stats */
 class stats {
     public:
         string id;
@@ -77,7 +68,7 @@ class move {
 };
 
 /* Class for what moves a single pokemon has */
-class experience {
+class pokemon_moves {
     public:
         int pokemon_id;
         int version_id;
@@ -88,7 +79,7 @@ class experience {
 };
 
 /* Class for what intricacies a pokemon has*/
-class experience {
+class pokemon_species {
     public:
         int id;
         string identifier;
@@ -165,10 +156,10 @@ int parse_file(const char* file_name) {
         read_file(HARD_PATH + f + ".csv");
     }
     else {
-        cout << "Database not located";
+        cout << "Database not located" << endl;
     }
     return 0;
 }
 void read_file(string file_name) {
-
+    cout << "Can print file!" << endl;
 }
