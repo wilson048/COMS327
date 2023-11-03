@@ -1015,7 +1015,7 @@ void read_file(string file_name)
                 }
                 element_index++;
             }
-            pokemon_types_obj.slot = stoi(token);
+            pokemon_types_obj.slot = stoi(element);
             pokemon_types_vector.push_back(pokemon_types_obj);
         }
         // Print out everything
