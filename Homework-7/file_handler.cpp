@@ -234,16 +234,16 @@ void read_file(string file_name)
             }
             stats_obj.game_index = element;
             stats_vector.push_back(stats_obj);
-            // Print out everything
-            for (auto &element : stats_vector)
-            {
-                cout << "ID: " << element.id << endl;
-                cout << "Damage Class ID: " << element.damage_class_id << endl;
-                cout << "Identifier: " << element.identifier << endl;
-                cout << "Is Battle Only: " << element.is_battle_only << endl;
-                cout << "Game Index: " << element.game_index << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : stats_vector)
+        {
+            cout << "ID: " << element.id << endl;
+            cout << "Damage Class ID: " << element.damage_class_id << endl;
+            cout << "Identifier: " << element.identifier << endl;
+            cout << "Is Battle Only: " << element.is_battle_only << endl;
+            cout << "Game Index: " << element.game_index << endl;
+            cout << "\n";
         }
     }
     // read type_names.csv
@@ -286,14 +286,14 @@ void read_file(string file_name)
             }
             type_names_obj.name = element;
             type_names_vector.push_back(type_names_obj);
-            // Print out everything
-            for (auto &element : type_names_vector)
-            {
-                cout << "Type ID: " << element.type_id << endl;
-                cout << "Language ID: " << element.language_id << endl;
-                cout << "Name of Type: " << element.name << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : type_names_vector)
+        {
+            cout << "Type ID: " << element.type_id << endl;
+            cout << "Language ID: " << element.language_id << endl;
+            cout << "Name of Type: " << element.name << endl;
+            cout << "\n";
         }
     }
     // read expereince.csv
@@ -336,14 +336,14 @@ void read_file(string file_name)
             }
             experience_obj.experience = stoi(element);
             experience_vector.push_back(experience_obj);
-            // Print out everything
-            for (auto &element : experience_vector)
-            {
-                cout << "Growth Rate ID: " << element.growth_rate_id << endl;
-                cout << "Level: " << element.level << endl;
-                cout << "Experience : " << element.experience << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : experience_vector)
+        {
+            cout << "Growth Rate ID: " << element.growth_rate_id << endl;
+            cout << "Level: " << element.level << endl;
+            cout << "Experience : " << element.experience << endl;
+            cout << "\n";
         }
     }
     if (!(strcmp(correct_files[file_index], "moves")))
@@ -532,26 +532,26 @@ void read_file(string file_name)
             }
 
             moves_vector.push_back(moves_obj);
-            // Print out everything
-            for (auto &element : moves_vector)
-            {
-                cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
-                cout << "Identifier: " << element.identifier << endl;
-                cout << "Generation ID: " << (element.generation_id == INT_MAX ? "" : std::to_string(element.generation_id)) << endl;
-                cout << "Type ID: " << (element.type_id == INT_MAX ? "" : std::to_string(element.type_id)) << endl;
-                cout << "Power: " << (element.power == INT_MAX ? "" : std::to_string(element.power)) << endl;
-                cout << "PP: " << (element.pp == INT_MAX ? "" : std::to_string(element.pp)) << endl;
-                cout << "Accuracy: " << (element.accuracy == INT_MAX ? "" : std::to_string(element.accuracy)) << endl;
-                cout << "Prioirty: " << (element.prioirty == INT_MAX ? "" : std::to_string(element.prioirty)) << endl;
-                cout << "Target ID: " << (element.target_id == INT_MAX ? "" : std::to_string(element.target_id)) << endl;
-                cout << "Damage Class ID: " << (element.damage_class_id == INT_MAX ? "" : std::to_string(element.damage_class_id)) << endl;
-                cout << "Effect ID: " << (element.effect_id == INT_MAX ? "" : std::to_string(element.effect_id)) << endl;
-                cout << "Effect Chance: " << (element.effect_chance == INT_MAX ? "" : std::to_string(element.effect_chance)) << endl;
-                cout << "Contest Type ID: " << (element.contest_type_id == INT_MAX ? "" : std::to_string(element.contest_type_id)) << endl;
-                cout << "Contest Effect ID: " << (element.contest_effect_id == INT_MAX ? "" : std::to_string(element.contest_effect_id)) << endl;
-                cout << "Super Contest Type ID: " << (element.super_contest_effect_id == INT_MAX ? "" : std::to_string(element.super_contest_effect_id)) << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : moves_vector)
+        {
+            cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
+            cout << "Identifier: " << element.identifier << endl;
+            cout << "Generation ID: " << (element.generation_id == INT_MAX ? "" : std::to_string(element.generation_id)) << endl;
+            cout << "Type ID: " << (element.type_id == INT_MAX ? "" : std::to_string(element.type_id)) << endl;
+            cout << "Power: " << (element.power == INT_MAX ? "" : std::to_string(element.power)) << endl;
+            cout << "PP: " << (element.pp == INT_MAX ? "" : std::to_string(element.pp)) << endl;
+            cout << "Accuracy: " << (element.accuracy == INT_MAX ? "" : std::to_string(element.accuracy)) << endl;
+            cout << "Prioirty: " << (element.prioirty == INT_MAX ? "" : std::to_string(element.prioirty)) << endl;
+            cout << "Target ID: " << (element.target_id == INT_MAX ? "" : std::to_string(element.target_id)) << endl;
+            cout << "Damage Class ID: " << (element.damage_class_id == INT_MAX ? "" : std::to_string(element.damage_class_id)) << endl;
+            cout << "Effect ID: " << (element.effect_id == INT_MAX ? "" : std::to_string(element.effect_id)) << endl;
+            cout << "Effect Chance: " << (element.effect_chance == INT_MAX ? "" : std::to_string(element.effect_chance)) << endl;
+            cout << "Contest Type ID: " << (element.contest_type_id == INT_MAX ? "" : std::to_string(element.contest_type_id)) << endl;
+            cout << "Contest Effect ID: " << (element.contest_effect_id == INT_MAX ? "" : std::to_string(element.contest_effect_id)) << endl;
+            cout << "Super Contest Type ID: " << (element.super_contest_effect_id == INT_MAX ? "" : std::to_string(element.super_contest_effect_id)) << endl;
+            cout << "\n";
         }
     }
     if (!(strcmp(correct_files[file_index], "pokemon_moves")))
@@ -643,17 +643,17 @@ void read_file(string file_name)
                 pokemon_moves_obj.order = INT_MAX;
             }
             pokemon_moves_vector.push_back(pokemon_moves_obj);
-            // Print out everything
-            for (auto &element : pokemon_moves_vector)
-            {
-                cout << "Pokemon ID: " << (element.pokemon_id == INT_MAX ? "" : std::to_string(element.pokemon_id)) << endl;
-                cout << "Version Group ID: " << (element.version_group_id == INT_MAX ? "" : std::to_string(element.version_group_id)) << endl;
-                cout << "Move ID: " << (element.move_id == INT_MAX ? "" : std::to_string(element.move_id)) << endl;
-                cout << "Move Method ID: " << (element.pokemon_move_method_id == INT_MAX ? "" : std::to_string(element.pokemon_move_method_id)) << endl;
-                cout << "Level: " << (element.level == INT_MAX ? "" : std::to_string(element.level)) << endl;
-                cout << "Order: " << (element.order == INT_MAX ? "" : std::to_string(element.order)) << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : pokemon_moves_vector)
+        {
+            cout << "Pokemon ID: " << (element.pokemon_id == INT_MAX ? "" : std::to_string(element.pokemon_id)) << endl;
+            cout << "Version Group ID: " << (element.version_group_id == INT_MAX ? "" : std::to_string(element.version_group_id)) << endl;
+            cout << "Move ID: " << (element.move_id == INT_MAX ? "" : std::to_string(element.move_id)) << endl;
+            cout << "Move Method ID: " << (element.pokemon_move_method_id == INT_MAX ? "" : std::to_string(element.pokemon_move_method_id)) << endl;
+            cout << "Level: " << (element.level == INT_MAX ? "" : std::to_string(element.level)) << endl;
+            cout << "Order: " << (element.order == INT_MAX ? "" : std::to_string(element.order)) << endl;
+            cout << "\n";
         }
     }
     if (!(strcmp(correct_files[file_index], "pokemon_stats")))
@@ -706,15 +706,15 @@ void read_file(string file_name)
                 pokemon_stats_obj.effort = INT_MAX;
             }
             pokemon_stats_vector.push_back(pokemon_stats_obj);
-            // Print out everything
-            for (auto &element : pokemon_stats_vector)
-            {
-                cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
-                cout << "Stat ID: " << (element.stat_id == INT_MAX ? "" : std::to_string(element.stat_id)) << endl;
-                cout << "Base Stat: " << (element.base_stat == INT_MAX ? "" : std::to_string(element.base_stat)) << endl;
-                cout << "Effort: " << (element.effort == INT_MAX ? "" : std::to_string(element.effort)) << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : pokemon_stats_vector)
+        {
+            cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
+            cout << "Stat ID: " << (element.stat_id == INT_MAX ? "" : std::to_string(element.stat_id)) << endl;
+            cout << "Base Stat: " << (element.base_stat == INT_MAX ? "" : std::to_string(element.base_stat)) << endl;
+            cout << "Effort: " << (element.effort == INT_MAX ? "" : std::to_string(element.effort)) << endl;
+            cout << "\n";
         }
     }
     if (!(strcmp(correct_files[file_index], "pokemon_species")))
@@ -953,31 +953,31 @@ void read_file(string file_name)
             }
 
             pokemon_species_vector.push_back(pokemon_species_obj);
-            // Print out everything
-            for (auto &element : pokemon_species_vector)
-            {
-                cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
-                cout << "Identifier: " << element.identifier << endl;
-                cout << "Generation ID: " << (element.generation_id == INT_MAX ? "" : std::to_string(element.generation_id)) << endl;
-                cout << "Evolves From Species ID: " << (element.evolves_from_species_id == INT_MAX ? "" : std::to_string(element.evolves_from_species_id)) << endl;
-                cout << "Evolution Chain ID: " << (element.evolution_chain_id == INT_MAX ? "" : std::to_string(element.evolution_chain_id)) << endl;
-                cout << "Color ID: " << (element.color_id == INT_MAX ? "" : std::to_string(element.color_id)) << endl;
-                cout << "Shape ID: " << (element.shape_id == INT_MAX ? "" : std::to_string(element.shape_id)) << endl;
-                cout << "Habitat ID: " << (element.habitat_id == INT_MAX ? "" : std::to_string(element.habitat_id)) << endl;
-                cout << "Gender Rate: " << (element.gender_rate == INT_MAX ? "" : std::to_string(element.gender_rate)) << endl;
-                cout << "Capture Rate: " << (element.capture_rate == INT_MAX ? "" : std::to_string(element.capture_rate)) << endl;
-                cout << "Base Happiness: " << (element.base_happiness == INT_MAX ? "" : std::to_string(element.base_happiness)) << endl;
-                cout << "Is Baby: " << (element.is_baby == INT_MAX ? "" : std::to_string(element.is_baby)) << endl;
-                cout << "Hatch Counter: " << (element.hatch_counter == INT_MAX ? "" : std::to_string(element.hatch_counter)) << endl;
-                cout << "Has Gender Differences: " << (element.has_gender_differences == INT_MAX ? "" : std::to_string(element.has_gender_differences)) << endl;
-                cout << "Growth Rate ID: " << (element.growth_rate_id == INT_MAX ? "" : std::to_string(element.growth_rate_id)) << endl;
-                cout << "Forms Switchable: " << (element.forms_switchable == INT_MAX ? "" : std::to_string(element.forms_switchable)) << endl;
-                cout << "Is Legendary: " << (element.is_legendary == INT_MAX ? "" : std::to_string(element.is_legendary)) << endl;
-                cout << "Is Mythical: " << (element.is_mythical == INT_MAX ? "" : std::to_string(element.is_mythical)) << endl;
-                cout << "Order: " << (element.order == INT_MAX ? "" : std::to_string(element.order)) << endl;
-                cout << "Conquest Order: " << (element.conquest_order == INT_MAX ? "" : std::to_string(element.conquest_order)) << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : pokemon_species_vector)
+        {
+            cout << "ID: " << (element.id == INT_MAX ? "" : std::to_string(element.id)) << endl;
+            cout << "Identifier: " << element.identifier << endl;
+            cout << "Generation ID: " << (element.generation_id == INT_MAX ? "" : std::to_string(element.generation_id)) << endl;
+            cout << "Evolves From Species ID: " << (element.evolves_from_species_id == INT_MAX ? "" : std::to_string(element.evolves_from_species_id)) << endl;
+            cout << "Evolution Chain ID: " << (element.evolution_chain_id == INT_MAX ? "" : std::to_string(element.evolution_chain_id)) << endl;
+            cout << "Color ID: " << (element.color_id == INT_MAX ? "" : std::to_string(element.color_id)) << endl;
+            cout << "Shape ID: " << (element.shape_id == INT_MAX ? "" : std::to_string(element.shape_id)) << endl;
+            cout << "Habitat ID: " << (element.habitat_id == INT_MAX ? "" : std::to_string(element.habitat_id)) << endl;
+            cout << "Gender Rate: " << (element.gender_rate == INT_MAX ? "" : std::to_string(element.gender_rate)) << endl;
+            cout << "Capture Rate: " << (element.capture_rate == INT_MAX ? "" : std::to_string(element.capture_rate)) << endl;
+            cout << "Base Happiness: " << (element.base_happiness == INT_MAX ? "" : std::to_string(element.base_happiness)) << endl;
+            cout << "Is Baby: " << (element.is_baby == INT_MAX ? "" : std::to_string(element.is_baby)) << endl;
+            cout << "Hatch Counter: " << (element.hatch_counter == INT_MAX ? "" : std::to_string(element.hatch_counter)) << endl;
+            cout << "Has Gender Differences: " << (element.has_gender_differences == INT_MAX ? "" : std::to_string(element.has_gender_differences)) << endl;
+            cout << "Growth Rate ID: " << (element.growth_rate_id == INT_MAX ? "" : std::to_string(element.growth_rate_id)) << endl;
+            cout << "Forms Switchable: " << (element.forms_switchable == INT_MAX ? "" : std::to_string(element.forms_switchable)) << endl;
+            cout << "Is Legendary: " << (element.is_legendary == INT_MAX ? "" : std::to_string(element.is_legendary)) << endl;
+            cout << "Is Mythical: " << (element.is_mythical == INT_MAX ? "" : std::to_string(element.is_mythical)) << endl;
+            cout << "Order: " << (element.order == INT_MAX ? "" : std::to_string(element.order)) << endl;
+            cout << "Conquest Order: " << (element.conquest_order == INT_MAX ? "" : std::to_string(element.conquest_order)) << endl;
+            cout << "\n";
         }
     }
     if(!strcmp(correct_files[file_index], "pokemon_types")) {
@@ -1082,19 +1082,19 @@ void read_file(string file_name)
             }
             pokemon_obj.is_default = stoi(element);
             pokemon_vector.push_back(pokemon_obj);
-            // Print out everything
-            for (auto &element : pokemon_vector)
-            {
-                cout << "ID: " << element.id << endl;
-                cout << "Identifier: " << element.identifier << endl;
-                cout << "Species ID: " << element.species_id << endl;
-                cout << "Height: " << element.height << endl;
-                cout << "WEight: " << element.weight << endl;
-                cout << "Base Experience: " << element.base_experience << endl;
-                cout << "Order: " << element.order << endl;
-                cout << "Is Default: " << element.is_default << endl;
-                cout << "\n";
-            }
+        }
+        // Print out everything
+        for (auto &element : pokemon_vector)
+        {
+            cout << "ID: " << element.id << endl;
+            cout << "Identifier: " << element.identifier << endl;
+            cout << "Species ID: " << element.species_id << endl;
+            cout << "Height: " << element.height << endl;
+            cout << "WEight: " << element.weight << endl;
+            cout << "Base Experience: " << element.base_experience << endl;
+            cout << "Order: " << element.order << endl;
+            cout << "Is Default: " << element.is_default << endl;
+            cout << "\n";
         }
     }
     csv_file.close();

@@ -1,0 +1,14 @@
+a1efd58 (HEAD -> main, origin/main, origin/HEAD) Finished Homework-7
+950db89 Added pokemon.csv file parsing
+273956b Added pokemon_species.csv file parsing
+fd6a6f9 Added pokemon_stats.csv file parsing
+39e5681 Added pokemon_moves.csv file parsing
+9ed900a Added moves.csv file parsing
+fecc195 Added experience.csv file parsing
+08a6a58 Add type_names.csv file reading
+fbed51d Add stats.csv parsing
+867c67c Verify file parser
+5f49e99 Wrote File Parsing
+ec477db Add README and start file handler
+9a3c46e Update GITIGNORE
+ae05f29 Init Homework 7
