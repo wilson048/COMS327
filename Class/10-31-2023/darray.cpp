@@ -30,5 +30,8 @@ int main(int argc, char *argv[]) {
     catch(const char *s) {
         cout << s << endl;
     }
+    catch (...) {  // Catches anything, must be last
+        cout << "Caught an exception" << endl;
+    }
     return 0;
 }

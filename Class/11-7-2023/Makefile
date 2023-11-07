@@ -1,5 +1,7 @@
-darray: darray.cpp
-	g++ -Wall -Werror -ggdb darray.cpp -o darray
+diamond: diamond.cpp
+	g++ -Wall -Werror -ggdb diamond.cpp -o diamond
+static: static.cpp
+	g++ -Wall -Werror -ggdb static.cpp -o static
 cpp-to-c: cpp-port.o cpp-to-c.o
 	g++ cpp-to-c.o cpp-port.o -o cpp-to-c
 
@@ -10,4 +12,4 @@ cpp-to-c.o: cpp-to-c.c
 	gcc -Wall -Werror -ggdb cpp-to-c.c -c
 
 clean:
-	rm -f *.o cpp-to-c darray
+	rm -f *.o diamond
