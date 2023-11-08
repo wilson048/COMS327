@@ -1,4 +1,5 @@
-a1efd58 (HEAD -> main, origin/main, origin/HEAD) Finished Homework-7
+9666b73 (HEAD -> main, origin/main, origin/HEAD) Fix for loops prinitng + added CHANGELOG
+a1efd58 Finished Homework-7
 950db89 Added pokemon.csv file parsing
 273956b Added pokemon_species.csv file parsing
 fd6a6f9 Added pokemon_stats.csv file parsing
@@ -12,3 +13,4 @@ fbed51d Add stats.csv parsing
 ec477db Add README and start file handler
 9a3c46e Update GITIGNORE
 ae05f29 Init Homework 7
+
