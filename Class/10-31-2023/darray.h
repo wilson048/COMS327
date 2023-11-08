@@ -53,7 +53,7 @@ class darray {
 
         T  &operator[](int i) {
             if(i >= size) {
-                throw "Index out of bounds";
+                throw "Iterator out of bounds";
             }
             return a[i];
         }
