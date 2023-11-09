@@ -4,6 +4,7 @@
 # include <cstdint>
 
 # include "pair.h"
+# include "db_parse.h"
 
 #define DIJKSTRA_PATH_MAX (INT_MAX / 2)
 
@@ -30,9 +31,42 @@ typedef enum __attribute__ ((__packed__)) character_type {
 
 extern const char *char_type_name[num_character_types];
 
+
+class char_pokemon {
+  public:
+    virtual ~char_pokemon() {}
+    // Pokemon name
+    char name[30];
+    // Pokemon movesets and expereince thresholds
+    move_db moves[10];
+    experience_db exp_level_thresholds[101];
+    // Pokemon face value stats
+    int is_shiny;
+    int exp;
+    int level;
+    // Male is 0
+    // Female is 1
+    int gender;
+    // Pokemon Main Stats
+    int hp;
+    int attack;
+    int defense;
+    int special_attack;
+    int special_defense;
+    int speed;
+    // Pokemon IVs
+    int hp_iv;
+    int attack_iv;
+    int defense_iv;
+    int special_attack_iv;
+    int special_defense_iv;
+    int speed_iv;
+};
+
 class character {
  public:
   virtual ~character() {}
+  char_pokemon current_pokemon[6];
   pair_t pos;
   char symbol;
   int next_turn;
