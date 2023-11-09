@@ -1,7 +1,7 @@
-singleton: singleton.cpp
-	g++ -Wall -Werror -ggdb singleton.cpp -o singleton
-static: static.cpp
-	g++ -Wall -Werror -ggdb static.cpp -o static
+algorith: algorith.cpp
+	g++ -Wall -Werror -ggdb algorith.cpp -o algorith
+paren_puzzle: paren_puzzle.cpp
+	g++ -Wall -Werror -ggdb paren_puzzle.cpp -o paren_puzzle
 cpp-to-c: cpp-port.o cpp-to-c.o
 	g++ cpp-to-c.o cpp-port.o -o cpp-to-c
 

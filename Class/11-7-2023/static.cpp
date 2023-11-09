@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
         d = new static_demo();
     }
     cout << static_demo::get_num_instances() << endl;
+    singleton::get_instance()->print();
     cout << d->get_num_instances() << endl;
     return 0;
 }
