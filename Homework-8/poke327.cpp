@@ -764,10 +764,10 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
   p.gender = rand() % 2 == 0 ? 1 : 0;
   
   // Manhatten distance decides level
-  int manhattan_distance = (int) ((abs(world.cur_idx[dim_x] - 200) + abs(world.cur_idx[dim_y] - 200)) / 2);
+  int manhattan_distance = ((abs(world.cur_idx[dim_x] - 200) + abs(world.cur_idx[dim_y] - 200)));
   if(manhattan_distance < 200) {
     // Prevent Division by zero
-    if(manhattan_distance == 0) {
+    if(manhattan_distance == 0 || manhattan_distance == 1) {
       p.level = 1;
     }
     else {
@@ -900,6 +900,14 @@ void new_hiker()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
+  // Generate Pokemon for NPCs
+  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
+  int i;
+  for(i = 0; i < num_pokemons && i < 6; i++) {
+    c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
+    c->num_pokemon++;
+  }
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -928,6 +936,14 @@ void new_rival()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
+  // Generate Pokemon for NPCs
+  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
+  int i;
+  for(i = 0; i < num_pokemons && i < 6; i++) {
+    c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
+    c->num_pokemon++;
+  }
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -952,6 +968,15 @@ void new_swimmer()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
+  // Generate Pokemon for NPCs
+  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
+  int i;
+  for(i = 0; i < num_pokemons && i < 6; i++) {
+    c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
+    c->num_pokemon++;
+  }
+  heap_insert(&world.cur_map->turn, c);
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -995,6 +1020,14 @@ void new_char_other()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
+  // Generate Pokemon for NPCs
+  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
+  int i;
+  for(i = 0; i < num_pokemons && i < 6; i++) {
+    c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
+    c->num_pokemon++;
+  }
   heap_insert(&world.cur_map->turn, c);
 }
 

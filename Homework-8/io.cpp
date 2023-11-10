@@ -385,9 +385,26 @@ void io_pokemon_center()
 void io_battle(character *aggressor, character *defender)
 {
   npc *n = (npc *) ((aggressor == &world.pc) ? defender : aggressor);
-
-  io_display();
-  mvprintw(0, 0, "Aww, how'd you get so strong?  You and your pokemon must share a special bond!");
+  // io_display();
+  clear();
+  // mvprintw(0, 0, "Aww, how'd you get so strong?  You and your pokemon must share a special bond!");
+  // Print Player Pokemon
+  int i, j;
+  mvprintw(0, 4, "Player's Pokemon");
+  for(i = 0, j = 0; j < world.pc.num_pokemon; i += 4, j++) {
+    mvprintw(i + 1, 4, "%s", world.pc.current_pokemon[j].name);
+    mvprintw(i + 2, 4, "Gender: %s", world.pc.current_pokemon[j].gender ? "Female" : "Male");
+    mvprintw(i + 3, 4, "Lv %d", world.pc.current_pokemon[j].level);
+    mvprintw(i + 4, 4, "HP: %d", world.pc.current_pokemon[j].hp);
+  }
+  // Print NPC Pokemon
+  mvprintw(0, 29, "NPC's Pokemon");
+  for(i = 0, j = 0; j < n->num_pokemon; i += 4, j++) {
+    mvprintw(i + 1, 29, "%s", n->current_pokemon[j].name);
+    mvprintw(i + 2, 29, "Gender: %s", n->current_pokemon[j].gender ? "Female" : "Male");
+    mvprintw(i + 3, 29, "Lv %d", n->current_pokemon[j].level);
+    mvprintw(i + 4, 29, "HP: %d", n->current_pokemon[j].hp);
+  }
   refresh();
   getch();
 
@@ -417,7 +434,7 @@ void io_encounter_pokemon() {
   // Catch the pokemon
   if(world.pc.num_pokemon != 6) {
     mvprintw(18, 4, "Caught %s!", rand_pokemon.name);
-    world.pc.current_pokemon[world.pc.num_pokemon++];
+    world.pc.current_pokemon[world.pc.num_pokemon++] = rand_pokemon;
   }
   refresh();
   getch();  
