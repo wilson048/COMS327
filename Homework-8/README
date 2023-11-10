@@ -1,0 +1,7 @@
+This homework required by the class COMS327 is a program
+that loads pokemon and generates them randomly on numerous places. 
+Pokemon can be generated when encountering grass, or when fighting other trainers. 
+The PC for now will automatically spawn with at least one pokemon and a place holder 
+during battles with display all the pokemon stats.
+
+Note that the shiny number is 69.

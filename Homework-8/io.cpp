@@ -513,7 +513,7 @@ void io_handle_input(pair_t dest)
 {
   uint32_t turn_not_consumed;
   int key;
-
+  mvprintw(0, 0, "Pokemon level %d", world.pc.current_pokemon[0].level);
   do {
     switch (key = getch()) {
     case '7':

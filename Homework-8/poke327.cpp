@@ -730,7 +730,45 @@ void rand_pos(pair_t pos)
   pos[dim_x] = (rand() % (MAP_X - 2)) + 1;
   pos[dim_y] = (rand() % (MAP_Y - 2)) + 1;
 }
+// MAKE NEW POKEMON HERE
+char_pokemon generate_new_pokemon(char_pokemon p) {
+  // Choose random pokemon to become
+  int rand_pokemon = (rand()) % 1093;
+  p.poke_id = pokemon[rand_pokemon].id;
+  p.species_id = pokemon[rand_pokemon].species_id;
+  p.exp = pokemon[rand_pokemon].base_experience;
+  // IV setter in [0, 15]
+  p.hp_iv = (rand()) % 16;
+  p.attack_iv = (rand()) % 16;
+  p.defense_iv = (rand()) % 16;
+  p.special_attack_iv = (rand()) % 16;
+  p.special_defense_iv = (rand()) % 16;
+  p.speed_iv = (rand()) % 16;
+  // 69 is the shiny number
+  p.is_shiny = ((rand()) % 8192) == 69 ? 1 : 0;
+  p.gender = (rand()) % 2;
+  
+  // Manhatten distance decides level
+  int manhattan_distance = (int) ((abs(world.cur_idx[dim_x] - 200) + abs(world.cur_idx[dim_y] - 200)) / 2);
+  if(manhattan_distance < 200) {
+    // Prevent Division by zero
+    if(manhattan_distance == 0) {
+      p.level = 1;
+    }
+    else {
+      p.level = (rand()) % ((manhattan_distance / 2) - 1 + 1) + 1;
+    }
+  }
+  else {
+    p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
+  } 
+  int i;
+  for(i = 0; i < sizeof(experience) / sizeof(experience[0]); i++) {
+    
+  } 
 
+  return p;
+}
 void new_hiker()
 {
   pair_t pos;
@@ -896,6 +934,7 @@ void init_pc()
 
   world.cur_map->cmap[y][x] = &world.pc;
   world.pc.next_turn = 0;
+  world.pc.current_pokemon[0] = generate_new_pokemon(world.pc.current_pokemon[0]);
 
   world.pc.seq_num = world.char_seq_num++;
 

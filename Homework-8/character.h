@@ -35,7 +35,8 @@ extern const char *char_type_name[num_character_types];
 class char_pokemon {
   public:
     virtual ~char_pokemon() {}
-    // Pokemon name
+    // Pokemon name 
+    // The max length pokemon name is 29 characters long
     char name[30];
     // Pokemon movesets and expereince thresholds
     move_db moves[10];
@@ -44,6 +45,10 @@ class char_pokemon {
     int is_shiny;
     int exp;
     int level;
+    // Identifiers
+    int poke_id;
+    int species_id;
+    int growth_rate_id;
     // Male is 0
     // Female is 1
     int gender;
