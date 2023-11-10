@@ -128,5 +128,8 @@ typedef struct path {
 
 int new_map(int teleport);
 void pathfind(map *m);
+// Pokemon Generation Functions
+char_pokemon generate_new_pokemon(char_pokemon p);
+void level_up_pokemon(char_pokemon *p);
 
 #endif

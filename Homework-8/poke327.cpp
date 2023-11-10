@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <climits>
@@ -730,6 +731,15 @@ void rand_pos(pair_t pos)
 {
   pos[dim_x] = (rand() % (MAP_X - 2)) + 1;
   pos[dim_y] = (rand() % (MAP_Y - 2)) + 1;
+}
+void level_up_pokemon(char_pokemon *p) {
+  p->hp = floor(((p->hp + p->hp_iv) * 2 * (p->level)) / 100) + (p->level) + 10;
+  p->attack = floor(((p->attack + p->attack_iv) * 2 * (p->level)) / 100) + 5;
+  p->defense = floor(((p->defense + p->defense_iv) * 2 * (p->level)) / 100) + 5;
+  p->special_attack = floor(((p->special_attack + p->special_attack_iv) * 2 * (p->level)) / 100) + 5;
+  p->special_defense = floor(((p->special_defense + p->special_defense_iv) * 2 * (p->level)) / 100) + 5;
+  p->speed = floor(((p->speed + p->speed_iv) * 2 * (p->level)) / 100) + 5;
+  p->level++;
 }
 // MAKE NEW POKEMON HERE
 char_pokemon generate_new_pokemon(char_pokemon p) {

@@ -72,6 +72,7 @@ class character {
  public:
   virtual ~character() {}
   char_pokemon current_pokemon[6];
+  int num_pokemon;
   pair_t pos;
   char symbol;
   int next_turn;

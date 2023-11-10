@@ -457,6 +457,13 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
       dest[dim_y] = world.pc.pos[dim_y];
     }
   }
+  // Random Encounter in grass logic
+  else if(world.cur_map->map[dest[dim_y]][dest[dim_x]] == ter_grass) {
+    // Do battle
+    if((rand() % 10) == 4) {
+
+    }
+  }
   
   if (move_cost[char_pc][world.cur_map->map[dest[dim_y]][dest[dim_x]]] ==
       DIJKSTRA_PATH_MAX) {
@@ -514,7 +521,7 @@ void io_handle_input(pair_t dest)
   uint32_t turn_not_consumed;
   int key;
   // Debug Pokemon Generation
-  mvprintw(0, 0, "Pokemon move: %s Pokemon level %d", world.pc.current_pokemon[0].moves[0].identifier, world.pc.current_pokemon[0].level);
+  mvprintw(0, 0, "Pokemon HP: %d Pokemon level %d", world.pc.current_pokemon[0].hp, world.pc.current_pokemon[0].level);
   do {
     switch (key = getch()) {
     case '7':
@@ -624,7 +631,9 @@ void io_handle_input(pair_t dest)
        * octal, thus allowing us to do reverse lookups.  If a key has a *
        * name defined in the header, you can use the name here, else    *
        * you can directly use the octal value.                          */
-      mvprintw(0, 0, "Unbound key: %#o ", key);
+
+      // mvprintw(0, 0, "Unbound key: %#o ", key);
+      level_up_pokemon(&world.pc.current_pokemon[0]);
       turn_not_consumed = 1;
     }
     refresh();
