@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <climits>
+#include <string.h>
 
 #include "io.h"
 #include "character.h"
@@ -461,7 +462,7 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
   else if(world.cur_map->map[dest[dim_y]][dest[dim_x]] == ter_grass) {
     // Do battle
     if((rand() % 10) == 4) {
-
+      
     }
   }
   
@@ -515,13 +516,94 @@ void io_teleport_world(pair_t dest)
   new_map(1);
   io_teleport_pc(dest);
 }
+// Select a starter on this screen
+void io_select_starter() {
+  // Our three options
+  char_pokemon starter_1 = generate_new_pokemon(starter_1);
+  starter_1.level = 1;
+  starter_1.exp = 0;
+  char_pokemon starter_2 = generate_new_pokemon(starter_2);
+  starter_2.level = 1;
+  starter_2.exp = 0;
+  char_pokemon starter_3 = generate_new_pokemon(starter_3);
+  starter_3.level = 1;
+  starter_3.exp = 0;
+  mvprintw(0, 4, "Choose your Starter!");
+  // Starter one terimal display
+  mvprintw(2, 4, "%s", starter_1.name);
+  mvprintw(3, 4, "Gender: %s", starter_1.gender ? "Female" : "Male");
+  mvprintw(4, 4, "Lv %d", starter_1.level);
+  mvprintw(6, 4, "HP: %d", starter_1.hp);
+  mvprintw(7, 4, "ATK: %d", starter_1.attack);
+  mvprintw(8, 4, "DEF: %d", starter_1.defense);
+  mvprintw(9, 4, "Sp. ATK %d", starter_1.special_attack);
+  mvprintw(10, 4, "Sp. DEF %d", starter_1.special_defense);
+  mvprintw(11, 4, "Speed: %d", starter_1.speed);
+  mvprintw(13, 4, "Moves");
+  mvprintw(14, 4, "%s", starter_1.moves[0].identifier);
+  mvprintw(15, 4, "%s", starter_1.moves[1].identifier);
+  mvprintw(16, 4, "%s", starter_1.is_shiny ? "Shiny" : "Not Shiny");
 
+  // Starter two terimal display
+  mvprintw(2, 29, "%s", starter_2.name);
+  mvprintw(3, 29, "Gender: %s", starter_2.gender ? "Female" : "Male");
+  mvprintw(4, 29, "Lv %d", starter_2.level);
+  mvprintw(6, 29, "HP: %d", starter_2.hp);
+  mvprintw(7, 29, "ATK: %d", starter_2.attack);
+  mvprintw(8, 29, "DEF: %d", starter_2.defense);
+  mvprintw(9, 29, "Sp. ATK %d", starter_2.special_attack);
+  mvprintw(10, 29, "Sp. DEF %d", starter_2.special_defense);
+  mvprintw(11, 29, "Speed: %d", starter_2.speed);
+  mvprintw(13, 29, "Moves");
+  mvprintw(14, 29, "%s", starter_2.moves[0].identifier);
+  mvprintw(15, 29, "%s", starter_2.moves[1].identifier);
+  mvprintw(16, 29, "%s", starter_2.is_shiny ? "Shiny" : "Not Shiny");
+
+  // Starter three terimal display
+  mvprintw(2, 54, "%s", starter_3.name);
+  mvprintw(3, 54, "Gender: %s", starter_3.gender ? "Female" : "Male");
+  mvprintw(4, 54, "Lv %d", starter_3.level);
+  mvprintw(6, 54, "HP: %d", starter_3.hp);
+  mvprintw(7, 54, "ATK: %d", starter_3.attack);
+  mvprintw(8, 54, "DEF: %d", starter_3.defense);
+  mvprintw(9, 54, "Sp. ATK %d", starter_3.special_attack);
+  mvprintw(10, 54, "Sp. DEF %d", starter_3.special_defense);
+  mvprintw(11, 54, "Speed: %d", starter_3.speed);
+  mvprintw(13, 54, "Moves");
+  mvprintw(14, 54, "%s", starter_3.moves[0].identifier);
+  mvprintw(15, 54, "%s", starter_3.moves[1].identifier);
+  mvprintw(16, 54, "%s", starter_3.is_shiny ? "Shiny" : "Not Shiny");
+  // Choose starter here
+  echo();
+  mvprintw(18, 4, "Press 1, 2, or 3 to select the first, second, and third starter respectively");
+  move(20, 4);
+
+  char input[10] = "";
+  while(!(strcmp(input, ""))) {
+    getstr(input);
+    if(!(strcmp(input, "1"))) {
+      world.pc.current_pokemon[0] = starter_1;
+    }
+    else if(!(strcmp(input, "2"))) {
+      world.pc.current_pokemon[0] = starter_2;
+    }
+    else if(!(strcmp(input, "3"))) {
+      world.pc.current_pokemon[0] = starter_3;
+    }
+    else {
+      // Continue in this block
+      strcpy(input, "");
+      move(20, 4);
+    }
+    refresh();
+  }
+}
 void io_handle_input(pair_t dest)
 {
   uint32_t turn_not_consumed;
   int key;
   // Debug Pokemon Generation
-  mvprintw(0, 0, "Pokemon HP: %d Pokemon level %d", world.pc.current_pokemon[0].hp, world.pc.current_pokemon[0].level);
+  mvprintw(0, 0, "Pokemon Name: %s Pokemon level %d", world.pc.current_pokemon[0].name, world.pc.current_pokemon[0].level);
   do {
     switch (key = getch()) {
     case '7':
@@ -632,8 +714,9 @@ void io_handle_input(pair_t dest)
        * name defined in the header, you can use the name here, else    *
        * you can directly use the octal value.                          */
 
-      // mvprintw(0, 0, "Unbound key: %#o ", key);
-      level_up_pokemon(&world.pc.current_pokemon[0]);
+      mvprintw(0, 0, "Unbound key: %#o ", key);
+      // Level Up debug
+      // level_up_pokemon(&world.pc.current_pokemon[0]);
       turn_not_consumed = 1;
     }
     refresh();

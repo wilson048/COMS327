@@ -4,4 +4,4 @@ Pokemon can be generated when encountering grass, or when fighting other trainer
 The PC for now will automatically spawn with at least one pokemon and a place holder 
 during battles with display all the pokemon stats.
 
-Note that the shiny number is 69.
+Note that the shiny number is 69 and that males are 0 and females are 1.

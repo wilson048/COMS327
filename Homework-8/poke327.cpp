@@ -732,19 +732,23 @@ void rand_pos(pair_t pos)
   pos[dim_x] = (rand() % (MAP_X - 2)) + 1;
   pos[dim_y] = (rand() % (MAP_Y - 2)) + 1;
 }
+// Level up a pokemon here
 void level_up_pokemon(char_pokemon *p) {
-  p->hp = floor(((p->hp + p->hp_iv) * 2 * (p->level)) / 100) + (p->level) + 10;
-  p->attack = floor(((p->attack + p->attack_iv) * 2 * (p->level)) / 100) + 5;
-  p->defense = floor(((p->defense + p->defense_iv) * 2 * (p->level)) / 100) + 5;
-  p->special_attack = floor(((p->special_attack + p->special_attack_iv) * 2 * (p->level)) / 100) + 5;
-  p->special_defense = floor(((p->special_defense + p->special_defense_iv) * 2 * (p->level)) / 100) + 5;
-  p->speed = floor(((p->speed + p->speed_iv) * 2 * (p->level)) / 100) + 5;
+  if(p->level == 100) {
+    return;
+  }
+  p->hp = floor(((p->base_hp + p->hp_iv) * 2 * (p->level)) / 100) + (p->level) + 10;
+  p->attack = floor(((p->base_attack + p->attack_iv) * 2 * (p->level)) / 100) + 5;
+  p->defense = floor(((p->base_defense + p->defense_iv) * 2 * (p->level)) / 100) + 5;
+  p->special_attack = floor(((p->base_special_attack + p->special_attack_iv) * 2 * (p->level)) / 100) + 5;
+  p->special_defense = floor(((p->base_special_defense + p->special_defense_iv) * 2 * (p->level)) / 100) + 5;
+  p->speed = floor(((p->base_speed + p->speed_iv) * 2 * (p->level)) / 100) + 5;
   p->level++;
 }
 // MAKE NEW POKEMON HERE
 char_pokemon generate_new_pokemon(char_pokemon p) {
   // Choose random pokemon to become
-  int rand_pokemon = (rand()) % 1093;
+  int rand_pokemon = (rand()) % 1092;
   p.poke_id = pokemon[rand_pokemon].id;
   p.species_id = pokemon[rand_pokemon].species_id;
   p.exp = pokemon[rand_pokemon].base_experience;
@@ -757,7 +761,7 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
   p.speed_iv = (rand()) % 16;
   // 69 is the shiny number
   p.is_shiny = ((rand()) % 8192) == 69 ? 1 : 0;
-  p.gender = (rand()) % 2;
+  p.gender = rand() % 2 == 0 ? 1 : 0;
   
   // Manhatten distance decides level
   int manhattan_distance = (int) ((abs(world.cur_idx[dim_x] - 200) + abs(world.cur_idx[dim_y] - 200)) / 2);
@@ -804,22 +808,28 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
       // switch for each pokemon stat
       switch(pokemon_stats[i].stat_id) {
         case 1:
-          p.hp = pokemon_stats[i].base_stat;
+          p.base_hp = pokemon_stats[i].base_stat;
+          p.hp = floor(((p.base_hp + p.hp_iv) * 2 * (p.level)) / 100) + (p.level) + 10;
           break;
         case 2:
-          p.attack = pokemon_stats[i].base_stat;
+          p.base_attack = pokemon_stats[i].base_stat;
+          p.attack = floor(((p.base_attack + p.attack_iv) * 2 * (p.level)) / 100) + 5;
           break;
         case 3:
-          p.defense = pokemon_stats[i].base_stat;
+          p.base_defense = pokemon_stats[i].base_stat;
+          p.defense = floor(((p.base_defense + p.defense_iv) * 2 * (p.level)) / 100) + 5;
           break;
         case 4:
-          p.special_attack = pokemon_stats[i].base_stat;
+          p.base_special_attack = pokemon_stats[i].base_stat;
+          p.special_attack = floor(((p.base_special_attack + p.special_attack_iv) * 2 * (p.level)) / 100) + 5;
           break;
         case 5:
-          p.special_defense = pokemon_stats[i].base_stat;
+          p.base_special_defense = pokemon_stats[i].base_stat;
+          p.special_defense = floor(((p.base_special_defense + p.special_defense_iv) * 2 * (p.level)) / 100) + 5;
           break;
         case 6:
-          p.speed = pokemon_stats[i].base_stat;
+          p.base_speed = pokemon_stats[i].base_stat;
+          p.speed = floor(((p.base_speed + p.speed_iv) * 2 * (p.level)) / 100) + 5;
           break;
       }
     }
@@ -1031,7 +1041,7 @@ void init_pc()
 
   world.cur_map->cmap[y][x] = &world.pc;
   world.pc.next_turn = 0;
-  world.pc.current_pokemon[0] = generate_new_pokemon(world.pc.current_pokemon[0]);
+  // world.pc.current_pokemon[0] = generate_new_pokemon(world.pc.current_pokemon[0]);
 
   world.pc.seq_num = world.char_seq_num++;
 
@@ -1330,9 +1340,12 @@ int main(int argc, char *argv[])
   srand(seed);
 
   io_init_terminal();
+
   
+
   init_world();
 
+  io_select_starter();
   /* print_hiker_dist(); */
   
   /*

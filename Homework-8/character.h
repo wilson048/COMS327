@@ -52,13 +52,20 @@ class char_pokemon {
     // Male is 0
     // Female is 1
     int gender;
-    // Pokemon Main Stats
+    // Pokemon Main Stats that change
     int hp;
     int attack;
     int defense;
     int special_attack;
     int special_defense;
     int speed;
+    // Pokemon base stats that don't change
+    int base_hp;
+    int base_attack;
+    int base_defense;
+    int base_special_attack;
+    int base_special_defense;
+    int base_speed;
     // Pokemon IVs
     int hp_iv;
     int attack_iv;
