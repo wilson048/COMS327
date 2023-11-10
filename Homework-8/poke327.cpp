@@ -899,6 +899,7 @@ void new_hiker()
   c->symbol = HIKER_SYMBOL;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
+  c->num_pokemon = 0;
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -926,6 +927,7 @@ void new_rival()
   c->symbol = RIVAL_SYMBOL;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
+  c->num_pokemon = 0;
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -949,6 +951,7 @@ void new_swimmer()
   c->symbol = SWIMMER_SYMBOL;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
+  c->num_pokemon = 0;
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -991,6 +994,7 @@ void new_char_other()
   c->defeated = 0;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
+  c->num_pokemon = 0;
   heap_insert(&world.cur_map->turn, c);
 }
 
@@ -1043,6 +1047,7 @@ void init_pc()
   world.pc.next_turn = 0;
   // world.pc.current_pokemon[0] = generate_new_pokemon(world.pc.current_pokemon[0]);
 
+  world.pc.num_pokemon = 0;
   world.pc.seq_num = world.char_seq_num++;
 
   heap_insert(&world.cur_map->turn, &world.pc);

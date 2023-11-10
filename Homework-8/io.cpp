@@ -397,6 +397,32 @@ void io_battle(character *aggressor, character *defender)
   }
 }
 
+void io_encounter_pokemon() {
+  clear();
+  char_pokemon rand_pokemon = generate_new_pokemon(rand_pokemon);
+  // Starter one terminal display
+  mvprintw(2, 4, "%s", rand_pokemon.name);
+  mvprintw(3, 4, "Gender: %s", rand_pokemon.gender ? "Female" : "Male");
+  mvprintw(4, 4, "Lv %d", rand_pokemon.level);
+  mvprintw(6, 4, "HP: %d", rand_pokemon.hp);
+  mvprintw(7, 4, "ATK: %d", rand_pokemon.attack);
+  mvprintw(8, 4, "DEF: %d", rand_pokemon.defense);
+  mvprintw(9, 4, "Sp. ATK %d", rand_pokemon.special_attack);
+  mvprintw(10, 4, "Sp. DEF %d", rand_pokemon.special_defense);
+  mvprintw(11, 4, "Speed: %d", rand_pokemon.speed);
+  mvprintw(13, 4, "Moves");
+  mvprintw(14, 4, "%s", rand_pokemon.moves[0].identifier);
+  mvprintw(15, 4, "%s", rand_pokemon.moves[1].identifier);
+  mvprintw(16, 4, "%s", rand_pokemon.is_shiny ? "Shiny" : "Not Shiny");
+  // Catch the pokemon
+  if(world.pc.num_pokemon != 6) {
+    mvprintw(18, 4, "Caught %s!", rand_pokemon.name);
+    world.pc.current_pokemon[world.pc.num_pokemon++];
+  }
+  refresh();
+  getch();  
+}
+
 uint32_t move_pc_dir(uint32_t input, pair_t dest)
 {
   dest[dim_y] = world.pc.pos[dim_y];
@@ -462,7 +488,7 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
   else if(world.cur_map->map[dest[dim_y]][dest[dim_x]] == ter_grass) {
     // Do battle
     if((rand() % 10) == 4) {
-      
+      io_encounter_pokemon();
     }
   }
   
@@ -529,7 +555,7 @@ void io_select_starter() {
   starter_3.level = 1;
   starter_3.exp = 0;
   mvprintw(0, 4, "Choose your Starter!");
-  // Starter one terimal display
+  // Starter one terminal display
   mvprintw(2, 4, "%s", starter_1.name);
   mvprintw(3, 4, "Gender: %s", starter_1.gender ? "Female" : "Male");
   mvprintw(4, 4, "Lv %d", starter_1.level);
@@ -544,7 +570,7 @@ void io_select_starter() {
   mvprintw(15, 4, "%s", starter_1.moves[1].identifier);
   mvprintw(16, 4, "%s", starter_1.is_shiny ? "Shiny" : "Not Shiny");
 
-  // Starter two terimal display
+  // Starter two terminal display
   mvprintw(2, 29, "%s", starter_2.name);
   mvprintw(3, 29, "Gender: %s", starter_2.gender ? "Female" : "Male");
   mvprintw(4, 29, "Lv %d", starter_2.level);
@@ -559,7 +585,7 @@ void io_select_starter() {
   mvprintw(15, 29, "%s", starter_2.moves[1].identifier);
   mvprintw(16, 29, "%s", starter_2.is_shiny ? "Shiny" : "Not Shiny");
 
-  // Starter three terimal display
+  // Starter three terminal display
   mvprintw(2, 54, "%s", starter_3.name);
   mvprintw(3, 54, "Gender: %s", starter_3.gender ? "Female" : "Male");
   mvprintw(4, 54, "Lv %d", starter_3.level);
@@ -576,6 +602,7 @@ void io_select_starter() {
   // Choose starter here
   echo();
   mvprintw(18, 4, "Press 1, 2, or 3 to select the first, second, and third starter respectively");
+  // Show text here
   move(20, 4);
 
   char input[10] = "";
@@ -597,13 +624,16 @@ void io_select_starter() {
     }
     refresh();
   }
+  world.pc.num_pokemon++;
+  noecho();
 }
+
 void io_handle_input(pair_t dest)
 {
   uint32_t turn_not_consumed;
   int key;
   // Debug Pokemon Generation
-  mvprintw(0, 0, "Pokemon Name: %s Pokemon level %d", world.pc.current_pokemon[0].name, world.pc.current_pokemon[0].level);
+  mvprintw(0, 0, "Pokemon Name: %s Num Pokemon %d", world.pc.current_pokemon[0].name, world.pc.num_pokemon);
   do {
     switch (key = getch()) {
     case '7':
