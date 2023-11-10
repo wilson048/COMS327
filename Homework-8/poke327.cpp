@@ -9,6 +9,7 @@
 #include <cassert>
 #include <unistd.h>
 
+
 #include "heap.h"
 #include "poke327.h"
 #include "character.h"
@@ -760,13 +761,99 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
     }
   }
   else {
+    // Cap level to 100
     p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
   } 
   int i;
-  for(i = 0; i < sizeof(experience) / sizeof(experience[0]); i++) {
-    
+  // Assign growth rate ID and name
+  for(i = 0; i < 899; i++) {
+    if(p.species_id == species[i].id) {
+      strcpy(p.name, pokemon[i].identifier);
+      p.growth_rate_id = species[i].growth_rate_id;
+    }
+  }
+  int j = 0;
+  for(i = 0; i < 601; i++) {
+    if(experience[i].growth_rate_id == p.growth_rate_id) {
+      // Yo this works
+      p.exp_level_thresholds[j] = experience[i];
+      j++;
+    }
   } 
 
+  // All pokemon start with a base amount of experience, so scale pokemon to their base experience level so they have a move they can learn
+  j = 0;
+  while(p.exp > p.exp_level_thresholds[j].experience)  {
+    j++;
+  }
+  p.level = p.exp_level_thresholds[j - 1].level;
+
+  // Set pokemon stats
+  for(i = 0; i < 6553; i++) {
+    if(p.poke_id == pokemon_stats[i].pokemon_id) {
+      // switch for each pokemon stat
+      switch(pokemon_stats[i].stat_id) {
+        case 1:
+          p.hp = pokemon_stats[i].base_stat;
+          break;
+        case 2:
+          p.attack = pokemon_stats[i].base_stat;
+          break;
+        case 3:
+          p.defense = pokemon_stats[i].base_stat;
+          break;
+        case 4:
+          p.special_attack = pokemon_stats[i].base_stat;
+          break;
+        case 5:
+          p.special_defense = pokemon_stats[i].base_stat;
+          break;
+        case 6:
+          p.speed = pokemon_stats[i].base_stat;
+          break;
+      }
+    }
+  }
+  // A single pokemon may have up to 100 moves they can learn
+  int possible_moves[100];
+  j = 0;
+
+  for(i = 0; i < 528239; i++) {
+    if(pokemon_moves[i].pokemon_id == p.species_id &&
+    pokemon_moves[i].pokemon_move_method_id == 1) {
+      possible_moves[j] = pokemon_moves[i].move_id;
+      if(j < 100) {
+        j++;
+      }
+      else {
+        break;
+      }
+    }
+  }
+  // Do move selection here
+  int move_1, move_2;
+  // Only one move available
+  if(j == 1) {
+    move_1 = possible_moves[0];
+    move_2 = move_1;
+  }
+  // Choose two random distinct moves
+  else {
+    do {
+      move_1 = possible_moves[rand() % (j - 1)];
+      move_2 = possible_moves[rand() % (j - 1)];
+    } while (move_1 == move_2);
+  }
+  
+  j = 0;
+  for(i = 0; i < 845; i++) {
+    // Set moves for pokemon
+    if(moves[i].id == move_1 || moves[i].id == move_2) {
+      p.moves[j] = moves[i];
+      j++;
+    }
+  }
+  
   return p;
 }
 void new_hiker()
