@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <cassert>
 #include <unistd.h>
+#include <fstream>
 
 
 #include "heap.h"
@@ -835,34 +836,74 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
       }
     }
   }
-  // A single pokemon may have up to 100 moves they can learn
-  int possible_moves[100];
+  // A single pokemon may have up to 250 moves they can learn
+  int possible_moves[250];
   j = 0;
-
+  int first_unique_move = -1;
+  int second_unique_move = -1;
   for(i = 0; i < 528239; i++) {
     if(pokemon_moves[i].pokemon_id == p.species_id &&
-    pokemon_moves[i].pokemon_move_method_id == 1) {
-      if(j >= 100) {
+    pokemon_moves[i].pokemon_move_method_id == 1
+    && p.level >= pokemon_moves[i].level) {
+      if(first_unique_move == -1) {
+        first_unique_move = pokemon_moves[i].move_id;
+      }
+      else {
+        if(pokemon_moves[i].move_id != first_unique_move) {
+          second_unique_move = pokemon_moves[i].move_id;
+        }
+      }
+      if(j >= 250) {
         break;
       }
       possible_moves[j] = pokemon_moves[i].move_id;
+      // std::ofstream myfile;
+      // myfile.open("print.txt", std::ios_base::app);
+      // myfile << "Move ID: " << pokemon_moves[i].move_id << " Index of move: " << i << "\n";
+      // myfile.close();
       j++;
     }
   }
-  // Do move selection here
+  // Debug File Printing
+  // std::ofstream myfile;
+  // myfile.open("print.txt", std::ios_base::app);
+  // myfile << "Amount of moves: " << j << "\n";
+  // myfile.close();'
+
+  // TODO: Fix 0 move error causing division by 0
   int move_1, move_2;
-  // Only one move available
-  if(j <= 2) {
+  // Only one unique move found
+  if(second_unique_move == -1) {
+    move_1 = move_2 = possible_moves[rand() % (j)];
+  }
+  // Only two total moves found
+  else if(j == 2) {
     move_1 = possible_moves[0];
-    move_2 = move_1;
-  }
-  // Choose two random distinct moves
+    move_2 = possible_moves[1];
+  } 
+  // At least two found
   else {
-    do {
-      move_1 = possible_moves[rand() % (j - 1)];
-      move_2 = possible_moves[rand() % (j - 1)];
-    } while (move_1 == move_2);
+    move_1 = possible_moves[rand() % (j)];
+    move_2 = move_1;
+    while(move_1 == move_2) {
+      move_2 = possible_moves[rand() % (j)];
+    }
   }
+  // Do move selection here
+  
+  
+  // Only one move available
+  // if(j <= 2) {
+  //   move_1 = possible_moves[0];
+  //   move_2 = move_1;
+  // }
+  // Choose two random distinct moves
+  // else {
+  //   do {
+  //     move_1 = possible_moves[];
+  //     move_2 = possible_moves[rand() % (j - 1)];
+  //   } while (move_1 == move_2);
+  // }
   
   j = 0;
   for(i = 0; i < 845; i++) {

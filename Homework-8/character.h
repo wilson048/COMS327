@@ -40,6 +40,7 @@ class char_pokemon {
     char name[30];
     // Pokemon movesets and expereince thresholds
     move_db moves[10];
+    
     experience_db exp_level_thresholds[101];
     // Pokemon face value stats
     int is_shiny;

@@ -599,6 +599,7 @@ void io_select_starter() {
   mvprintw(11, 29, "Speed: %d", starter_2.speed);
   mvprintw(13, 29, "Moves");
   mvprintw(14, 29, "%s", starter_2.moves[0].identifier);
+  // TODO check if pokemon has only one move
   mvprintw(15, 29, "%s", starter_2.moves[1].identifier);
   mvprintw(16, 29, "%s", starter_2.is_shiny ? "Shiny" : "Not Shiny");
 
