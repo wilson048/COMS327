@@ -1,0 +1,215 @@
+==4173== Memcheck, a memory error detector
+==4173== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==4173== Using Valgrind-3.16.1 and LibVEX; rerun with -h for copyright info
+==4173== Command: ./poke327
+==4173== Parent PID: 2959
+==4173== 
+==4173== Invalid read of size 8
+==4173==    at 0x1197E4: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115) 
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x4f2b410 is 0 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x11064C: place_characters() (poke327.cpp:1090)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x111186: init_world() (poke327.cpp:1269)
+==4173==    by 0x111A86: main (poke327.cpp:1433)
+==4173== 
+==4173== Invalid write of size 8
+==4173==    at 0x111B84: character::~character() (character.h:81)
+==4173==    by 0x111BE7: character::~character() (character.h:81)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x4f2b410 is 0 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x11064C: place_characters() (poke327.cpp:1090)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x111186: init_world() (poke327.cpp:1269)
+==4173==    by 0x111A86: main (poke327.cpp:1433)
+==4173== 
+==4173== Invalid read of size 8
+==4173==    at 0x111BB7: character::~character() (character.h:81)
+==4173==    by 0x111BE7: character::~character() (character.h:81)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x4f2e3c0 is 12,208 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x11064C: place_characters() (poke327.cpp:1090)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x111186: init_world() (poke327.cpp:1269)
+==4173==    by 0x111A86: main (poke327.cpp:1433)
+==4173== 
+==4173== Invalid write of size 8
+==4173==    at 0x111B31: char_pokemon::~char_pokemon() (character.h:37)
+==4173==    by 0x111BC1: character::~character() (character.h:81)
+==4173==    by 0x111BE7: character::~character() (character.h:81)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x4f2e3c0 is 12,208 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x11064C: place_characters() (poke327.cpp:1090)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x111186: init_world() (poke327.cpp:1269)
+==4173==    by 0x111A86: main (poke327.cpp:1433)
+==4173== 
+==4173== Invalid free() / delete / delete[] / realloc()
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x111BF8: character::~character() (character.h:81)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x4f2b410 is 0 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x11064C: place_characters() (poke327.cpp:1090)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x111186: init_world() (poke327.cpp:1269)
+==4173==    by 0x111A86: main (poke327.cpp:1433)
+==4173== 
+==4173== Invalid read of size 8
+==4173==    at 0x1197E4: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x4f328a0 is 0 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x1106A3: place_characters() (poke327.cpp:1101)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x111186: init_world() (poke327.cpp:1269)
+==4173==    by 0x111A86: main (poke327.cpp:1433)
+==4173== 
+==4173== Invalid read of size 8
+==4173==    at 0x1197E4: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Address 0x648d180 is 0 bytes inside a block of size 14,680 free'd
+==4173==    at 0x483E1CF: operator delete(void*, unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x11234A: npc::~npc() (character.h:90)
+==4173==    by 0x1197F2: delete_character(void*) (character.cpp:412)
+==4173==    by 0x1125B4: heap_node_delete (heap.c:115)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112587: heap_node_delete (heap.c:111)
+==4173==    by 0x112605: heap_delete (heap.c:125)
+==4173==    by 0x111224: delete_world() (poke327.cpp:1279)
+==4173==    by 0x111A95: main (poke327.cpp:1501)
+==4173==  Block was alloc'd at
+==4173==    at 0x483CE63: operator new(unsigned long) (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4173==    by 0x10FE81: new_swimmer() (poke327.cpp:1001)
+==4173==    by 0x1106A3: place_characters() (poke327.cpp:1101)
+==4173==    by 0x111142: new_map(int) (poke327.cpp:1258)
+==4173==    by 0x11156B: leave_map(short*) (poke327.cpp:1331)
+==4173==    by 0x1116CE: game_loop() (poke327.cpp:1351)
+==4173==    by 0x111A90: main (poke327.cpp:1499)
+==4173== 
+==4173== 
+==4173== HEAP SUMMARY:
+==4173==     in use at exit: 59,812 bytes in 374 blocks
+==4173==   total heap usage: 401,165 allocs, 400,798 frees, 19,353,227 bytes allocated
+==4173== 
+==4173== LEAK SUMMARY:
+==4173==    definitely lost: 0 bytes in 0 blocks
+==4173==    indirectly lost: 0 bytes in 0 blocks
+==4173==      possibly lost: 0 bytes in 0 blocks
+==4173==    still reachable: 59,812 bytes in 374 blocks
+==4173==         suppressed: 0 bytes in 0 blocks
+==4173== Rerun with --leak-check=full to see details of leaked memory
+==4173== 
+==4173== For lists of detected and suppressed errors, rerun with: -s
+==4173== ERROR SUMMARY: 105 errors from 7 contexts (suppressed: 0 from 0)

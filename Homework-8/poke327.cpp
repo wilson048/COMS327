@@ -797,12 +797,83 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
     // Cap level to 100
     p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
   } 
+  p.exp = p.exp_level_thresholds[p.level].experience;
 
+  // Generate Possible moves here
+  int possible_moves[250];
   j = 0;
-  while(p.exp > p.exp_level_thresholds[j].experience)  {
-    j++;
+  int first_unique_move = -1;
+  int second_unique_move = -1;
+  // A single pokemon may have up to 250 moves they can learn
+  do {
+    for(i = 0; i < 528239; i++) {
+      if(pokemon_moves[i].pokemon_id == p.species_id &&
+      pokemon_moves[i].pokemon_move_method_id == 1
+      && p.level >= pokemon_moves[i].level) {
+        if(first_unique_move == -1) {
+          first_unique_move = pokemon_moves[i].move_id;
+        }
+        else {
+          if(pokemon_moves[i].move_id != first_unique_move) {
+            second_unique_move = pokemon_moves[i].move_id;
+          }
+        }
+        if(j >= 250) {
+          break;
+        }
+        possible_moves[j] = pokemon_moves[i].move_id;
+        j++;
+      }
+    }
+    // Scale pokemon level to find move
+    if(j == 0) {
+      p.level++;
+    }
+  } while(j == 0);
+
+  // TODO: Fix 0 move error causing division by 0
+  int move_1, move_2;
+  // Only one move found
+  if(j == 1) {
+    move_1 = possible_moves[0];
+    p.num_moves = 1;
   }
-  p.level = p.exp_level_thresholds[j - 1].level;
+  // Only one unique move found
+  else if(second_unique_move == -1) {
+    move_1 = move_2 = possible_moves[rand() % (j)];
+    p.num_moves = 1;
+  }
+  // Only two total moves found
+  else if(j == 2) {
+    move_1 = possible_moves[0];
+    move_2 = possible_moves[1];
+    p.num_moves = 2;
+  } 
+  // At least two found
+  else {
+    move_1 = possible_moves[rand() % (j)];
+    move_2 = move_1;
+    while(move_1 == move_2) {
+      move_2 = possible_moves[rand() % (j)];
+    }
+    p.num_moves = 2;
+  }
+  // Do move selection here
+  
+  j = 0;
+  for(i = 0; i < 845; i++) {
+    // Set moves for pokemon
+    if(moves[i].id == move_1 || moves[i].id == move_2) {
+      p.moves[j] = moves[i];
+      j++;
+    }
+  }
+  // j = 0;
+  // while(p.exp > p.exp_level_thresholds[j].experience)  {
+  //   j++;
+  // }
+  // p.level = p.exp_level_thresholds[j - 1].level;
+  // p.exp = p.exp_level_thresholds[j - 1].experience;
 
   // Set pokemon stats
   for(i = 0; i < 6553; i++) {
@@ -836,83 +907,6 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
       }
     }
   }
-  // A single pokemon may have up to 250 moves they can learn
-  int possible_moves[250];
-  j = 0;
-  int first_unique_move = -1;
-  int second_unique_move = -1;
-  for(i = 0; i < 528239; i++) {
-    if(pokemon_moves[i].pokemon_id == p.species_id &&
-    pokemon_moves[i].pokemon_move_method_id == 1
-    && p.level >= pokemon_moves[i].level) {
-      if(first_unique_move == -1) {
-        first_unique_move = pokemon_moves[i].move_id;
-      }
-      else {
-        if(pokemon_moves[i].move_id != first_unique_move) {
-          second_unique_move = pokemon_moves[i].move_id;
-        }
-      }
-      if(j >= 250) {
-        break;
-      }
-      possible_moves[j] = pokemon_moves[i].move_id;
-      // std::ofstream myfile;
-      // myfile.open("print.txt", std::ios_base::app);
-      // myfile << "Move ID: " << pokemon_moves[i].move_id << " Index of move: " << i << "\n";
-      // myfile.close();
-      j++;
-    }
-  }
-  // Debug File Printing
-  // std::ofstream myfile;
-  // myfile.open("print.txt", std::ios_base::app);
-  // myfile << "Amount of moves: " << j << "\n";
-  // myfile.close();'
-
-  // TODO: Fix 0 move error causing division by 0
-  int move_1, move_2;
-  // Only one unique move found
-  if(second_unique_move == -1) {
-    move_1 = move_2 = possible_moves[rand() % (j)];
-  }
-  // Only two total moves found
-  else if(j == 2) {
-    move_1 = possible_moves[0];
-    move_2 = possible_moves[1];
-  } 
-  // At least two found
-  else {
-    move_1 = possible_moves[rand() % (j)];
-    move_2 = move_1;
-    while(move_1 == move_2) {
-      move_2 = possible_moves[rand() % (j)];
-    }
-  }
-  // Do move selection here
-  
-  
-  // Only one move available
-  // if(j <= 2) {
-  //   move_1 = possible_moves[0];
-  //   move_2 = move_1;
-  // }
-  // Choose two random distinct moves
-  // else {
-  //   do {
-  //     move_1 = possible_moves[];
-  //     move_2 = possible_moves[rand() % (j - 1)];
-  //   } while (move_1 == move_2);
-  // }
-  
-  j = 0;
-  for(i = 0; i < 845; i++) {
-    // Set moves for pokemon
-    if(moves[i].id == move_1 || moves[i].id == move_2) {
-      p.moves[j] = moves[i];
-      j++;
-    }
-  }
   
   return p;
 }
@@ -944,6 +938,10 @@ void new_hiker()
   int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
+  // std::ofstream myfile;
+  // myfile.open("debug.txt", std::ios_base::app);
+  // myfile << "Hiker Num Pokemon: " << num_pokemons << "\n";
+  // myfile.close();
   for(i = 0; i < num_pokemons && i < 6; i++) {
     c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
     c->num_pokemon++;
@@ -980,6 +978,10 @@ void new_rival()
   int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
+  // std::ofstream myfile;
+  // myfile.open("debug.txt", std::ios_base::app);
+  // myfile << "Rival Num Pokemon: " << num_pokemons << "\n";
+  // myfile.close();
   for(i = 0; i < num_pokemons && i < 6; i++) {
     c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
     c->num_pokemon++;
@@ -1012,6 +1014,10 @@ void new_swimmer()
   int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
+  // std::ofstream myfile;
+  // myfile.open("debug.txt", std::ios_base::app);
+  // myfile << "Swimmer num Pokemon: " << num_pokemons << "\n";
+  // myfile.close();
   for(i = 0; i < num_pokemons && i < 6; i++) {
     c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
     c->num_pokemon++;
@@ -1064,6 +1070,10 @@ void new_char_other()
   int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
+  // std::ofstream myfile;
+  // myfile.open("debug.txt", std::ios_base::app);
+  // myfile << "Other Num Pokemon: " << num_pokemons << "\n";
+  // myfile.close();
   for(i = 0; i < num_pokemons && i < 6; i++) {
     c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
     c->num_pokemon++;
@@ -1120,7 +1130,7 @@ void init_pc()
   world.pc.next_turn = 0;
   // world.pc.current_pokemon[0] = generate_new_pokemon(world.pc.current_pokemon[0]);
 
-  world.pc.num_pokemon = 0;
+  world.pc.num_pokemon = 1;
   world.pc.seq_num = world.char_seq_num++;
 
   heap_insert(&world.cur_map->turn, &world.pc);

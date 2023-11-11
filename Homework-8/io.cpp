@@ -407,8 +407,8 @@ void io_battle(character *aggressor, character *defender)
   }
   refresh();
   getch();
-
-  n->defeated = 1;
+  // Disable NPCs being defeated for debug
+  // n->defeated = 1;
   if (n->ctype == char_hiker || n->ctype == char_rival) {
     n->mtype = move_wander;
   }
@@ -429,7 +429,9 @@ void io_encounter_pokemon() {
   mvprintw(11, 4, "Speed: %d", rand_pokemon.speed);
   mvprintw(13, 4, "Moves");
   mvprintw(14, 4, "%s", rand_pokemon.moves[0].identifier);
-  mvprintw(15, 4, "%s", rand_pokemon.moves[1].identifier);
+  if(rand_pokemon.num_moves == 2) {
+    mvprintw(15, 4, "%s", rand_pokemon.moves[1].identifier);
+  }
   mvprintw(16, 4, "%s", rand_pokemon.is_shiny ? "Shiny" : "Not Shiny");
   // Catch the pokemon
   if(world.pc.num_pokemon != 6) {
@@ -584,7 +586,9 @@ void io_select_starter() {
   mvprintw(11, 4, "Speed: %d", starter_1.speed);
   mvprintw(13, 4, "Moves");
   mvprintw(14, 4, "%s", starter_1.moves[0].identifier);
-  mvprintw(15, 4, "%s", starter_1.moves[1].identifier);
+  if(starter_1.num_moves == 2) {
+    mvprintw(15, 4, "%s", starter_1.moves[1].identifier);
+  }
   mvprintw(16, 4, "%s", starter_1.is_shiny ? "Shiny" : "Not Shiny");
 
   // Starter two terminal display
@@ -600,7 +604,9 @@ void io_select_starter() {
   mvprintw(13, 29, "Moves");
   mvprintw(14, 29, "%s", starter_2.moves[0].identifier);
   // TODO check if pokemon has only one move
-  mvprintw(15, 29, "%s", starter_2.moves[1].identifier);
+  if(starter_2.num_moves == 2) {
+    mvprintw(15, 29, "%s", starter_2.moves[1].identifier);
+  }
   mvprintw(16, 29, "%s", starter_2.is_shiny ? "Shiny" : "Not Shiny");
 
   // Starter three terminal display
@@ -615,7 +621,9 @@ void io_select_starter() {
   mvprintw(11, 54, "Speed: %d", starter_3.speed);
   mvprintw(13, 54, "Moves");
   mvprintw(14, 54, "%s", starter_3.moves[0].identifier);
-  mvprintw(15, 54, "%s", starter_3.moves[1].identifier);
+  if(starter_3.num_moves == 2) {
+    mvprintw(15, 54, "%s", starter_3.moves[1].identifier);
+  }
   mvprintw(16, 54, "%s", starter_3.is_shiny ? "Shiny" : "Not Shiny");
   // Choose starter here
   echo();
@@ -642,7 +650,7 @@ void io_select_starter() {
     }
     refresh();
   }
-  world.pc.num_pokemon++;
+  // world.pc.num_pokemon++;
   noecho();
 }
 
