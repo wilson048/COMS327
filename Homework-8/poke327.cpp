@@ -763,23 +763,8 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
   p.is_shiny = ((rand()) % 8192) == 69 ? 1 : 0;
   p.gender = rand() % 2 == 0 ? 1 : 0;
   
-  // Manhatten distance decides level
-  int manhattan_distance = ((abs(world.cur_idx[dim_x] - 200) + abs(world.cur_idx[dim_y] - 200)));
-  if(manhattan_distance < 200) {
-    // Prevent Division by zero
-    if(manhattan_distance == 0 || manhattan_distance == 1) {
-      p.level = 1;
-    }
-    else {
-      p.level = (rand()) % ((manhattan_distance / 2) - 1 + 1) + 1;
-    }
-  }
-  else {
-    // Cap level to 100
-    p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
-  } 
   int i;
-  // Assign growth rate ID and name
+  // Assign growth rate Ij++;D and name
   for(i = 0; i < 899; i++) {
     if(p.species_id == species[i].id) {
       strcpy(p.name, pokemon[i].identifier);
@@ -796,6 +781,22 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
   } 
 
   // All pokemon start with a base amount of experience, so scale pokemon to their base experience level so they have a move they can learn
+  // Manhatten distance decides level
+  int manhattan_distance = ((abs(world.cur_idx[dim_x] - 200) + abs(world.cur_idx[dim_y] - 200)));
+  if(manhattan_distance < 200) {
+    // Prevent Division by zero
+    if(manhattan_distance == 0 || manhattan_distance == 1) {
+      p.level = 1;
+    }
+    else {
+      p.level = (rand()) % ((manhattan_distance / 2) - 1 + 1) + 1;
+    }
+  }
+  else {
+    // Cap level to 100
+    p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
+  } 
+
   j = 0;
   while(p.exp > p.exp_level_thresholds[j].experience)  {
     j++;
@@ -841,19 +842,17 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
   for(i = 0; i < 528239; i++) {
     if(pokemon_moves[i].pokemon_id == p.species_id &&
     pokemon_moves[i].pokemon_move_method_id == 1) {
-      possible_moves[j] = pokemon_moves[i].move_id;
-      if(j < 100) {
-        j++;
-      }
-      else {
+      if(j >= 100) {
         break;
       }
+      possible_moves[j] = pokemon_moves[i].move_id;
+      j++;
     }
   }
   // Do move selection here
   int move_1, move_2;
   // Only one move available
-  if(j == 1) {
+  if(j <= 2) {
     move_1 = possible_moves[0];
     move_2 = move_1;
   }
