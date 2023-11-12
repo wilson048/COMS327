@@ -408,12 +408,35 @@ void io_battle(character *aggressor, character *defender)
   refresh();
   getch();
   // Disable NPCs being defeated for debug
-  // n->defeated = 1;
+  n->defeated = 1;
   if (n->ctype == char_hiker || n->ctype == char_rival) {
     n->mtype = move_wander;
   }
 }
 
+void io_view_pokemon() {
+  int i, j;
+  clear();
+  for(i = 0, j = 0; j < world.pc.num_pokemon; i+= 25, j++) {
+    mvprintw(2, i, "%s", world.pc.current_pokemon[j].name);
+    mvprintw(3, i, "Gender: %s", world.pc.current_pokemon[j].gender ? "Female" : "Male");
+    mvprintw(4, i, "Lv %d", world.pc.current_pokemon[j].level);
+    mvprintw(6, i, "HP: %d", world.pc.current_pokemon[j].hp);
+    mvprintw(7, i, "ATK: %d", world.pc.current_pokemon[j].attack);
+    mvprintw(8, i, "DEF: %d", world.pc.current_pokemon[j].defense);
+    mvprintw(9, i, "Sp. ATK %d", world.pc.current_pokemon[j].special_attack);
+    mvprintw(10, i, "Sp. DEF %d", world.pc.current_pokemon[j].special_defense);
+    mvprintw(11, i, "Speed: %d", world.pc.current_pokemon[j].speed);
+    mvprintw(13, i, "Moves");
+    mvprintw(14, i, "%s", world.pc.current_pokemon[j].moves[0].identifier);
+    if(world.pc.current_pokemon[j].num_moves == 2) {
+      mvprintw(15, i, "%s", world.pc.current_pokemon[j].moves[1].identifier);
+    }
+    mvprintw(16, i, "%s",  world.pc.current_pokemon[j].is_shiny ? "Shiny" : "Not Shiny");
+  }
+  refresh();
+  getch();
+}
 void io_encounter_pokemon() {
   clear();
   char_pokemon rand_pokemon = generate_new_pokemon(rand_pokemon);
@@ -659,7 +682,7 @@ void io_handle_input(pair_t dest)
   uint32_t turn_not_consumed;
   int key;
   // Debug Pokemon Generation
-  mvprintw(0, 0, "Pokemon Name: %s Num Pokemon %d", world.pc.current_pokemon[0].name, world.pc.num_pokemon);
+  // mvprintw(0, 0, "Pokemon Name: %s Num Pokemon %d", world.pc.current_pokemon[0].name, world.pc.num_pokemon);
   do {
     switch (key = getch()) {
     case '7':
@@ -725,15 +748,30 @@ void io_handle_input(pair_t dest)
       turn_not_consumed = 1;
       break;
     case 'p':
-      /* Teleport the PC to a random place in the map.              */
-      io_teleport_pc(dest);
+      // /* Teleport the PC to a random place in the map.              */
+      // io_teleport_pc(dest);
       turn_not_consumed = 0;
       break;
     case 'f':
       /* Fly to any map in the world.                                */
       io_teleport_world(dest);
       turn_not_consumed = 0;
-      break;    
+      break;
+    case 'm':
+      // Level all pokemon for testing
+      int i;
+      for(i = 0; i < world.pc.num_pokemon; i++) {
+        level_up_pokemon(&world.pc.current_pokemon[i]);
+      } 
+      mvprintw(0, 0, "Leveled All Pokemon!");
+      getch();
+      turn_not_consumed = 1;
+      break;
+    case 'r':
+      // Level all pokemon for testing
+      io_view_pokemon();
+      turn_not_consumed = 1;
+      break;
     case 'q':
       /* Demonstrate use of the message queue.  You can use this for *
        * printf()-style debugging (though gdb is probably a better   *

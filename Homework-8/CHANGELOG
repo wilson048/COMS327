@@ -1,0 +1,11 @@
+3251bbd (HEAD -> main, origin/main, origin/HEAD) Added Manhatten Distance for Pokemon Generation
+f1fd0d6 Fix pokemon move generation bug
+333eda9 Fix infinite loop on pokemon generation
+0900111 Find new bugs with program
+a591c4b Added Random Encounters
+1369b53 Got Player Selection Working + README Update
+5bf51d8 Add Level Up function
+f5249ee Can generate pokemon for characters now
+287b81f Start Random Pokemon Generation + README
+30607a7 Add pokemon objects to characters
+f4cd27f Init Homework 8
