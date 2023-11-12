@@ -433,6 +433,7 @@ void io_view_pokemon() {
       mvprintw(15, i, "%s", world.pc.current_pokemon[j].moves[1].identifier);
     }
     mvprintw(16, i, "%s",  world.pc.current_pokemon[j].is_shiny ? "Shiny" : "Not Shiny");
+    mvprintw(17, i, "Expereince: %d",  world.pc.current_pokemon[j].exp);
   }
   refresh();
   getch();

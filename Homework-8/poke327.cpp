@@ -745,6 +745,7 @@ void level_up_pokemon(char_pokemon *p) {
   p->special_defense = floor(((p->base_special_defense + p->special_defense_iv) * 2 * (p->level)) / 100) + 5;
   p->speed = floor(((p->base_speed + p->speed_iv) * 2 * (p->level)) / 100) + 5;
   p->level++;
+  p->exp = p->exp_level_thresholds[p->level].experience;
 }
 // MAKE NEW POKEMON HERE
 char_pokemon generate_new_pokemon(char_pokemon p) {
@@ -797,7 +798,7 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
     // Cap level to 100
     p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
   } 
-  p.exp = p.exp_level_thresholds[p.level].experience;
+  p.exp = p.exp_level_thresholds[p.level - 1].experience;
 
   // Generate Possible moves here
   int possible_moves[250];

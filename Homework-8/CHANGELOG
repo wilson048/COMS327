@@ -1,4 +1,5 @@
-3251bbd (HEAD -> main, origin/main, origin/HEAD) Added Manhatten Distance for Pokemon Generation
+3c0adeb (HEAD -> main, origin/main, origin/HEAD) Add Displays and Leveling Up for PC
+3251bbd Added Manhatten Distance for Pokemon Generation
 f1fd0d6 Fix pokemon move generation bug
 333eda9 Fix infinite loop on pokemon generation
 0900111 Find new bugs with program
