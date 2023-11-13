@@ -975,7 +975,7 @@ void new_rival()
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
   // Generate Pokemon for NPCs
-  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int generate_extra_pokemon = rand() % 10 >= 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
   // std::ofstream myfile;
@@ -1011,7 +1011,7 @@ void new_swimmer()
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
   // Generate Pokemon for NPCs
-  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int generate_extra_pokemon = rand() % 10 >= 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
   // std::ofstream myfile;
@@ -1066,7 +1066,7 @@ void new_char_other()
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
   // Generate Pokemon for NPCs
-  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int generate_extra_pokemon = rand() % 10 >= 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
   // std::ofstream myfile;

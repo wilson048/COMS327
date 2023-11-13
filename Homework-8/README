@@ -9,4 +9,4 @@ Note that the shiny number is 69 and that males are 0 and females are 1.
 Press m to level up all pokemon in the pc's party and press r to display all pokemon in the player's party.
 Note that the terminal cannot fit all 6 pokemon at once if the pc has that many pokemon, so extend the terminal to see all of them.
 
-I can't get it to not crash upon exit as adding pokemon to all characters seems to mess up a lot of things. 
+Running into a random encounter while having less than 6 pokemon in the party will allow you to catch the pokemon.

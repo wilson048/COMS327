@@ -1,4 +1,6 @@
-9e5e70c (HEAD -> main, origin/main, origin/HEAD) Fix Infinite Loop bug generating pokemon
+79fd522 (HEAD -> main, origin/main, origin/HEAD) Fix game crashing on exit - Finished Homework 8
+c21a497 Edited CHANGELOG
+9e5e70c Fix Infinite Loop bug generating pokemon
 12815e8 Add proper matching experience to pokemon
 3c0adeb Add Displays and Leveling Up for PC
 3251bbd Added Manhatten Distance for Pokemon Generation
