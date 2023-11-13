@@ -738,14 +738,14 @@ void level_up_pokemon(char_pokemon *p) {
   if(p->level == 100) {
     return;
   }
+  p->level++;
   p->hp = floor(((p->base_hp + p->hp_iv) * 2 * (p->level)) / 100) + (p->level) + 10;
   p->attack = floor(((p->base_attack + p->attack_iv) * 2 * (p->level)) / 100) + 5;
   p->defense = floor(((p->base_defense + p->defense_iv) * 2 * (p->level)) / 100) + 5;
   p->special_attack = floor(((p->base_special_attack + p->special_attack_iv) * 2 * (p->level)) / 100) + 5;
   p->special_defense = floor(((p->base_special_defense + p->special_defense_iv) * 2 * (p->level)) / 100) + 5;
   p->speed = floor(((p->base_speed + p->speed_iv) * 2 * (p->level)) / 100) + 5;
-  p->level++;
-  p->exp = p->exp_level_thresholds[p->level].experience;
+  p->exp = p->exp_level_thresholds[p->level - 1].experience;
 }
 // MAKE NEW POKEMON HERE
 char_pokemon generate_new_pokemon(char_pokemon p) {
@@ -935,7 +935,7 @@ void new_hiker()
   c->seq_num = world.char_seq_num++;
   c->num_pokemon = 0;
   // Generate Pokemon for NPCs
-  int generate_extra_pokemon = rand() % 10 > 6 ? 0 : 1;
+  int generate_extra_pokemon = rand() % 10 >= 6 ? 0 : 1;
   int num_pokemons = world.pc.num_pokemon + generate_extra_pokemon;
   int i;
   // std::ofstream myfile;
@@ -1022,7 +1022,6 @@ void new_swimmer()
     c->current_pokemon[i] = generate_new_pokemon(c->current_pokemon[i]);
     c->num_pokemon++;
   }
-  heap_insert(&world.cur_map->turn, c);
   heap_insert(&world.cur_map->turn, c);
 }
 
