@@ -1,4 +1,5 @@
-12815e8 (HEAD -> main, origin/main, origin/HEAD) Add proper matching experience to pokemon
+9e5e70c (HEAD -> main, origin/main, origin/HEAD) Fix Infinite Loop bug generating pokemon
+12815e8 Add proper matching experience to pokemon
 3c0adeb Add Displays and Leveling Up for PC
 3251bbd Added Manhatten Distance for Pokemon Generation
 f1fd0d6 Fix pokemon move generation bug
@@ -11,4 +12,5 @@ f5249ee Can generate pokemon for characters now
 287b81f Start Random Pokemon Generation + README
 30607a7 Add pokemon objects to characters
 f4cd27f Init Homework 8
+
 
