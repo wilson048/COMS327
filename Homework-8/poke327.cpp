@@ -750,7 +750,7 @@ void level_up_pokemon(char_pokemon *p) {
 // MAKE NEW POKEMON HERE
 char_pokemon generate_new_pokemon(char_pokemon p) {
   // Choose random pokemon to become
-  int rand_pokemon = (rand()) % 1092;
+  int rand_pokemon = ((rand()) % 1092) + 1;
   p.poke_id = pokemon[rand_pokemon].id;
   p.species_id = pokemon[rand_pokemon].species_id;
   p.exp = pokemon[rand_pokemon].base_experience;
@@ -798,7 +798,6 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
     // Cap level to 100
     p.level = ((rand()) % (100 - ((manhattan_distance - 200) / 2) + 1)) + ((manhattan_distance - 200) / 2);
   } 
-  p.exp = p.exp_level_thresholds[p.level - 1].experience;
 
   // Generate Possible moves here
   int possible_moves[250];
@@ -831,7 +830,7 @@ char_pokemon generate_new_pokemon(char_pokemon p) {
       p.level++;
     }
   } while(j == 0);
-
+  p.exp = p.exp_level_thresholds[p.level - 1].experience;
   // TODO: Fix 0 move error causing division by 0
   int move_1, move_2;
   // Only one move found
