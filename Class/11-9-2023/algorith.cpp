@@ -19,7 +19,15 @@ class is_equal {
         int value;
     public:
         is_equal(int i) : value(i) {}
-        bool operator(int)(int i) { return i == value; }
+        bool operator()(int i) { return i == value; }
+};
+
+void print_ascending() {
+    static int last = -1;
+    if(i > last) {
+        cout << i << endl;
+        last = i;
+    }
 }
 int main(int argc, char *argv[]) {
     vector<int> v;
@@ -41,13 +49,15 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // for(s = v.begin(), e = v.end(); s != e;) {
-    //     s = find_if(s, e, is_67);
-    //     if(s != v.end()) {
-    //         cout << *s << endl;
-    //         s++;
-    //     }
-    // }
+    for(s = v.begin(), e = v.end(); s != e;) {
+        s = find_if(s, e, is_equal(99));
+        if(s != v.end()) {
+            cout << *s << endl;
+            s++;
+        }
+    }
+
+    for_each(v.begin(), v.end(), print_ascending);
     // vi = find_if(v.begin(), v.end(), is_42);
     
     // else {
