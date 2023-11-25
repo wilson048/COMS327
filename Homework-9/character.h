@@ -40,6 +40,7 @@ class character {
   int next_turn;
   int seq_num;
   class pokemon *buddy[6];
+  class pokemon *current_pokemon;
 };
 
 class npc : public character {
@@ -53,6 +54,9 @@ class npc : public character {
 class pc : public character {
 public:
   virtual ~pc() {}
+  int revives;
+  int pokeballs;
+  int potions;
 };
 
 /* character is defined in poke327.h to allow an instance of character
