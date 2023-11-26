@@ -387,125 +387,90 @@ void io_battle(character *aggressor, character *defender)
 {
   std::string s;
   npc *n = (npc *) ((aggressor == &world.pc) ? defender : aggressor);
-  int i;
+  // int i;
 
-  if (!n->buddy[1]) {
-    s = "My pokemon is " + std::string(n->buddy[0]->get_species());
-  } else {
-    s = "My pokemon are " + std::string(n->buddy[0]->get_species());
-  }
+  // if (!n->buddy[1]) {
+  //   s = "My pokemon is " + std::string(n->buddy[0]->get_species());
+  // } else {
+  //   s = "My pokemon are " + std::string(n->buddy[0]->get_species());
+  // }
 
-  for (i = 1; i < 6 && n->buddy[i]; i++) {
-    s += ", ";
-    if (i == 4 || !n->buddy[i + 1]) {
-      s += "and ";
-    }
-    s += n->buddy[i]->get_species();
-  }
+  // for (i = 1; i < 6 && n->buddy[i]; i++) {
+  //   s += ", ";
+  //   if (i == 4 || !n->buddy[i + 1]) {
+  //     s += "and ";
+  //   }
+  //   s += n->buddy[i]->get_species();
+  // }
     
-  s += ".";
+  // s += ".";
 
-  io_queue_message("%s", s.c_str());
+  // io_queue_message("%s", s.c_str());
 
   n->defeated = 1;
   if (n->ctype == char_hiker || n->ctype == char_rival) {
     n->mtype = move_wander;
   }
 
-  // int start_list = 0;
-  // int end_list = 9;
-  // int leaveTrainerList = 0;
-  // int x, y;
-  // // Run through character list
-  // int total_trainers = 0;
-  // // Keep track of position on list
-  // int cursor = 0;
-  // // Take player input
-  // int playerInput;
-  
-  // // Create trainers menu
-  // WINDOW * menuwin = newwin(world.char_seq_num, 0, 0, 0);
-  // clear();
-  // refresh();
-  // // wrefresh(menuwin);
-  // keypad(menuwin, 1);
-  
-  // character_t *character_list[world.char_seq_num];
-  // // Search for trainers on the board
-  // for(y = 0; y < MAP_Y; y++) {
-  //     for(x = 0; x < MAP_X; x++) {
-  //       if(world.cur_map->cmap[y][x]) {
-  //         character_list[total_trainers] = world.cur_map->cmap[y][x];
-  //         total_trainers++;
-  //     }
-  //   }
-  // }
-  // // Calculate location from player
-  // int dist_y;
-  // int dist_x;
-  // while(!leaveTrainerList) {
-  //   wclear(menuwin);
-  //   total_trainers = 0;
-  //   for(x = start_list; x <= end_list; x++) {
-  //     if(x == cursor) {
-  //       wattron(menuwin, A_REVERSE);
-  //     }
-  //     // Print out Player on players on the map
-  //     if(character_list[x] == &world.pc) {
-  //       mvwprintw(menuwin, total_trainers, 1, "Player %c at X: %d Y: %d", character_list[x]->symbol, 
-  //       character_list[x]->pos[dim_x], 
-  //       character_list[y]->pos[dim_y]);
-  //     }
-  //     else {
-  //       // Calculatons done here
-  //       dist_y = character_list[x]->pos[dim_y] - world.pc.pos[dim_y];
-  //       dist_x = character_list[x]->pos[dim_x] - world.pc.pos[dim_x];
-  //       mvwprintw(menuwin, total_trainers, 1, "Trainer %c, %d %s, %d %s", character_list[x]->symbol, 
-  //       abs(dist_y), 
-  //       dist_y < 0 ? "North" : "South", 
-  //       abs(dist_x), 
-  //       dist_x < 0 ? "West" : "East");
-  //     }
-  //     wattroff(menuwin, A_REVERSE);
-  //     total_trainers++;
-  //   }
-  //   total_trainers = 0;
-  //   // Output board
-  //   wrefresh(menuwin);
-  //   playerInput = wgetch(menuwin);
-  //   if(playerInput == 27) {
-  //     leaveTrainerList = 1;
-  //   }
-  //   switch (playerInput) {
-  //     case 27:
-  //       leaveTrainerList = 1;
-  //       break;
-  //     case KEY_UP:
-  //       if(cursor == start_list && start_list != 0) {
-  //         start_list--;
-  //         end_list--;
-  //       }
-  //       if(cursor != 0) {
-  //         cursor--;
-  //       }
-  //       break;
-  //     case KEY_DOWN:
-  //       if(cursor == end_list && end_list != world.char_seq_num - 1) {
-  //         start_list++;
-  //         end_list++;
-  //       }
-  //       if(cursor != world.char_seq_num - 1) {
-  //         cursor++;
-  //       }
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }
-  // wclear(menuwin);
+  int leaveBattle = 0;
+  int x;
+  // Keep track of highlight on list
+  int optionsHighlight;
+  // Keep track of position on list
+  int cursor = 0;
+  // Take player input
+  int playerInput;
+  // Create trainers menu
+  WINDOW * menuwin = newwin(world.char_seq_num, 0, 0, 0);
+  clear();
+  refresh();
   // wrefresh(menuwin);
-  // clear();
-  // refresh();
+  keypad(menuwin, 1);
+  
+  // Calculate location from player
+  const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
+  const char *bag_options[3] = {"Revives", "Potions", "Pokeballs"};
+  cons
+  while(!leaveBattle) {
+    wclear(menuwin);
+    optionsHighlight = 0;
+    for(x = 0; x <= 3; x++) {
+      if(x == cursor) {
+        wattron(menuwin, A_REVERSE);
+      }
+      mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+      wattroff(menuwin, A_REVERSE);
+      optionsHighlight++;
+    }
+    // total_trainers = 0;
+    // Output board
+    wrefresh(menuwin);
+    playerInput = wgetch(menuwin);
+    if(playerInput == 27) {
+      leaveBattle = 1;
+    }
+    switch (playerInput) {
+      case 27:
+        leaveBattle = 1;
+        break;
+      case KEY_UP:
+        if(cursor != 0) {
+          cursor--;
+        }
+        break;
+      case KEY_DOWN:
+        if(cursor != world.char_seq_num - 1) {
+          cursor++;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  wclear(menuwin);
+  wrefresh(menuwin);
+  clear();
+  refresh();
 }
 
 uint32_t move_pc_dir(uint32_t input, pair_t dest)
@@ -788,6 +753,7 @@ void io_choose_starter()
 
     if (i == '1' || i == '2' || i == '3') {
       world.pc.buddy[0] = choice[(i - '0') - 1];
+      world.pc.current_pokemon = choice[(i - '0') - 1];
       delete choice[(i - '0') % 3];
       delete choice[((i - '0') + 1) % 3];
       again = false;

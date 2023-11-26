@@ -744,6 +744,7 @@ static void make_buddies(npc *c)
   for (; i < 6; i++) {
     c->buddy[i] = NULL;
   }
+  c->current_pokemon = c->buddy[0];
 }
 
 void new_hiker()
@@ -913,6 +914,11 @@ void init_pc()
   world.pc.pos[dim_y] = y;
   world.pc.symbol = PC_SYMBOL;
 
+  // Give pc starting items
+  world.pc.pokeballs = 3;
+  world.pc.revives = 2;
+  world.pc.potions = 10;
+  
   world.cur_map->cmap[y][x] = &world.pc;
   world.pc.next_turn = 0;
 

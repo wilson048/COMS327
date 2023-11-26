@@ -23,11 +23,15 @@ class pokemon {
   int pokemon_species_index;
   int IV[6];
   int effective_stat[6];
+  int current_hp;
+  
   bool shiny;
   pokemon_gender gender;
  public:
   pokemon();
   pokemon(int level);
+  int get_current_hp();
+  void set_current_hp(int new_hp);
   const char *get_species() const;
   int get_hp() const;
   int get_atk() const;

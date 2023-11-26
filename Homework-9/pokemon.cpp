@@ -110,6 +110,7 @@ pokemon::pokemon(int level) : level(level)
     effective_stat[i] = 5 + ((s->base_stat[i] + IV[i]) * 2 * level) / 100;
     if (i == 0) { // HP
       effective_stat[i] += 5 + level;
+      set_current_hp(effective_stat[i]);
     }
   }
 
@@ -117,6 +118,13 @@ pokemon::pokemon(int level) : level(level)
   gender = ((rand() & 0x1) ? gender_female : gender_male);
 }
 
+void pokemon::set_current_hp(int new_hp) {
+  current_hp = new_hp;
+}
+
+int pokemon::get_current_hp() {
+  return current_hp;
+}
 const char *pokemon::get_species() const
 {
   return species[pokemon_species_index].identifier;
