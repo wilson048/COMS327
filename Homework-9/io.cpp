@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <climits>
 #include <string>
+#include <cstring>
 
 #include "io.h"
 #include "character.h"
@@ -413,7 +414,7 @@ void io_battle(character *aggressor, character *defender)
   }
 
   int leaveBattle = 0;
-  int x, y;
+  int x;
   // Keep track of highlight on list
   int optionsHighlight;
   // Keep track of position on list
@@ -429,21 +430,31 @@ void io_battle(character *aggressor, character *defender)
   // Inital battle menu options
   const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
   // Bag Options
-  const char *bag_options[3] = {"Revives", "Potions", "Pokeballs"};
-  // Pokemon switch options
-  class pokemon *pokemon_options[6];
-  // Pokemon heal options
-  for(x = 0, y = 0; x < 6; x++, y++) {
-    if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
-      pokemon_options[y] = world.pc.buddy[x];
-    }
-    // else {
-    //   pokemon_options[y] == NULL;
-    // }
-  }
+  // const char *bag_options[3] = {"Revives", "Potions", "Pokeballs"};
+  // // Pokemon switch options
+  // class pokemon *pokemon_options[6];
+  // // Pokemon heal options
+  // for(x = 0, y = 0; x < 6; x++, y++) {
+  //   if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
+  //     pokemon_options[y] = world.pc.buddy[x];
+  //   }
+  //   // else {
+  //   //   pokemon_options[y] == NULL;
+  //   // }
+  // }
   // TODO: Pokemon Revive options
   while(!leaveBattle) {
     wclear(menuwin);
+    mvwprintw(menuwin, 5, 20, "Player's current pokemon %s", world.pc.current_pokemon->get_species());
+    mvwprintw(menuwin, 6, 20, "HP %d / %d", world.pc.current_pokemon->get_current_hp(), world.pc.current_pokemon->get_hp());
+    if(n->current_pokemon != NULL) {
+      mvwprintw(menuwin, 9, 20, "NPC's current pokemon %s", n->current_pokemon->get_species());
+      mvwprintw(menuwin, 10, 20, "HP %d / %d", n->current_pokemon->get_current_hp(), n->current_pokemon->get_hp());
+    }
+    else {
+      mvwprintw(menuwin, 9, 20, "NO POKEMON FOUND ERROR");
+    }
+    
     optionsHighlight = 0;
     for(x = 0; x <= 3; x++) {
       if(x == cursor) {
@@ -470,8 +481,23 @@ void io_battle(character *aggressor, character *defender)
         }
         break;
       case KEY_DOWN:
-        if(cursor != world.char_seq_num - 1) {
+        if(cursor != 3) {
           cursor++;
+        }
+        break;
+      case 10:
+      // const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
+        if(!(strcmp(options[cursor], "Fight"))) {
+          leaveBattle = 1;
+        }
+        if(!(strcmp(options[cursor], "Bag"))) {
+          leaveBattle = 1;
+        }
+        if(!(strcmp(options[cursor], "Pokemon"))) {
+          leaveBattle = 1;
+        }
+        if(!(strcmp(options[cursor], "Run"))) {
+          leaveBattle = 1;
         }
         break;
       default:
@@ -764,6 +790,7 @@ void io_choose_starter()
 
     if (i == '1' || i == '2' || i == '3') {
       world.pc.buddy[0] = choice[(i - '0') - 1];
+      // Assign starter as current pokemon
       world.pc.current_pokemon = choice[(i - '0') - 1];
       delete choice[(i - '0') % 3];
       delete choice[((i - '0') + 1) % 3];
