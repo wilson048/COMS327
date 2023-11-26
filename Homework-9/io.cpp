@@ -413,7 +413,7 @@ void io_battle(character *aggressor, character *defender)
   }
 
   int leaveBattle = 0;
-  int x;
+  int x, y;
   // Keep track of highlight on list
   int optionsHighlight;
   // Keep track of position on list
@@ -426,11 +426,22 @@ void io_battle(character *aggressor, character *defender)
   refresh();
   // wrefresh(menuwin);
   keypad(menuwin, 1);
-  
-  // Calculate location from player
+  // Inital battle menu options
   const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
+  // Bag Options
   const char *bag_options[3] = {"Revives", "Potions", "Pokeballs"};
-  cons
+  // Pokemon switch options
+  class pokemon *pokemon_options[6];
+  // Pokemon heal options
+  for(x = 0, y = 0; x < 6; x++, y++) {
+    if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
+      pokemon_options[y] = world.pc.buddy[x];
+    }
+    // else {
+    //   pokemon_options[y] == NULL;
+    // }
+  }
+  // TODO: Pokemon Revive options
   while(!leaveBattle) {
     wclear(menuwin);
     optionsHighlight = 0;

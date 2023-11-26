@@ -110,6 +110,7 @@ pokemon::pokemon(int level) : level(level)
     effective_stat[i] = 5 + ((s->base_stat[i] + IV[i]) * 2 * level) / 100;
     if (i == 0) { // HP
       effective_stat[i] += 5 + level;
+      // Also set a new current HP value
       set_current_hp(effective_stat[i]);
     }
   }
