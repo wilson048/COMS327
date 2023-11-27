@@ -111,7 +111,7 @@ pokemon::pokemon(int level) : level(level)
     if (i == 0) { // HP
       effective_stat[i] += 5 + level;
       // Also set a new current HP value
-      set_current_hp(effective_stat[i]);
+      current_hp = effective_stat[i];
     }
   }
 
@@ -178,4 +178,16 @@ const char *pokemon::get_move(int i) const
   } else {
     return "";
   }
+}
+
+int pokemon::get_move_index (int i) const {
+  if (i < 4 && move_index[i]) {
+    return move_index[i];
+  } else {
+    return 0;
+  }
+}
+int pokemon::get_level() const
+{
+  return level;
 }

@@ -42,6 +42,8 @@ class pokemon {
   const char *get_gender_string() const;
   bool is_shiny() const;
   const char *get_move(int i) const;
+  int get_move_index (int i) const;
+  int get_level () const;
 };
 
 #endif

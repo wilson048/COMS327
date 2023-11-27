@@ -10,6 +10,7 @@
 #include "character.h"
 #include "poke327.h"
 #include "pokemon.h"
+#include "db_parse.h"
 
 typedef struct io_message {
   /* Will print " --more-- " at end of line when another message follows. *
@@ -372,14 +373,25 @@ static void io_list_trainers()
 
 void io_pokemart()
 {
-  mvprintw(0, 0, "Welcome to the Pokemart.  Could I interest you in some Pokeballs?");
+  mvprintw(0, 0, "Welcome to the Pokemart.  Here's some supplies");
+  // Refill pokemon supplies
+  world.pc.pokeballs = 3;
+  world.pc.potions = 10;
+  world.pc.revives = 2;
   refresh();
   getch();
 }
 
 void io_pokemon_center()
 {
-  mvprintw(0, 0, "Welcome to the Pokemon Center.  How can Nurse Joy assist you?");
+  int x;
+  // Fully heal all party Pokemon
+  for(x = 0; x < 6; x++) {
+    if(world.pc.buddy[x] != NULL) {
+      world.pc.buddy[x]->set_current_hp(world.pc.buddy[x]->get_hp());
+    }
+  }
+  mvprintw(0, 0, "Welcome to the Pokemon Center.  Your Pokemon have been resort to fall health");
   refresh();
   getch();
 }
@@ -431,29 +443,24 @@ void io_battle(character *aggressor, character *defender)
   const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
   // Bag Options
   // const char *bag_options[3] = {"Revives", "Potions", "Pokeballs"};
-  // // Pokemon switch options
-  // class pokemon *pokemon_options[6];
-  // // Pokemon heal options
-  // for(x = 0, y = 0; x < 6; x++, y++) {
-  //   if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
-  //     pokemon_options[y] = world.pc.buddy[x];
-  //   }
-  //   // else {
-  //   //   pokemon_options[y] == NULL;
-  //   // }
-  // }
+  
   // TODO: Pokemon Revive options
   while(!leaveBattle) {
+    // Move stuff
+    int num_opponent_moves = 0;
+    int player_move_index;
+    int opponent_move_index;
+    int move_cursor = 0;
+    // players typically go first, check for any changes
+    bool player_first = true;
+    // Players may not use items or switch Pokemon, so check for this change
+    bool ignore_player_move = false;
+
     wclear(menuwin);
-    mvwprintw(menuwin, 5, 20, "Player's current pokemon %s", world.pc.current_pokemon->get_species());
-    mvwprintw(menuwin, 6, 20, "HP %d / %d", world.pc.current_pokemon->get_current_hp(), world.pc.current_pokemon->get_hp());
-    if(n->current_pokemon != NULL) {
-      mvwprintw(menuwin, 9, 20, "NPC's current pokemon %s", n->current_pokemon->get_species());
-      mvwprintw(menuwin, 10, 20, "HP %d / %d", n->current_pokemon->get_current_hp(), n->current_pokemon->get_hp());
-    }
-    else {
-      mvwprintw(menuwin, 9, 20, "NO POKEMON FOUND ERROR");
-    }
+    mvwprintw(menuwin, 12, 20, "Player's current pokemon %s", world.pc.current_pokemon->get_species());
+    mvwprintw(menuwin, 13, 20, "HP %d / %d", world.pc.current_pokemon->get_current_hp(), world.pc.current_pokemon->get_hp());
+    mvwprintw(menuwin, 15, 20, "NPC's current pokemon %s", n->current_pokemon->get_species());
+    mvwprintw(menuwin, 16, 20, "HP %d / %d", n->current_pokemon->get_current_hp(), n->current_pokemon->get_hp());
     
     optionsHighlight = 0;
     for(x = 0; x <= 3; x++) {
@@ -486,22 +493,192 @@ void io_battle(character *aggressor, character *defender)
         }
         break;
       case 10:
-      // const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
+        
+        // const char *options[4] = {"Fight", "Bag", "Pokemon", "Run"};
         if(!(strcmp(options[cursor], "Fight"))) {
-          leaveBattle = 1;
+          // Move options
+          int move_options[3];
+          
+          int move_highlight;
+          // mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+          // 0 - 3, 1
+          int in_move_menu = 1;
+          // Load potential moves onto temporary array
+          int num_move_options = 1;
+          for(x = 0; x < 3; x++) {
+            if(strcmp(world.pc.current_pokemon->get_move(x), "")) {
+              move_options[num_move_options] = world.pc.current_pokemon->get_move_index(x);
+              num_move_options++;
+            }
+          }
+          wrefresh(menuwin);
+          // Menu options for switching pokemon
+          while (in_move_menu) {
+            move_highlight = 0;
+            // Cursor logic 
+            for(x = 0; x < num_move_options; x++) {
+              if(x == move_cursor) {
+                wattron(menuwin, A_REVERSE);
+              }
+              if(x == 0) {
+                mvwprintw(menuwin, move_highlight, 10, "Back");
+              }
+              else {
+                mvwprintw(menuwin, move_highlight, 10, "%s", moves[move_options[x]].identifier);
+              }
+              wattroff(menuwin, A_REVERSE);
+              move_highlight++;
+            }
+            playerInput = wgetch(menuwin);
+            switch (playerInput) {
+              // Enter key
+              case 10:
+                if(move_cursor != 0) {
+                  // Move logic
+                  player_move_index = world.pc.current_pokemon->get_move_index(move_options[move_cursor]);
+                  
+                }
+                in_move_menu = 0; 
+                break;
+              // Up and down logic
+              case KEY_UP:
+                if(move_cursor != 0) {
+                  move_cursor--;
+                }
+                break;
+              case KEY_DOWN:
+                if(move_cursor != num_move_options - 1) {
+                  move_cursor++;
+                }
+                break;
+            }
+          }
+          // Clear menu
+          wclear(menuwin);
         }
         if(!(strcmp(options[cursor], "Bag"))) {
+          ignore_player_move = true;
           leaveBattle = 1;
         }
+        // Pokemon switch sub-menu
         if(!(strcmp(options[cursor], "Pokemon"))) {
-          leaveBattle = 1;
+          ignore_player_move = true;
+          // Pokemon switch options
+          class pokemon *pokemon_options[6];
+          pokemon_options[0] = world.pc.current_pokemon;
+          int switch_cursor = 0;
+          int swtich_highlight;
+          // mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+          // 0 - 3, 1
+          int in_switch_menu = 1;
+          // Load potential switch candidates onto temporary array
+          int num_poke_options = 1;
+          for(x = 0; x < 6; x++) {
+            if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0 && world.pc.buddy[x] != world.pc.current_pokemon) {
+              pokemon_options[num_poke_options] = world.pc.buddy[x];
+              num_poke_options++;
+            }
+          }
+          wrefresh(menuwin);
+          // Menu options for switching pokemon
+          while (in_switch_menu) {
+            swtich_highlight = 0;
+            // Cursor logic 
+            for(x = 0; x < num_poke_options; x++) {
+              if(x == switch_cursor) {
+                wattron(menuwin, A_REVERSE);
+              }
+              if(x == 0) {
+                mvwprintw(menuwin, swtich_highlight, 10, "Back");
+              }
+              else {
+                mvwprintw(menuwin, swtich_highlight, 10, "%s", pokemon_options[x]->get_species());
+              }
+              wattroff(menuwin, A_REVERSE);
+              swtich_highlight++;
+            }
+            playerInput = wgetch(menuwin);
+            switch (playerInput) {
+              // Enter key
+              case 10:
+                if(switch_cursor != 0) {
+                  world.pc.current_pokemon = pokemon_options[switch_cursor];
+                }
+                in_switch_menu = 0; 
+                break;
+              // Up and down logic
+              case KEY_UP:
+                if(switch_cursor != 0) {
+                  switch_cursor--;
+                }
+                break;
+              case KEY_DOWN:
+                if(switch_cursor != num_poke_options - 1) {
+                  switch_cursor++;
+                }
+                break;
+            }
+          }
+          // Clear menu
+          wclear(menuwin);
         }
+        // Do nothing on a run
         if(!(strcmp(options[cursor], "Run"))) {
-          leaveBattle = 1;
+
         }
         break;
       default:
         break;
+    }
+    for(x = 0; x < 3; x++) {
+      if(strcmp(n->current_pokemon->get_move(x), "")) {
+        num_opponent_moves++;
+      }
+    }
+      
+    int damage = 0;
+    // Player goes first
+    if(!ignore_player_move && player_first) {
+      if(rand() % 100 < moves[player_move_index].accuracy) {
+        // Damage formula
+        damage = ((((2 * world.pc.current_pokemon->get_level()) / 5) + 2) * moves[player_move_index].power * (world.pc.current_pokemon->get_atk() / n->current_pokemon->get_def()));
+        damage = (int) damage / 50;
+        damage += 2;
+        if(rand() % 100 < 10) {
+          damage = damage * 1.5;
+        }
+        damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
+        if(damage >= n->current_pokemon->get_current_hp()) {
+          n->current_pokemon->set_current_hp(0);
+          bool pokemon_left = false;
+          for(x = 0; x < 6; x++) {
+            if(n->buddy[x] != NULL && n->buddy[x]->get_current_hp() != 0) {
+              n->current_pokemon = n->buddy[x];
+              pokemon_left = true;
+              break;
+            }
+          }
+          if(!pokemon_left) {
+            leaveBattle = 1;
+          }
+        }
+        else {
+          n->current_pokemon->set_current_hp(n->current_pokemon->get_current_hp() - damage);
+        }
+        
+        
+      }
+      else {
+      
+      }
+    }
+    // Opponent goes first
+    else if (!ignore_player_move && player_first) {
+
+    }
+    // Opponent goes after item/pokemon is switched
+    else {
+
     }
   }
   wclear(menuwin);
@@ -746,20 +923,20 @@ void io_handle_input(pair_t dest)
 
 void io_encounter_pokemon()
 {
-  pokemon *p;
+  // class pokemon *p;
 
-  p = new pokemon();
+  // p = new pokemon();
 
-  io_queue_message("%s%s%s: HP:%d ATK:%d DEF:%d SPATK:%d SPDEF:%d SPEED:%d %s",
-                   p->is_shiny() ? "*" : "", p->get_species(),
-                   p->is_shiny() ? "*" : "", p->get_hp(), p->get_atk(),
-                   p->get_def(), p->get_spatk(), p->get_spdef(),
-                   p->get_speed(), p->get_gender_string());
-  io_queue_message("%s's moves: %s %s", p->get_species(),
-                   p->get_move(0), p->get_move(1));
+  // io_queue_message("%s%s%s: HP:%d ATK:%d DEF:%d SPATK:%d SPDEF:%d SPEED:%d %s",
+  //                  p->is_shiny() ? "*" : "", p->get_species(),
+  //                  p->is_shiny() ? "*" : "", p->get_hp(), p->get_atk(),
+  //                  p->get_def(), p->get_spatk(), p->get_spdef(),
+  //                  p->get_speed(), p->get_gender_string());
+  // io_queue_message("%s's moves: %s %s", p->get_species(),
+  //                  p->get_move(0), p->get_move(1));
 
-  // Later on, don't delete if captured
-  delete p;
+  // // Later on, don't delete if captured
+  // delete p;
 }
 
 void io_choose_starter()
