@@ -1,0 +1,12 @@
+a6ed914 (HEAD -> main) Make B command for overworld bag
+a390486 Added Pokemon catching
+924ef27 Fix not forcing switch on pokemon faint
+ad94a70 Added Bag Items
+fcb45af Complete fight mechanic
+d7904c3 Added a battle sequence
+246bbea Add Pokemon Switch Menu in Battle
+ed5cc40 Add pokemon display
+781b2b7 (origin/main, origin/HEAD) Add menu options for battles
+858a050 Start on Menu
+9eb1709 Add some base stuff
+3258512 Init Homework-9

@@ -1,0 +1,8 @@
+This homework required by the class COMS327 is a program
+that allows the player to battle with other trainers in the game, much 
+like the mainline pokemon games with many features such as fight, bag, pokemon switch, and fleeing.
+
+To use the sub menus within the pokemon battles and the bag, use the up arrow key to move up the list
+and the down arrow key to move down the list. Press enter on the keyboard in order to select an option.
+
+Note that the game may freeze on rare occurances when moving into different maps. These occurences have been pretty rare though.
