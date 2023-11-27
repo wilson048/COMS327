@@ -717,8 +717,8 @@ void io_battle(character *aggressor, character *defender)
                           case 10:
                             if(switch_cursor != 0) {
                               world.pc.current_pokemon = pokemon_options[switch_cursor];
+                              in_switch_menu = 0; 
                             }
-                            in_switch_menu = 0; 
                             break;
                           // Up and down logic
                           case KEY_UP:
@@ -803,7 +803,7 @@ void io_battle(character *aggressor, character *defender)
                         num_poke_options++;
                       }
                     }
-                    wrefresh(menuwin);
+              
                     // Menu options for switching pokemon
                     while (in_switch_menu) {
                       swtich_highlight = 0;
@@ -821,14 +821,15 @@ void io_battle(character *aggressor, character *defender)
                         wattroff(menuwin, A_REVERSE);
                         swtich_highlight++;
                       }
+                      wrefresh(menuwin);
                       playerInput = wgetch(menuwin);
                       switch (playerInput) {
                         // Enter key
                         case 10:
                           if(switch_cursor != 0) {
                             world.pc.current_pokemon = pokemon_options[switch_cursor];
+                            in_switch_menu = 0; 
                           }
-                          in_switch_menu = 0; 
                           break;
                         // Up and down logic
                         case KEY_UP:
@@ -1231,8 +1232,8 @@ void io_battle(character *aggressor, character *defender)
                       case 10:
                         if(switch_cursor != 0) {
                           world.pc.current_pokemon = pokemon_options[switch_cursor];
+                          in_switch_menu = 0; 
                         }
-                        in_switch_menu = 0; 
                         break;
                       // Up and down logic
                       case KEY_UP:
@@ -1387,7 +1388,7 @@ void io_battle(character *aggressor, character *defender)
                       num_poke_options++;
                     }
                   }
-                  wrefresh(menuwin);
+                  
                   // Menu options for switching pokemon
                   while (in_switch_menu) {
                     swtich_highlight = 0;
@@ -1405,14 +1406,15 @@ void io_battle(character *aggressor, character *defender)
                       wattroff(menuwin, A_REVERSE);
                       swtich_highlight++;
                     }
+                    wrefresh(menuwin);
                     playerInput = wgetch(menuwin);
                     switch (playerInput) {
                       // Enter key
                       case 10:
                         if(switch_cursor != 0) {
                           world.pc.current_pokemon = pokemon_options[switch_cursor];
+                          in_switch_menu = 0; 
                         }
-                        in_switch_menu = 0; 
                         break;
                       // Up and down logic
                       case KEY_UP:
@@ -2080,7 +2082,6 @@ void io_encounter_pokemon()
                         num_poke_options++;
                       }
                     }
-                    wrefresh(menuwin);
                     // Menu options for switching pokemon
                     while (in_switch_menu) {
                       swtich_highlight = 0;
@@ -2098,14 +2099,15 @@ void io_encounter_pokemon()
                         wattroff(menuwin, A_REVERSE);
                         swtich_highlight++;
                       }
+                      in_switch_menu = 0; 
                       playerInput = wgetch(menuwin);
                       switch (playerInput) {
                         // Enter key
                         case 10:
                           if(switch_cursor != 0) {
                             world.pc.current_pokemon = pokemon_options[switch_cursor];
+                            in_switch_menu = 0;
                           }
-                          in_switch_menu = 0; 
                           break;
                         // Up and down logic
                         case KEY_UP:
@@ -2501,7 +2503,7 @@ void io_encounter_pokemon()
                       num_poke_options++;
                     }
                   }
-                  wrefresh(menuwin);
+                  
                   // Menu options for switching pokemon
                   while (in_switch_menu) {
                     swtich_highlight = 0;
@@ -2519,14 +2521,15 @@ void io_encounter_pokemon()
                       wattroff(menuwin, A_REVERSE);
                       swtich_highlight++;
                     }
+                    wrefresh(menuwin);
                     playerInput = wgetch(menuwin);
                     switch (playerInput) {
                       // Enter key
                       case 10:
                         if(switch_cursor != 0) {
                           world.pc.current_pokemon = pokemon_options[switch_cursor];
+                          in_switch_menu = 0; 
                         }
-                        in_switch_menu = 0; 
                         break;
                       // Up and down logic
                       case KEY_UP:
@@ -2681,7 +2684,7 @@ void io_encounter_pokemon()
                       num_poke_options++;
                     }
                   }
-                  wrefresh(menuwin);
+                  
                   // Menu options for switching pokemon
                   while (in_switch_menu) {
                     swtich_highlight = 0;
@@ -2699,14 +2702,15 @@ void io_encounter_pokemon()
                       wattroff(menuwin, A_REVERSE);
                       swtich_highlight++;
                     }
+                    wrefresh(menuwin);
                     playerInput = wgetch(menuwin);
                     switch (playerInput) {
                       // Enter key
                       case 10:
                         if(switch_cursor != 0) {
                           world.pc.current_pokemon = pokemon_options[switch_cursor];
+                          in_switch_menu = 0; 
                         }
-                        in_switch_menu = 0; 
                         break;
                       // Up and down logic
                       case KEY_UP:
