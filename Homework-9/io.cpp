@@ -451,6 +451,7 @@ void io_battle(character *aggressor, character *defender)
     int player_move_index;
     int opponent_move_index;
     int move_cursor = 0;
+    int damage = 0;
     // players typically go first, check for any changes
     bool player_first = true;
     // Players may not use items or switch Pokemon, so check for this change
@@ -556,6 +557,13 @@ void io_battle(character *aggressor, character *defender)
                 break;
             }
           } 
+          // Opponent chooses random move
+          for(x = 0; x < 3; x++) {
+            if(strcmp(n->current_pokemon->get_move(x), "")) {
+              num_opponent_moves++;
+            }
+          }
+          opponent_move_index = n->current_pokemon->get_move_index(rand() % num_opponent_moves);
           // Check whether player goes first by priority
           if(moves[player_move_index].priority < moves[opponent_move_index].priority) {
             player_first = false;
@@ -570,14 +578,8 @@ void io_battle(character *aggressor, character *defender)
           world.pc.current_pokemon->get_speed() == n->current_pokemon->get_speed()){
             player_first = rand() % 2 == 0 ? true : false;
           }
-          if(!cancel_move){ 
-            for(x = 0; x < 3; x++) {
-              if(strcmp(n->current_pokemon->get_move(x), "")) {
-                num_opponent_moves++;
-              }
-            }
-            opponent_move_index = n->current_pokemon->get_move_index(rand() % num_opponent_moves);
-            int damage = 0;
+          if(!cancel_move) { 
+            
             // Player goes first
             if(!ignore_player_move && player_first) {
               // Feedback for move use
@@ -623,6 +625,7 @@ void io_battle(character *aggressor, character *defender)
                     mvwprintw(menuwin, 9, 20, "Trainer sent out %s                    ", n->current_pokemon->get_species());
                     wrefresh(menuwin);
                     wgetch(menuwin);
+                    cancel_move = true;
                   }
                 }
                 else {
@@ -744,15 +747,287 @@ void io_battle(character *aggressor, character *defender)
               }
             }
             // Opponent goes first
-            else if (!ignore_player_move && player_first) {
-              
+            else if (!ignore_player_move && !player_first) {
+              // Feedback for move use
+              mvwprintw(menuwin, 9, 20, "%s used %s!                ", n->current_pokemon->get_species(), moves[opponent_move_index].identifier);
+              wrefresh(menuwin);
+              wgetch(menuwin);
+              // Damage formula
+              if(rand() % 100 < moves[opponent_move_index].accuracy) {
+                damage = ((((2 * n->current_pokemon->get_level()) / 5) + 2) * moves[opponent_move_index].power * (n->current_pokemon->get_atk() / world.pc.current_pokemon->get_def()));
+                damage = (int) damage / 50;
+                damage += 2;
+                if(rand() % 100 < 10) {
+                  damage = damage * 1.5;
+                  mvwprintw(menuwin, 9, 20, "A critical hit!                    ");
+                  wrefresh(menuwin);
+                  wgetch(menuwin);
+                }
+                // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
+                if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                  world.pc.current_pokemon->set_current_hp(0);
+                  bool pokemon_left = false;
+                  for(x = 0; x < 6; x++) {
+                    if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
+                      pokemon_left = true;
+                      break;
+                    }
+                  }
+                  // Exit the game if all pokemon are down
+                  if(!pokemon_left) {
+                    mvwprintw(menuwin, 9, 20, "You blacked out, exiting game                      ", n->current_pokemon->get_species());
+                    wrefresh(menuwin);
+                    wgetch(menuwin);
+                    leaveBattle = 1;
+                    world.quit = 1;
+                    cancel_move = true;
+                  }
+                  // Swap pokemon before next turn
+                  else {
+                    ignore_player_move = true;
+                    // Pokemon switch options
+                    class pokemon *pokemon_options[6];
+                    pokemon_options[0] = world.pc.current_pokemon;
+                    int switch_cursor = 0;
+                    int swtich_highlight;
+                    // mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+                    // 0 - 3, 1
+                    int in_switch_menu = 1;
+                    // Load potential switch candidates onto temporary array
+                    int num_poke_options = 1;
+                    for(x = 0; x < 6; x++) {
+                      if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0 && world.pc.buddy[x] != world.pc.current_pokemon) {
+                        pokemon_options[num_poke_options] = world.pc.buddy[x];
+                        num_poke_options++;
+                      }
+                    }
+                    wrefresh(menuwin);
+                    // Menu options for switching pokemon
+                    while (in_switch_menu) {
+                      swtich_highlight = 0;
+                      // Cursor logic 
+                      for(x = 0; x < num_poke_options; x++) {
+                        if(x == switch_cursor) {
+                          wattron(menuwin, A_REVERSE);
+                        }
+                        if(x == 0) {
+                          mvwprintw(menuwin, swtich_highlight, 10, "Back");
+                        }
+                        else {
+                          mvwprintw(menuwin, swtich_highlight, 10, "%s", pokemon_options[x]->get_species());
+                        }
+                        wattroff(menuwin, A_REVERSE);
+                        swtich_highlight++;
+                      }
+                      playerInput = wgetch(menuwin);
+                      switch (playerInput) {
+                        // Enter key
+                        case 10:
+                          if(switch_cursor != 0) {
+                            world.pc.current_pokemon = pokemon_options[switch_cursor];
+                          }
+                          in_switch_menu = 0; 
+                          break;
+                        // Up and down logic
+                        case KEY_UP:
+                          if(switch_cursor != 0) {
+                            switch_cursor--;
+                          }
+                          break;
+                        case KEY_DOWN:
+                          if(switch_cursor != num_poke_options - 1) {
+                            switch_cursor++;
+                          }
+                          break;
+                      }
+                    }
+                    // Clear menu
+                    wclear(menuwin);
+                    // Cancel move
+                    cancel_move = true;
+                  }
+                }
+                else {
+                  world.pc.current_pokemon->set_current_hp(world.pc.current_pokemon->get_current_hp() - damage);
+                }
+              }
+              else {
+                mvwprintw(menuwin, 9, 20, "%s's move missed!                      ", n->current_pokemon->get_species());
+                wrefresh(menuwin);
+                wgetch(menuwin);
+              }
+              if(!cancel_move) {
+                // Feedback for move use
+                mvwprintw(menuwin, 9, 20, "%s used %s!                          ", world.pc.current_pokemon->get_species(), moves[player_move_index].identifier);
+                wrefresh(menuwin);
+                wgetch(menuwin);
+                if(rand() % 100 < moves[player_move_index].accuracy) {
+                  // Damage formula
+                  damage = ((((2 * world.pc.current_pokemon->get_level()) / 5) + 2) * moves[player_move_index].power * (world.pc.current_pokemon->get_atk() / n->current_pokemon->get_def()));
+                  damage = (int) damage / 50;
+                  damage += 2;
+                  if(rand() % 100 < 10) {
+                    damage = damage * 1.5;
+                    mvwprintw(menuwin, 9, 20, "A critical hit!                      ");
+                    wrefresh(menuwin);
+                    wgetch(menuwin);
+                  }
+                  // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
+                  // Hard floor of 1 damage for moves with power
+                  if(damage == 0 && moves[player_move_index].power != 0) {
+                    damage = 1;
+                  }
+                  // Win Pokemon Battle if last pokemon logic
+                  if(damage >= n->current_pokemon->get_current_hp()) {
+                    
+                    n->current_pokemon->set_current_hp(0);
+                    bool pokemon_left = false;
+                    for(x = 0; x < 6; x++) {
+                      if(n->buddy[x] != NULL && n->buddy[x]->get_current_hp() != 0) {
+                        n->current_pokemon = n->buddy[x];
+                        pokemon_left = true;
+                        break;
+                      }
+                    }
+                    if(!pokemon_left) {
+                      mvwprintw(menuwin, 9, 20, "You won!                     ", n->current_pokemon->get_species());
+                      wrefresh(menuwin);
+                      wgetch(menuwin);
+                      leaveBattle = 1;
+                      cancel_move = true;
+                    }
+                    else {
+                      mvwprintw(menuwin, 9, 20, "Trainer sent out %s                    ", n->current_pokemon->get_species());
+                      wrefresh(menuwin);
+                      wgetch(menuwin);
+                    }
+                  }
+                  else {
+                    n->current_pokemon->set_current_hp(n->current_pokemon->get_current_hp() - damage);
+                  }
+                }
+                // Player Move missed
+                else {
+                  mvwprintw(menuwin, 9, 20, "Your Move missed!                    ");
+                  wrefresh(menuwin);
+                  wgetch(menuwin);
+                }
+              }
             }
           }
           // Clear menu
           wclear(menuwin);
         }
         if(!(strcmp(options[cursor], "Bag"))) {
-          leaveBattle = 1;
+          const char *bag_options[4] = {"Back, Revives", "Potions", "Pokeballs"};
+          
+          // BATTLE SEQUENCE
+          // Opponents move after a player uses an item / switches pokemon
+          // Feedback for move use
+          mvwprintw(menuwin, 9, 20, "%s used %s!                ", n->current_pokemon->get_species(), moves[opponent_move_index].identifier);
+          wrefresh(menuwin);
+          wgetch(menuwin);
+          // Damage formula
+          if(rand() % 100 < moves[opponent_move_index].accuracy) {
+            damage = ((((2 * n->current_pokemon->get_level()) / 5) + 2) * moves[opponent_move_index].power * (n->current_pokemon->get_atk() / world.pc.current_pokemon->get_def()));
+            damage = (int) damage / 50;
+            damage += 2;
+            if(rand() % 100 < 10) {
+              damage = damage * 1.5;
+              mvwprintw(menuwin, 9, 20, "A critical hit!                    ");
+              wrefresh(menuwin);
+              wgetch(menuwin);
+            }
+            // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
+            if(damage >= world.pc.current_pokemon->get_current_hp()) {
+              world.pc.current_pokemon->set_current_hp(0);
+              bool pokemon_left = false;
+              for(x = 0; x < 6; x++) {
+                if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
+                  pokemon_left = true;
+                  break;
+                }
+              }
+              // Exit the game if all pokemon are down
+              if(!pokemon_left) {
+                mvwprintw(menuwin, 9, 20, "You blacked out, exiting game                      ", n->current_pokemon->get_species());
+                wrefresh(menuwin);
+                wgetch(menuwin);
+                leaveBattle = 1;
+                world.quit = 1;
+              }
+              // Swap pokemon before next turn
+              else {
+                ignore_player_move = true;
+                // Pokemon switch options
+                class pokemon *pokemon_options[6];
+                pokemon_options[0] = world.pc.current_pokemon;
+                int switch_cursor = 0;
+                int swtich_highlight;
+                // mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+                // 0 - 3, 1
+                int in_switch_menu = 1;
+                // Load potential switch candidates onto temporary array
+                int num_poke_options = 1;
+                for(x = 0; x < 6; x++) {
+                  if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0 && world.pc.buddy[x] != world.pc.current_pokemon) {
+                    pokemon_options[num_poke_options] = world.pc.buddy[x];
+                    num_poke_options++;
+                  }
+                }
+                wrefresh(menuwin);
+                // Menu options for switching pokemon
+                while (in_switch_menu) {
+                  swtich_highlight = 0;
+                  // Cursor logic 
+                  for(x = 0; x < num_poke_options; x++) {
+                    if(x == switch_cursor) {
+                      wattron(menuwin, A_REVERSE);
+                    }
+                    if(x == 0) {
+                      mvwprintw(menuwin, swtich_highlight, 10, "Back");
+                    }
+                    else {
+                      mvwprintw(menuwin, swtich_highlight, 10, "%s", pokemon_options[x]->get_species());
+                    }
+                    wattroff(menuwin, A_REVERSE);
+                    swtich_highlight++;
+                  }
+                  playerInput = wgetch(menuwin);
+                  switch (playerInput) {
+                    // Enter key
+                    case 10:
+                      if(switch_cursor != 0) {
+                        world.pc.current_pokemon = pokemon_options[switch_cursor];
+                      }
+                      in_switch_menu = 0; 
+                      break;
+                    // Up and down logic
+                    case KEY_UP:
+                      if(switch_cursor != 0) {
+                        switch_cursor--;
+                      }
+                      break;
+                    case KEY_DOWN:
+                      if(switch_cursor != num_poke_options - 1) {
+                        switch_cursor++;
+                      }
+                      break;
+                  }
+                }
+                // Clear menu
+                wclear(menuwin);
+              }
+            }
+            else {
+              world.pc.current_pokemon->set_current_hp(world.pc.current_pokemon->get_current_hp() - damage);
+            }
+          }
+          else {
+            mvwprintw(menuwin, 9, 20, "%s's move missed!                      ", n->current_pokemon->get_species());
+            wrefresh(menuwin);
+            wgetch(menuwin);
+          }
         }
         // Pokemon switch sub-menu
         if(!(strcmp(options[cursor], "Pokemon"))) {
@@ -812,12 +1087,116 @@ void io_battle(character *aggressor, character *defender)
                 break;
             }
           }
-          // Clear menu
-          wclear(menuwin);
+
+          // BATTLE SEQUENCE
+          // Opponents battle after using item / switching pokemon
+          // Feedback for move use
+          mvwprintw(menuwin, 9, 20, "%s used %s!                ", n->current_pokemon->get_species(), moves[opponent_move_index].identifier);
+          wrefresh(menuwin);
+          wgetch(menuwin);
+          // Damage formula
+          if(rand() % 100 < moves[opponent_move_index].accuracy) {
+            damage = ((((2 * n->current_pokemon->get_level()) / 5) + 2) * moves[opponent_move_index].power * (n->current_pokemon->get_atk() / world.pc.current_pokemon->get_def()));
+            damage = (int) damage / 50;
+            damage += 2;
+            if(rand() % 100 < 10) {
+              damage = damage * 1.5;
+              mvwprintw(menuwin, 9, 20, "A critical hit!                    ");
+              wrefresh(menuwin);
+              wgetch(menuwin);
+            }
+            // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
+            if(damage >= world.pc.current_pokemon->get_current_hp()) {
+              world.pc.current_pokemon->set_current_hp(0);
+              bool pokemon_left = false;
+              for(x = 0; x < 6; x++) {
+                if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
+                  pokemon_left = true;
+                  break;
+                }
+              }
+              // Exit the game if all pokemon are down
+              if(!pokemon_left) {
+                mvwprintw(menuwin, 9, 20, "You blacked out, exiting game                      ", n->current_pokemon->get_species());
+                wrefresh(menuwin);
+                wgetch(menuwin);
+                leaveBattle = 1;
+                world.quit = 1;
+              }
+              // Swap pokemon before next turn
+              else {
+                ignore_player_move = true;
+                // Pokemon switch options
+                class pokemon *pokemon_options[6];
+                pokemon_options[0] = world.pc.current_pokemon;
+                int switch_cursor = 0;
+                int swtich_highlight;
+                // mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+                // 0 - 3, 1
+                int in_switch_menu = 1;
+                // Load potential switch candidates onto temporary array
+                int num_poke_options = 1;
+                for(x = 0; x < 6; x++) {
+                  if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0 && world.pc.buddy[x] != world.pc.current_pokemon) {
+                    pokemon_options[num_poke_options] = world.pc.buddy[x];
+                    num_poke_options++;
+                  }
+                }
+                wrefresh(menuwin);
+                // Menu options for switching pokemon
+                while (in_switch_menu) {
+                  swtich_highlight = 0;
+                  // Cursor logic 
+                  for(x = 0; x < num_poke_options; x++) {
+                    if(x == switch_cursor) {
+                      wattron(menuwin, A_REVERSE);
+                    }
+                    if(x == 0) {
+                      mvwprintw(menuwin, swtich_highlight, 10, "Back");
+                    }
+                    else {
+                      mvwprintw(menuwin, swtich_highlight, 10, "%s", pokemon_options[x]->get_species());
+                    }
+                    wattroff(menuwin, A_REVERSE);
+                    swtich_highlight++;
+                  }
+                  playerInput = wgetch(menuwin);
+                  switch (playerInput) {
+                    // Enter key
+                    case 10:
+                      if(switch_cursor != 0) {
+                        world.pc.current_pokemon = pokemon_options[switch_cursor];
+                      }
+                      in_switch_menu = 0; 
+                      break;
+                    // Up and down logic
+                    case KEY_UP:
+                      if(switch_cursor != 0) {
+                        switch_cursor--;
+                      }
+                      break;
+                    case KEY_DOWN:
+                      if(switch_cursor != num_poke_options - 1) {
+                        switch_cursor++;
+                      }
+                      break;
+                  }
+                }
+              }
+            }
+            else {
+              world.pc.current_pokemon->set_current_hp(world.pc.current_pokemon->get_current_hp() - damage);
+            }
+          }
+          else {
+            mvwprintw(menuwin, 9, 20, "%s's move missed!                      ", n->current_pokemon->get_species());
+            wrefresh(menuwin);
+            wgetch(menuwin);
+          }
         }
         // Do nothing on a run
         if(!(strcmp(options[cursor], "Run"))) {
-
+          leaveBattle = 1;
         }
         break;
       default:
