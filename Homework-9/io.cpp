@@ -1702,7 +1702,6 @@ void io_handle_input(pair_t dest)
         int num_bag_options = 4;
         int bag_cursor = 0;
         int playerInput;
-        refresh();
         // Menu options for switching pokemon
         while (in_bag_menu) {
           bag_highlight = 0;
@@ -1712,15 +1711,16 @@ void io_handle_input(pair_t dest)
               attron(A_REVERSE);
             }
             if(x == 0) {
-              mvprintw(bag_highlight, 10, "%s", bag_options[x]);
+              mvprintw(bag_highlight, 1, "%s", bag_options[x]);
             }
             else {
-              mvprintw(bag_highlight, 10, "%s - %d", bag_options[x], x == 1 ? world.pc.revives : x == 2 ? world.pc.potions : world.pc.pokeballs);
+              mvprintw(bag_highlight, 1, "%s - %d", bag_options[x], x == 1 ? world.pc.revives : x == 2 ? world.pc.potions : world.pc.pokeballs);
             }
             
             attroff(A_REVERSE);
             bag_highlight++;
           }
+          refresh();
           playerInput = getch();
           switch (playerInput) {
             // Enter key
@@ -1762,10 +1762,10 @@ void io_handle_input(pair_t dest)
                           attron(A_REVERSE);
                         }
                         if(x == 0) {
-                          mvprintw(revive_highlight, 25, "Back");
+                          mvprintw(revive_highlight, 17, "Back");
                         }
                         else {
-                          mvprintw(revive_highlight, 25, "%s, HP: 0/%d", pokemon_options[x]->get_species(), pokemon_options[x]->get_hp());
+                          mvprintw(revive_highlight, 17, "%s, HP: 0/%d", pokemon_options[x]->get_species(), pokemon_options[x]->get_hp());
                         }
                         attroff(A_REVERSE);
                         revive_highlight++;
@@ -1786,6 +1786,7 @@ void io_handle_input(pair_t dest)
                               pokemon_options[revive_cursor]->get_current_hp());
                             refresh();
                             getch();
+                            in_bag_menu = 0;
                           }
                           else {
                             
@@ -1843,10 +1844,10 @@ void io_handle_input(pair_t dest)
                           attron(A_REVERSE);
                         }
                         if(x == 0) {
-                          mvprintw(potion_highlight, 25, "Back");
+                          mvprintw(potion_highlight, 17, "Back");
                         }
                         else {
-                          mvprintw(potion_highlight, 25, "%s, HP: %d/%d", pokemon_options[x]->get_species(), pokemon_options[x]->get_current_hp(), pokemon_options[x]->get_hp());
+                          mvprintw(potion_highlight, 17, "%s, HP: %d/%d", pokemon_options[x]->get_species(), pokemon_options[x]->get_current_hp(), pokemon_options[x]->get_hp());
                         }
                         attroff(A_REVERSE);
                         potion_highlight++;
@@ -1870,11 +1871,9 @@ void io_handle_input(pair_t dest)
                             world.pc.potions--;
                             mvprintw(9, 20, "Healed %s to %d                    ", pokemon_options[potion_cursor]->get_species() , 
                               pokemon_options[potion_cursor]->get_current_hp());
-                            refresh();
+                            in_bag_menu = 0;
                             getch();
-                          }
-                          else {
-                            
+                            refresh();
                           }
                           in_potion_menu = 0; 
                           break;
@@ -1893,11 +1892,10 @@ void io_handle_input(pair_t dest)
                     }
                   }
                 }
-                if(!strcmp(bag_options[bag_cursor], "Pokeballs")) {
-                  
-                }
               }
-              in_bag_menu = 0; 
+              else {
+                in_bag_menu = 0;
+              }
               break;
             // Up and down logic
             case KEY_UP:
@@ -1912,11 +1910,12 @@ void io_handle_input(pair_t dest)
               break;
           }
         }
+        turn_not_consumed = 1;
+        clear();
+        io_display();
+        refresh();
         break;
       }
-      turn_not_consumed = 0;
-      clear();
-      refresh();
     default:
       /* Also not in the spec.  It's not always easy to figure out what *
        * key code corresponds with a given keystroke.  Print out any    *
