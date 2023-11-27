@@ -658,6 +658,9 @@ void io_battle(character *aggressor, character *defender)
                   }
                   // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
                   if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                    mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ");
+                    wrefresh(menuwin);
+                    wgetch(menuwin);
                     world.pc.current_pokemon->set_current_hp(0);
                     bool pokemon_left = false;
                     for(x = 0; x < 6; x++) {
@@ -693,7 +696,7 @@ void io_battle(character *aggressor, character *defender)
                           num_poke_options++;
                         }
                       }
-                      wrefresh(menuwin);
+                      
                       // Menu options for switching pokemon
                       while (in_switch_menu) {
                         swtich_highlight = 0;
@@ -711,6 +714,7 @@ void io_battle(character *aggressor, character *defender)
                           wattroff(menuwin, A_REVERSE);
                           swtich_highlight++;
                         }
+                        wrefresh(menuwin);
                         playerInput = wgetch(menuwin);
                         switch (playerInput) {
                           // Enter key
@@ -767,6 +771,9 @@ void io_battle(character *aggressor, character *defender)
                 }
                 // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
                 if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                  mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ");
+                  wrefresh(menuwin);
+                  wgetch(menuwin);
                   world.pc.current_pokemon->set_current_hp(0);
                   bool pokemon_left = false;
                   for(x = 0; x < 6; x++) {
@@ -1173,6 +1180,9 @@ void io_battle(character *aggressor, character *defender)
               }
               // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
               if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ");
+                wrefresh(menuwin);
+                wgetch(menuwin);
                 world.pc.current_pokemon->set_current_hp(0);
                 bool pokemon_left = false;
                 for(x = 0; x < 6; x++) {
@@ -1208,7 +1218,7 @@ void io_battle(character *aggressor, character *defender)
                       num_poke_options++;
                     }
                   }
-                  wrefresh(menuwin);
+                  
                   // Menu options for switching pokemon
                   while (in_switch_menu) {
                     swtich_highlight = 0;
@@ -1226,6 +1236,7 @@ void io_battle(character *aggressor, character *defender)
                       wattroff(menuwin, A_REVERSE);
                       swtich_highlight++;
                     }
+                    wrefresh(menuwin);
                     playerInput = wgetch(menuwin);
                     switch (playerInput) {
                       // Enter key
@@ -1353,6 +1364,9 @@ void io_battle(character *aggressor, character *defender)
               }
               // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
               if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ");
+                wrefresh(menuwin);
+                wgetch(menuwin);
                 world.pc.current_pokemon->set_current_hp(0);
                 bool pokemon_left = false;
                 for(x = 0; x < 6; x++) {
@@ -1674,6 +1688,235 @@ void io_handle_input(pair_t dest)
       dest[dim_x] = world.pc.pos[dim_x];
       turn_not_consumed = 0;
       break;
+    case 'B':
+    {
+        clear();
+        const char *bag_options[4] = {"Back", "Revives", "Potions", "Pokeballs"};
+        // Move options
+        int x;
+        int bag_highlight;
+        // mvwprintw(menuwin, optionsHighlight, 1, "%s", options[x]);
+        // 0 - 3, 1
+        int in_bag_menu = 1;
+        // Load potential moves onto temporary array
+        int num_bag_options = 4;
+        int bag_cursor = 0;
+        int playerInput;
+        refresh();
+        // Menu options for switching pokemon
+        while (in_bag_menu) {
+          bag_highlight = 0;
+          // Cursor logic 
+          for(x = 0; x < num_bag_options; x++) {
+            if(x == bag_cursor) {
+              attron(A_REVERSE);
+            }
+            if(x == 0) {
+              mvprintw(bag_highlight, 10, "%s", bag_options[x]);
+            }
+            else {
+              mvprintw(bag_highlight, 10, "%s - %d", bag_options[x], x == 1 ? world.pc.revives : x == 2 ? world.pc.potions : world.pc.pokeballs);
+            }
+            
+            attroff(A_REVERSE);
+            bag_highlight++;
+          }
+          playerInput = getch();
+          switch (playerInput) {
+            // Enter key
+            case 10:
+              if(bag_cursor != 0) {
+                // Revives submenu
+                if(!strcmp(bag_options[bag_cursor], "Revives")) {
+                  if(world.pc.revives == 0) {
+                    mvprintw(9, 20, "No revives left!                    ");
+                    refresh();
+                    getch();
+                    
+                  }
+                  else {
+                    // bool cancel_potion = false;
+                    // Pokemon switch options
+                    class pokemon *pokemon_options[7];
+                    pokemon_options[0] = NULL;
+                    int revive_cursor = 0;
+                    int revive_highlight;
+                    // mvprintw(optionsHighlight, 1, "%s", options[x]);
+                    // 0 - 3, 1
+                    int in_revive_menu = 1;
+                    // Load potential switch candidates onto temporary array
+                    int num_poke_options = 1;
+                    for(x = 0; x < 6; x++) {
+                      if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() == 0) {
+                        pokemon_options[num_poke_options] = world.pc.buddy[x];
+                        num_poke_options++;
+                      }
+                    }
+                    refresh();
+                    // Menu options for switching pokemon
+                    while (in_revive_menu) {
+                      revive_highlight = 0;
+                      // Cursor logic 
+                      for(x = 0; x < num_poke_options; x++) {
+                        if(x == revive_cursor) {
+                          attron(A_REVERSE);
+                        }
+                        if(x == 0) {
+                          mvprintw(revive_highlight, 25, "Back");
+                        }
+                        else {
+                          mvprintw(revive_highlight, 25, "%s, HP: 0/%d", pokemon_options[x]->get_species(), pokemon_options[x]->get_hp());
+                        }
+                        attroff(A_REVERSE);
+                        revive_highlight++;
+                      }
+                      playerInput = getch();
+                      switch (playerInput) {
+                        // Enter key
+                        case 10:
+                          if(revive_cursor != 0) {
+                            // std::ofstream myfile;
+                            // myfile.open("dary.txt");
+                            // myfile << revive_cursor << "\n";
+                            // myfile.close();
+                            // Revive pokemon
+                            pokemon_options[revive_cursor]->set_current_hp((int) pokemon_options[revive_cursor]->get_hp() / 2);
+                            world.pc.revives--;
+                            mvprintw(9, 20, "Revived %s to %d                    ", pokemon_options[revive_cursor]->get_species() , 
+                              pokemon_options[revive_cursor]->get_current_hp());
+                            refresh();
+                            getch();
+                          }
+                          else {
+                            
+                          }
+                          in_revive_menu = 0; 
+                          break;
+                        // Up and down logic
+                        case KEY_UP:
+                          if(revive_cursor != 0) {
+                            revive_cursor--;
+                          }
+                          break;
+                        case KEY_DOWN:
+                          if(revive_cursor != num_poke_options - 1) {
+                            revive_cursor++;
+                          }
+                          break;
+                      }
+                    }
+                  }
+                }
+                // Potions submenu
+                if(!strcmp(bag_options[bag_cursor], "Potions")) {
+                  if(world.pc.potions == 0) {
+                    mvprintw(9, 20, "No potions left!                    ");
+                    refresh();
+                    getch();
+                    
+                  }
+                  else {
+                    // bool cancel_potion = false;
+                    // Pokemon switch options
+                    class pokemon *pokemon_options[7];
+                    pokemon_options[0] = NULL;
+                    int potion_cursor = 0;
+                    int potion_highlight;
+                    // mvprintw(optionsHighlight, 1, "%s", options[x]);
+                    // 0 - 3, 1
+                    int in_potion_menu = 1;
+                    // Load potential switch candidates onto temporary array
+                    int num_poke_options = 1;
+                    for(x = 0; x < 6; x++) {
+                      if(world.pc.buddy[x] != NULL && world.pc.buddy[x]->get_current_hp() != 0) {
+                        pokemon_options[num_poke_options] = world.pc.buddy[x];
+                        num_poke_options++;
+                      }
+                    }
+                    refresh();
+                    // Menu options for switching pokemon
+                    while (in_potion_menu) {
+                      potion_highlight = 0;
+                      // Cursor logic 
+                      for(x = 0; x < num_poke_options; x++) {
+                        if(x == potion_cursor) {
+                          attron(A_REVERSE);
+                        }
+                        if(x == 0) {
+                          mvprintw(potion_highlight, 25, "Back");
+                        }
+                        else {
+                          mvprintw(potion_highlight, 25, "%s, HP: %d/%d", pokemon_options[x]->get_species(), pokemon_options[x]->get_current_hp(), pokemon_options[x]->get_hp());
+                        }
+                        attroff(A_REVERSE);
+                        potion_highlight++;
+                      }
+                      playerInput = getch();
+                      switch (playerInput) {
+                        // Enter key
+                        case 10:
+                          if(potion_cursor != 0) {
+                            // std::ofstream myfile;
+                            // myfile.open("dary.txt");
+                            // myfile << potion_cursor << "\n";
+                            // myfile.close();
+
+                            if(pokemon_options[potion_cursor]->get_current_hp() + 20 > pokemon_options[potion_cursor]->get_hp()) {
+                              pokemon_options[potion_cursor]->set_current_hp(pokemon_options[potion_cursor]->get_hp());
+                            }
+                            else {
+                              pokemon_options[potion_cursor]->set_current_hp(pokemon_options[potion_cursor]->get_current_hp() + 20);
+                            }
+                            world.pc.potions--;
+                            mvprintw(9, 20, "Healed %s to %d                    ", pokemon_options[potion_cursor]->get_species() , 
+                              pokemon_options[potion_cursor]->get_current_hp());
+                            refresh();
+                            getch();
+                          }
+                          else {
+                            
+                          }
+                          in_potion_menu = 0; 
+                          break;
+                        // Up and down logic
+                        case KEY_UP:
+                          if(potion_cursor != 0) {
+                            potion_cursor--;
+                          }
+                          break;
+                        case KEY_DOWN:
+                          if(potion_cursor != num_poke_options - 1) {
+                            potion_cursor++;
+                          }
+                          break;
+                      }
+                    }
+                  }
+                }
+                if(!strcmp(bag_options[bag_cursor], "Pokeballs")) {
+                  
+                }
+              }
+              in_bag_menu = 0; 
+              break;
+            // Up and down logic
+            case KEY_UP:
+              if(bag_cursor != 0) {
+                bag_cursor--;
+              }
+              break;
+            case KEY_DOWN:
+              if(bag_cursor != num_bag_options - 1) {
+                bag_cursor++;
+              }
+              break;
+          }
+        }
+        break;
+      }
+      turn_not_consumed = 0;
+      clear();
+      refresh();
     default:
       /* Also not in the spec.  It's not always easy to figure out what *
        * key code corresponds with a given keystroke.  Print out any    *
@@ -1686,6 +1929,7 @@ void io_handle_input(pair_t dest)
        * you can directly use the octal value.                          */
       mvprintw(0, 0, "Unbound key: %#o ", key);
       turn_not_consumed = 1;
+      break;
     }
     refresh();
   } while (turn_not_consumed);
@@ -1937,6 +2181,9 @@ void io_encounter_pokemon()
                   }
                   // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
                   if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                    mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ", p->get_species());
+                    wrefresh(menuwin);
+                    wgetch(menuwin);
                     world.pc.current_pokemon->set_current_hp(0);
                     bool pokemon_left = false;
                     for(x = 0; x < 6; x++) {
@@ -1972,7 +2219,7 @@ void io_encounter_pokemon()
                           num_poke_options++;
                         }
                       }
-                      wrefresh(menuwin);
+                      
                       // Menu options for switching pokemon
                       while (in_switch_menu) {
                         swtich_highlight = 0;
@@ -1990,14 +2237,15 @@ void io_encounter_pokemon()
                           wattroff(menuwin, A_REVERSE);
                           swtich_highlight++;
                         }
+                        wrefresh(menuwin);
                         playerInput = wgetch(menuwin);
                         switch (playerInput) {
                           // Enter key
                           case 10:
                             if(switch_cursor != 0) {
                               world.pc.current_pokemon = pokemon_options[switch_cursor];
+                              in_switch_menu = 0;
                             }
-                            in_switch_menu = 0; 
                             break;
                           // Up and down logic
                           case KEY_UP:
@@ -2046,6 +2294,9 @@ void io_encounter_pokemon()
                 }
                 // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
                 if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                  mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ", p->get_species());
+                  wrefresh(menuwin);
+                  wgetch(menuwin);
                   world.pc.current_pokemon->set_current_hp(0);
                   bool pokemon_left = false;
                   for(x = 0; x < 6; x++) {
@@ -2099,7 +2350,7 @@ void io_encounter_pokemon()
                         wattroff(menuwin, A_REVERSE);
                         swtich_highlight++;
                       }
-                      in_switch_menu = 0; 
+                      wrefresh(menuwin);
                       playerInput = wgetch(menuwin);
                       switch (playerInput) {
                         // Enter key
@@ -2468,6 +2719,9 @@ void io_encounter_pokemon()
               }
               // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
               if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ", p->get_species());
+                wrefresh(menuwin);
+                wgetch(menuwin);
                 world.pc.current_pokemon->set_current_hp(0);
                 bool pokemon_left = false;
                 for(x = 0; x < 6; x++) {
@@ -2649,6 +2903,9 @@ void io_encounter_pokemon()
               }
               // damage = (int) ((rand() % 100 - 85 + 1) + 85) / 100 * damage;
               if(damage >= world.pc.current_pokemon->get_current_hp()) {
+                mvwprintw(menuwin, 9, 20, "Your Pokemon fainted!                    ", p->get_species());
+                wrefresh(menuwin);
+                wgetch(menuwin);
                 world.pc.current_pokemon->set_current_hp(0);
                 bool pokemon_left = false;
                 for(x = 0; x < 6; x++) {
