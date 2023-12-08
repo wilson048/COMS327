@@ -78,7 +78,7 @@ int someone_win() {
                 player == grid[y][x+2] &&
                 player == grid[y][x+3])
                 return player;
-            if (x + 3 < 6) {
+            if (y + 3 < 6) {
                 if (player == grid[y+1][x] && // look up
                     player == grid[y+2][x] &&
                     player == grid[y+3][x])
