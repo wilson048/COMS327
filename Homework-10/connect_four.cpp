@@ -6,9 +6,9 @@
 #include <ncurses.h>
 
 typedef enum {
+    NO_ONE_TOKEN,
     PLAYER_ONE_TOKEN,
-    PLAYER_TWO_TOKEN,
-    NO_ONE_TOKEN 
+    PLAYER_TWO_TOKEN
 } type_token;
 
 int grid[6][7];
@@ -18,9 +18,6 @@ void display_board() {
     
     for(i = 5; i < 35; i += 5) {
         for(j = 15; j < 50; j += 5) {
-            // Border
-            
-            
             // Top
             mvprintw(i, j, "/---\\");
             // Sides
@@ -47,6 +44,7 @@ void display_board() {
                 }
                 attron(COLOR_PAIR(COLOR_CYAN));
             }
+            // Border
             mvprintw(i + 1, j + 4, "|");
             mvprintw(i + 2, j + 4, "|");
             mvprintw(i + 3, j + 4, "|");
@@ -65,7 +63,7 @@ void display_board() {
     refresh();
 }
 
-int someone_win() {
+int someone_win(int turn_num) {
     return NO_ONE_TOKEN;
 }
 
@@ -76,7 +74,8 @@ void play_game(const char *game_type) {
     int menu_cursor = 0;
     int is_game_over = 1;
     int turn_number = 1;
-    bool player_one_turn;
+    bool player_turn;
+    int player_num = PLAYER_ONE_TOKEN;
 
     int temp;
     while (is_game_over) {
@@ -84,11 +83,11 @@ void play_game(const char *game_type) {
         // myfile.open("dary.txt");
         // myfile << player_input << "\n";
         // myfile.close();
-        player_one_turn = true;
-        while (player_one_turn) {
+        player_turn = true;
+        while (player_turn) {
             clear();
             // Display board
-            mvprintw(1, 15, "Player 1's Turn");
+            mvprintw(1, 15, "Player %d's Turn", player_num);
             mvprintw(4, 55, "Use Left and Right arrow keys to move cursor");
             mvprintw(5, 55, "Enter to drop coin");
             mvprintw(1, 44, "Turn %d", turn_number);
@@ -104,7 +103,7 @@ void play_game(const char *game_type) {
                     while(grid[bottom_of_board][menu_cursor] != NO_ONE_TOKEN && bottom_of_board > 0) {
                         bottom_of_board--;
                     }
-                    grid[bottom_of_board][menu_cursor] = PLAYER_ONE_TOKEN;
+                    grid[bottom_of_board][menu_cursor] = player_num;
                     // Move to first open cursor
                     if(grid[0][menu_cursor] != NO_ONE_TOKEN) {
                         menu_cursor = 0;
@@ -112,7 +111,7 @@ void play_game(const char *game_type) {
                             menu_cursor++;
                         }
                     }
-                    player_one_turn = false;
+                    player_turn = false;
                     // is_game_over = 0; 
                     break;
                 // left key
@@ -147,6 +146,19 @@ void play_game(const char *game_type) {
                 }
             }
         }
+        clear();
+        // Display board
+        mvprintw(1, 15, "Player 1's Turn");
+        mvprintw(4, 55, "Use Left and Right arrow keys to move cursor");
+        mvprintw(5, 55, "Enter to drop coin");
+        mvprintw(1, 44, "Turn %d", turn_number);
+        display_board();
+        // Cursor logic 
+        mvprintw(3, (5 * (menu_cursor)) + 17 , "V");
+        refresh();
+        someone_win(turn_number);
+        // Swap player turn
+        player_num = player_num == PLAYER_ONE_TOKEN ? PLAYER_TWO_TOKEN : PLAYER_ONE_TOKEN;
         turn_number++;
         if(turn_number == 42) {
             is_game_over = 0;
