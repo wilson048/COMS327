@@ -1,6 +1,3 @@
 This homework required by the class COMS327 is a program that allows a user to play connect four on the terminal.
 Users have two options to play with, two players, or one player and a somewhat decision making computer. 
 This game will happen entirely in curses, where text input is not needed whatsoever. 
-Numerous Items will be present inside of the game, such as
-- An item to blow up coins randomly off the grid
-- An item to 

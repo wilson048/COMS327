@@ -1,0 +1,9 @@
+9d76997 (HEAD -> main) Fix connect 4 detection algorithm
+a92d15a Make Connect for with two play modes
+e1b48a7 Added Player Two Turn Swapping
+d4ea51c Make working base game logic
+0266695 Made Board Display and Main Menu
+7ae04ab (origin/main, origin/HEAD) Start making strucutre for Connect 4
+f6954df Move HW10 to correct directory
+3c5d64d Merge branch 'main' of https://github.com/wilson048/COMS327 into main
+a2406df Init Homework 10
