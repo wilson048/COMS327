@@ -65,8 +65,96 @@ void display_board() {
     refresh();
 }
 
+int someone_win() {
+    return NO_ONE_TOKEN;
+}
+
 void play_game(const char *game_type) {
-    
+    // int x;
+    int bottom_of_board;
+    int player_input;
+    int menu_cursor = 0;
+    int is_game_over = 1;
+    int turn_number = 1;
+    bool player_one_turn;
+
+    int temp;
+    while (is_game_over) {
+                // std::ofstream myfile;
+        // myfile.open("dary.txt");
+        // myfile << player_input << "\n";
+        // myfile.close();
+        player_one_turn = true;
+        while (player_one_turn) {
+            clear();
+            // Display board
+            mvprintw(1, 15, "Player 1's Turn");
+            mvprintw(4, 55, "Use Left and Right arrow keys to move cursor");
+            mvprintw(5, 55, "Enter to drop coin");
+            mvprintw(1, 44, "Turn %d", turn_number);
+            display_board();
+            // Cursor logic 
+            mvprintw(3, (5 * (menu_cursor)) + 17 , "V");
+            refresh();
+            player_input = getch();
+            switch (player_input) {
+                // Enter key
+                case 10:
+                    bottom_of_board = 5;
+                    while(grid[bottom_of_board][menu_cursor] != NO_ONE_TOKEN && bottom_of_board > 0) {
+                        bottom_of_board--;
+                    }
+                    grid[bottom_of_board][menu_cursor] = PLAYER_ONE_TOKEN;
+                    // Move to first open cursor
+                    if(grid[0][menu_cursor] != NO_ONE_TOKEN) {
+                        menu_cursor = 0;
+                        while(grid[0][menu_cursor] != NO_ONE_TOKEN) {
+                            menu_cursor++;
+                        }
+                    }
+                    player_one_turn = false;
+                    // is_game_over = 0; 
+                    break;
+                // left key
+                case 68: {
+                    if(menu_cursor != 0) {
+                        temp = menu_cursor;
+                        menu_cursor--;
+                        // Prevent Cursor from landing on full space
+                        while(grid[0][menu_cursor] != NO_ONE_TOKEN && menu_cursor > 0) {
+                            menu_cursor--;
+                        }
+                        if(menu_cursor == 0 && grid[0][menu_cursor] != NO_ONE_TOKEN) {
+                            menu_cursor = temp;
+                        }
+                    }
+                    break;
+                }
+                // Right Key
+                case 67: {
+                    if(menu_cursor != 6) {
+                        temp = menu_cursor;
+                        menu_cursor++;
+                        // Prevent Cursor from landing on full space
+                        while(grid[0][menu_cursor] != NO_ONE_TOKEN && menu_cursor < 6) {
+                            menu_cursor++;
+                        }
+                        if(menu_cursor == 6 && grid[0][menu_cursor] != NO_ONE_TOKEN) {
+                            menu_cursor = temp;
+                        }
+                    }
+                    break; 
+                }
+            }
+        }
+        turn_number++;
+        if(turn_number == 42) {
+            is_game_over = 0;
+        } 
+    }
+    clear();
+    display_board();
+    getch();
 }
 
 int main(int arg, char *argv[]) {
@@ -87,16 +175,21 @@ int main(int arg, char *argv[]) {
     int player_input;
     int menu_cursor = 0;
     int in_main_menu = 1;
-    
-    mvprintw(2, 10, " CCCCC                                       tt           44");    
-    mvprintw(3, 10, "CC    C  oooo  nn nnn  nn nnn    eee    cccc tt          444");
-    mvprintw(4, 10, "CC      oo  oo nnn  nn nnn  nn ee   e cc     tttt      44  4 ");
-    mvprintw(5, 10, "CC    C oo  oo nn   nn nn   nn eeeee  cc     tt       44444444");
-    mvprintw(6, 10, " CCCCC   oooo  nn   nn nn   nn  eeeee  ccccc  tttt       444  ");
+
+    mvprintw(2, 10, " CCCCC                                       tt           44    ");    
+    mvprintw(3, 10, "CC    C  oooo  nn nnn  nn nnn    eee    cccc tt          444    ");
+    mvprintw(4, 10, "CC      oo  oo nnn  nn nnn  nn ee   e cc     tttt      44  4    ");
+    mvprintw(5, 10, "CC    C oo  oo nn   nn nn   nn eeeee  cc     tt       44444444  ");
+    mvprintw(6, 10, " CCCCC   oooo  nn   nn nn   nn  eeeee  ccccc  tttt       444    ");
 
     mvprintw(8, 10, "Options: ");     
     mvprintw(9, 10, "Left and Right Arrow keys to move, enter to select"); 
 
+    mvprintw(13, 10, "BBBBB   yy   yy    WW      WW iii lll  sss                     CCCCC  hh              ");    
+    mvprintw(14, 10, "BB   B  yy   yy    WW      WW     lll s      oooo  nn nnn     CC    C hh      uu   uu ");
+    mvprintw(15, 10, "BBBBBB   yyyyyy    WW   W  WW iii lll  sss  oo  oo nnn  nn    CC      hhhhhh  uu   uu ");
+    mvprintw(16, 10, "BB   BB      yy     WW WWW WW iii lll     s oo  oo nn   nn    CC    C hh   hh uu   uu ");
+    mvprintw(17, 10, "BBBBBB   yyyyy      WW   WW   iii lll  sss   oooo  nn   nn     CCCCC  hh   hh  uuuu u ");
     const char *main_menu_options[2] = {"Play VS Computer", "Play VS Other Player"};
     // Menu options for switching pokemon
     while (in_main_menu) {
@@ -140,12 +233,10 @@ int main(int arg, char *argv[]) {
     int i, j;
     for(i = 0; i < 6; i++) {
         for(j = 0; j < 7; j++) {
-            grid[i][j] = PLAYER_TWO_TOKEN;
+            grid[i][j] = NO_ONE_TOKEN;
         }
     }
     clear();
-    display_board();
-    getch();
     play_game(main_menu_options[menu_cursor]);
     endwin();
     return 0;
